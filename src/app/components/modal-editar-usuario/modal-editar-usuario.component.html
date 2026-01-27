@@ -1,0 +1,164 @@
+<!-- Modal para editar usuario -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>✏️ Editar Usuario - ID: {{ usuarioSeleccionado?.idUsuario }}</h2>
+      <button class="btn-close-modal" (click)="cerrarModal()">✖</button>
+    </div>
+
+    <div class="modal-body" *ngIf="cargandoUsuario">
+      <p class="cargando-usuario">Cargando información del usuario...</p>
+    </div>
+
+    <div class="modal-body" *ngIf="!cargandoUsuario && usuarioSeleccionado">
+      <div class="usuario-grid">
+        <!-- Información Personal -->
+        <div class="usuario-section">
+          <h3>👤 Información Personal</h3>
+
+          <div class="usuario-field">
+            <label>Nombre:</label>
+            <input
+              type="text"
+              [(ngModel)]="usuarioSeleccionado.nombre"
+              placeholder="Ingrese nombre"
+            />
+          </div>
+
+          <div class="usuario-field">
+            <label>Apellido Paterno:</label>
+            <input
+              type="text"
+              [(ngModel)]="usuarioSeleccionado.app"
+              placeholder="Ingrese apellido paterno"
+            />
+          </div>
+
+          <div class="usuario-field">
+            <label>Apellido Materno:</label>
+            <input
+              type="text"
+              [(ngModel)]="usuarioSeleccionado.apm"
+              placeholder="Ingrese apellido materno"
+            />
+          </div>
+
+          <div class="usuario-field">
+            <label>Alias:</label>
+            <input
+              type="text"
+              [(ngModel)]="usuarioSeleccionado.alias"
+              placeholder="Ingrese alias"
+            />
+          </div>
+        </div>
+
+        <!-- Credenciales -->
+        <div class="usuario-section">
+          <h3>🔐 Credenciales</h3>
+
+          <div class="usuario-field">
+            <label>Usuario:</label>
+            <input
+              type="text"
+              [(ngModel)]="usuarioSeleccionado.usuario"
+              placeholder="Ingrese usuario"
+            />
+          </div>
+
+          <div class="usuario-field">
+            <label>Nueva Contraseña (opcional):</label>
+            <div class="password-wrapper">
+              <input
+                [type]="mostrarContrasena ? 'text' : 'password'"
+                [(ngModel)]="passwordNueva"
+                placeholder="Dejar vacío para mantener contraseña actual"
+              />
+              <button
+                type="button"
+                class="btn-toggle-password"
+                (click)="toggleMostrarContrasena()"
+              >
+                <i
+                  [class]="
+                    mostrarContrasena ? 'fas fa-eye-slash' : 'fas fa-eye'
+                  "
+                ></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="usuario-field">
+            <label>Rol:</label>
+            <select [(ngModel)]="usuarioSeleccionado.idRol">
+              <option [value]="undefined">Seleccione un rol</option>
+              <option *ngFor="let rol of roles" [value]="rol.idCatRol">
+                {{ rol.nombreRol }}
+              </option>
+            </select>
+          </div>
+
+          <div class="usuario-field">
+            <label>Estado:</label>
+            <select [(ngModel)]="usuarioSeleccionado.status">
+              <option [value]="1">Activo</option>
+              <option [value]="0">Inactivo</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Información Adicional (Solo lectura) -->
+        <div class="usuario-section">
+          <h3>📊 Información Adicional</h3>
+
+          <div class="usuario-field readonly">
+            <label>Fecha de Creación:</label>
+            <input
+              type="text"
+              [value]="usuarioSeleccionado.fechaHoraCreacion || 'N/A'"
+              readonly
+            />
+          </div>
+
+          <div class="usuario-field readonly">
+            <label>Último Acceso:</label>
+            <input
+              type="text"
+              [value]="usuarioSeleccionado.ultimoAcceso || 'Nunca'"
+              readonly
+            />
+          </div>
+
+          <div class="usuario-field readonly">
+            <label>Intentos de Acceso:</label>
+            <input
+              type="text"
+              [value]="usuarioSeleccionado.intento || 0"
+              readonly
+            />
+          </div>
+
+          <div class="usuario-field readonly">
+            <label>IP:</label>
+            <input
+              type="text"
+              [value]="usuarioSeleccionado.ip || 'N/A'"
+              readonly
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+      <button
+        class="btn-guardar"
+        (click)="onGuardar()"
+        [disabled]="cargandoUsuario"
+      >
+        💾 Guardar Cambios
+      </button>
+    </div>
+  </div>
+</div>

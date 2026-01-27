@@ -1,0 +1,250 @@
+<div class="perfil-container">
+  <!-- Encabezado -->
+  <div class="header-section">
+    <div class="header-content">
+      <i class="fas fa-user-circle user-icon"></i>
+      <div class="header-text">
+        <h1 class="page-title">Mi Perfil</h1>
+        <p class="page-subtitle">Administra tu información y seguridad</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <!-- Columna izquierda: Información del usuario -->
+    <div class="info-card">
+      <div class="card-header">
+        <i class="fas fa-id-card"></i>
+        <h2>Información Personal</h2>
+      </div>
+      <div class="card-body">
+        <div class="info-item">
+          <label><i class="fas fa-user"></i> Nombre Completo:</label>
+          <span>{{ nombreCompleto }}</span>
+        </div>
+        <div class="info-item">
+          <label><i class="fas fa-tag"></i> Usuario:</label>
+          <span>{{ usuario?.usuario || "N/A" }}</span>
+        </div>
+        <div class="info-item">
+          <label><i class="fas fa-user-shield"></i> Rol:</label>
+          <span>{{ usuario?.nombreRol || "Sin rol" }}</span>
+        </div>
+        <div class="info-item">
+          <label><i class="fas fa-hashtag"></i> ID Usuario:</label>
+          <span>{{ usuario?.idUsuario || "N/A" }}</span>
+        </div>
+        <div class="info-item">
+          <label><i class="fas fa-clock"></i> Último Acceso:</label>
+          <span>{{ ultimoAccesoFormateado }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Columna derecha: Cambio de contraseña -->
+    <div class="password-card">
+      <div class="card-header">
+        <i class="fas fa-key"></i>
+        <h2>Cambiar Contraseña</h2>
+      </div>
+      <div class="card-body">
+        <!-- Mensajes -->
+        <div *ngIf="mensajeError" class="alert alert-error">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ mensajeError }}
+        </div>
+        <div *ngIf="mensajeExito" class="alert alert-success">
+          <i class="fas fa-check-circle"></i>
+          {{ mensajeExito }}
+        </div>
+
+        <!-- Formulario -->
+        <form (ngSubmit)="cambiarPassword()" class="password-form">
+          <!-- Contraseña actual -->
+          <div class="form-group">
+            <label for="passwordActual">
+              <i class="fas fa-lock"></i>
+              Contraseña Actual
+            </label>
+            <div class="input-wrapper">
+              <input
+                [type]="mostrarPasswordActual ? 'text' : 'password'"
+                id="passwordActual"
+                class="form-control"
+                [(ngModel)]="cambioPassword.passwordActual"
+                name="passwordActual"
+                placeholder="Ingresa tu contraseña actual"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="toggleMostrarPassword('actual')"
+              >
+                <i
+                  [class]="
+                    mostrarPasswordActual ? 'fas fa-eye-slash' : 'fas fa-eye'
+                  "
+                ></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Nueva contraseña -->
+          <div class="form-group">
+            <label for="passwordNueva">
+              <i class="fas fa-key"></i>
+              Nueva Contraseña
+            </label>
+            <div class="input-wrapper">
+              <input
+                [type]="mostrarPasswordNueva ? 'text' : 'password'"
+                id="passwordNueva"
+                class="form-control"
+                [(ngModel)]="cambioPassword.passwordNueva"
+                name="passwordNueva"
+                placeholder="Ingresa tu nueva contraseña"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="toggleMostrarPassword('nueva')"
+              >
+                <i
+                  [class]="
+                    mostrarPasswordNueva ? 'fas fa-eye-slash' : 'fas fa-eye'
+                  "
+                ></i>
+              </button>
+            </div>
+
+            <!-- Requisitos de contraseña -->
+            <div
+              class="password-requirements"
+              *ngIf="cambioPassword.passwordNueva"
+            >
+              <p class="requirements-title">Requisitos de seguridad:</p>
+              <ul class="requirements-list">
+                <li [class.valid]="validacionPassword.longitudMinima">
+                  <i
+                    [class]="
+                      validacionPassword.longitudMinima
+                        ? 'fas fa-check-circle'
+                        : 'fas fa-times-circle'
+                    "
+                  ></i>
+                  Mínimo 8 caracteres
+                </li>
+                <li [class.valid]="validacionPassword.tieneMayuscula">
+                  <i
+                    [class]="
+                      validacionPassword.tieneMayuscula
+                        ? 'fas fa-check-circle'
+                        : 'fas fa-times-circle'
+                    "
+                  ></i>
+                  Al menos una mayúscula
+                </li>
+                <li [class.valid]="validacionPassword.tieneMinuscula">
+                  <i
+                    [class]="
+                      validacionPassword.tieneMinuscula
+                        ? 'fas fa-check-circle'
+                        : 'fas fa-times-circle'
+                    "
+                  ></i>
+                  Al menos una minúscula
+                </li>
+                <li [class.valid]="validacionPassword.tieneNumero">
+                  <i
+                    [class]="
+                      validacionPassword.tieneNumero
+                        ? 'fas fa-check-circle'
+                        : 'fas fa-times-circle'
+                    "
+                  ></i>
+                  Al menos un número
+                </li>
+                <li [class.valid]="validacionPassword.tieneCaracterEspecial">
+                  <i
+                    [class]="
+                      validacionPassword.tieneCaracterEspecial
+                        ? 'fas fa-check-circle'
+                        : 'fas fa-times-circle'
+                    "
+                  ></i>
+                  Al menos un carácter especial (!&#64;#$%^&amp;*)
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Confirmar contraseña -->
+          <div class="form-group">
+            <label for="passwordConfirmar">
+              <i class="fas fa-check-double"></i>
+              Confirmar Nueva Contraseña
+            </label>
+            <div class="input-wrapper">
+              <input
+                [type]="mostrarPasswordConfirmar ? 'text' : 'password'"
+                id="passwordConfirmar"
+                class="form-control"
+                [(ngModel)]="cambioPassword.passwordConfirmar"
+                name="passwordConfirmar"
+                placeholder="Confirma tu nueva contraseña"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="toggleMostrarPassword('confirmar')"
+              >
+                <i
+                  [class]="
+                    mostrarPasswordConfirmar ? 'fas fa-eye-slash' : 'fas fa-eye'
+                  "
+                ></i>
+              </button>
+            </div>
+            <div
+              *ngIf="cambioPassword.passwordConfirmar && !passwordsCoinciden"
+              class="error-hint"
+            >
+              <i class="fas fa-exclamation-triangle"></i>
+              Las contraseñas no coinciden
+            </div>
+            <div *ngIf="passwordsCoinciden" class="success-hint">
+              <i class="fas fa-check-circle"></i>
+              Las contraseñas coinciden
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="cancelar()"
+              [disabled]="cargando"
+            >
+              <i class="fas fa-times"></i>
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="!passwordValida || !passwordsCoinciden || cargando"
+            >
+              <i
+                [class]="cargando ? 'fas fa-spinner fa-spin' : 'fas fa-save'"
+              ></i>
+              {{ cargando ? "Guardando..." : "Cambiar Contraseña" }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

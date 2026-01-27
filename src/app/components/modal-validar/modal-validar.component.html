@@ -1,0 +1,107 @@
+<div class="modal-overlay" *ngIf="visible">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-file-upload"></i>
+        Validar Ficha
+      </h2>
+      <button class="btn-close" (click)="onCerrar()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Información de la Ficha -->
+      <div class="ficha-info">
+        <h3>Información de la Ficha</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Folio:</span>
+            <span class="value">{{ folioFicha }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Delegación:</span>
+            <span class="value">{{ delegacion }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Municipio:</span>
+            <span class="value">{{ municipio }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Lugar:</span>
+            <span class="value">{{ lugar }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Prioridad:</span>
+            <span class="badge-prioridad" [ngClass]="getPrioridadClass()">
+              {{ prioridad }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de Subir Evidencia -->
+      <div class="upload-section">
+        <h3>
+          <i class="fas fa-cloud-upload-alt"></i>
+          Subir Evidencia (PNG)
+        </h3>
+
+        <div
+          class="dropzone"
+          [class.dragging]="isDragging"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+          (click)="fileInput.click()"
+        >
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Arrastra archivos PNG aquí o haz clic para seleccionar</p>
+          <small>Solo se permiten archivos PNG</small>
+        </div>
+
+        <input
+          type="file"
+          #fileInput
+          accept="image/png"
+          multiple
+          (change)="onFileSelected($event)"
+          style="display: none"
+        />
+
+        <!-- Lista de Archivos Seleccionados -->
+        <div class="archivos-lista" *ngIf="archivosSeleccionados.length > 0">
+          <h4>Archivos Seleccionados ({{ archivosSeleccionados.length }})</h4>
+          <div
+            class="archivo-item"
+            *ngFor="let item of archivosSeleccionados; let i = index"
+          >
+            <i class="fas fa-file-image"></i>
+            <div class="archivo-info">
+              <span class="archivo-nombre">{{ item.archivo.name }}</span>
+              <span class="archivo-size">{{
+                formatFileSize(item.archivo.size)
+              }}</span>
+            </div>
+            <button class="btn-eliminar-archivo" (click)="eliminarArchivo(i)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="onCerrar()">
+        <i class="fas fa-times"></i>
+        Cancelar
+      </button>
+      <button
+        class="btn-validar"
+        (click)="onValidar()"
+        [disabled]="archivosSeleccionados.length === 0"
+      >
+        <i class="fas fa-check"></i>
+        Validar Ficha
+      </button>
+    </div>
+  </div>
+</div>

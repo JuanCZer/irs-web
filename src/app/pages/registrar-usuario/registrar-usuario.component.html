@@ -1,0 +1,223 @@
+<div class="registrar-usuario-container">
+  <div class="header">
+    <h2>AGREGAR NUEVO USUARIO</h2>
+    <div class="header-actions">
+      <button type="button" class="btn-tutorial" (click)="verTutorial()">
+        <i class="fa fa-eye"></i> Bitácora
+      </button>
+      <button type="button" class="btn-success" (click)="verTutorial()">
+        Ver tutorial
+      </button>
+    </div>
+  </div>
+
+  <form class="usuario-form" (ngSubmit)="registrarUsuario()">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="nombres">Nombre(s):</label>
+        <input
+          type="text"
+          id="nombres"
+          [(ngModel)]="usuario.nombres"
+          name="nombres"
+          class="form-control"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="primerApellido">Primer apellido:</label>
+        <input
+          type="text"
+          id="primerApellido"
+          [(ngModel)]="usuario.primerApellido"
+          name="primerApellido"
+          class="form-control"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="segundoApellido">Segundo apellido:</label>
+        <input
+          type="text"
+          id="segundoApellido"
+          [(ngModel)]="usuario.segundoApellido"
+          name="segundoApellido"
+          class="form-control"
+        />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="usuario">Usuario:</label>
+        <input
+          type="text"
+          id="usuario"
+          [(ngModel)]="usuario.usuario"
+          name="usuario"
+          class="form-control"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="alias">Alias:</label>
+        <input
+          type="text"
+          id="alias"
+          [(ngModel)]="usuario.alias"
+          name="alias"
+          class="form-control"
+        />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group password-group">
+        <label for="contrasena">Contraseña:</label>
+        <div class="password-input-wrapper">
+          <input
+            [type]="mostrarContrasena ? 'text' : 'password'"
+            id="contrasena"
+            [(ngModel)]="usuario.contrasena"
+            name="contrasena"
+            class="form-control"
+            required
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="toggleMostrarContrasena()"
+          >
+            <i
+              [class]="mostrarContrasena ? 'fa fa-eye-slash' : 'fa fa-eye'"
+            ></i>
+          </button>
+        </div>
+        <div class="password-requirements" *ngIf="usuario.contrasena">
+          <small [class.valid]="validacionPassword.longitudMinima">
+            <i
+              [class]="
+                validacionPassword.longitudMinima
+                  ? 'fa fa-check'
+                  : 'fa fa-times'
+              "
+            ></i>
+            Mínimo 8 caracteres
+          </small>
+          <small [class.valid]="validacionPassword.tieneMayuscula">
+            <i
+              [class]="
+                validacionPassword.tieneMayuscula
+                  ? 'fa fa-check'
+                  : 'fa fa-times'
+              "
+            ></i>
+            Una mayúscula
+          </small>
+          <small [class.valid]="validacionPassword.tieneMinuscula">
+            <i
+              [class]="
+                validacionPassword.tieneMinuscula
+                  ? 'fa fa-check'
+                  : 'fa fa-times'
+              "
+            ></i>
+            Una minúscula
+          </small>
+          <small [class.valid]="validacionPassword.tieneNumero">
+            <i
+              [class]="
+                validacionPassword.tieneNumero ? 'fa fa-check' : 'fa fa-times'
+              "
+            ></i>
+            Un número
+          </small>
+          <small [class.valid]="validacionPassword.tieneEspecial">
+            <i
+              [class]="
+                validacionPassword.tieneEspecial ? 'fa fa-check' : 'fa fa-times'
+              "
+            ></i>
+            Un carácter especial
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group password-group">
+        <label for="confirmarContrasena">Confirmar Contraseña:</label>
+        <div class="password-input-wrapper">
+          <input
+            [type]="mostrarConfirmarContrasena ? 'text' : 'password'"
+            id="confirmarContrasena"
+            [(ngModel)]="usuario.confirmarContrasena"
+            name="confirmarContrasena"
+            class="form-control"
+            required
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="toggleMostrarConfirmarContrasena()"
+          >
+            <i
+              [class]="
+                mostrarConfirmarContrasena ? 'fa fa-eye-slash' : 'fa fa-eye'
+              "
+            ></i>
+          </button>
+        </div>
+        <div class="password-match" *ngIf="usuario.confirmarContrasena">
+          <small
+            [class.valid]="passwordsCoinciden"
+            [class.invalid]="!passwordsCoinciden"
+          >
+            <i [class]="passwordsCoinciden ? 'fa fa-check' : 'fa fa-times'"></i>
+            {{
+              passwordsCoinciden
+                ? "Las contraseñas coinciden"
+                : "Las contraseñas no coinciden"
+            }}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="rol">Rol del usuario:</label>
+        <select
+          id="rol"
+          [(ngModel)]="usuario.rol"
+          name="rol"
+          class="form-control"
+          required
+        >
+          <option value="" disabled selected>Seleccione una opción</option>
+          <option *ngFor="let rol of roles" [value]="rol.idCatRol">
+            {{ rol.nombreRol }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button
+        type="submit"
+        class="btn-registrar"
+        [disabled]="!formularioValido || registrando"
+      >
+        {{ registrando ? "Registrando..." : "Registrar Usuario" }}
+      </button>
+    </div>
+
+    <div class="message success" *ngIf="mensajeExito">
+      <i class="fa fa-check-circle"></i> {{ mensajeExito }}
+    </div>
+    <div class="message error" *ngIf="mensajeError">
+      <i class="fa fa-exclamation-circle"></i> {{ mensajeError }}
+    </div>
+  </form>
+</div>

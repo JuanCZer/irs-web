@@ -1,0 +1,352 @@
+﻿<div class="fichas-container">
+  <div class="header">
+    <h2>FICHAS INFORMATIVAS</h2>
+    <div class="header-actions">
+      <button type="button" class="btn-borrador" (click)="guardarBorrador()">
+        <i class="fa fa-save"></i> Guardar como borrador
+      </button>
+      <button type="button" class="btn-validar" (click)="guardarYValidar()">
+        <i class="fa fa-check"></i> Guardar y validar ficha
+      </button>
+      <button type="button" class="btn-tutorial" (click)="verTutorial()">
+        Ver tutorial
+      </button>
+    </div>
+  </div>
+
+  <div class="estado-badge">
+    <h3>ESTADO <span class="badge-nuevo">NUEVO</span></h3>
+  </div>
+
+  <form class="ficha-form">
+    <!-- Sección: Estado y Ubicación -->
+    <div class="seccion-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="estado">Estado: <span class="required">*</span></label>
+          <select
+            id="estado"
+            [(ngModel)]="ficha.estado"
+            name="estado"
+            class="form-control"
+            required
+          >
+            <option value="" disabled selected>Seleccione un Estado</option>
+            <option *ngFor="let estado of estadosMexico" [value]="estado">
+              {{ estado }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="lugar">Lugar: <span class="required">*</span></label>
+          <input
+            type="text"
+            id="lugar"
+            [(ngModel)]="ficha.lugar"
+            name="lugar"
+            class="form-control"
+            placeholder="Ingrese el lugar"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="latitud">Latitud geográfica:</label>
+          <input
+            type="number"
+            id="latitud"
+            [(ngModel)]="ficha.latitud"
+            name="latitud"
+            (change)="actualizarMarcadorDesdeInput()"
+            class="form-control"
+            step="0.000001"
+            placeholder="Ej: 19.432608"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="longitud">Longitud geográfica:</label>
+          <input
+            type="number"
+            id="longitud"
+            [(ngModel)]="ficha.longitud"
+            name="longitud"
+            (change)="actualizarMarcadorDesdeInput()"
+            class="form-control"
+            step="0.000001"
+            placeholder="Ej: -99.133209"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="direccion">Dirección:</label>
+          <input
+            type="text"
+            id="direccion"
+            [(ngModel)]="ficha.direccion"
+            name="direccion"
+            class="form-control"
+            placeholder="Ingrese la dirección completa"
+          />
+        </div>
+      </div>
+
+      <!-- Mapa -->
+      <div class="mapa-container">
+        <div id="map" class="mapa"></div>
+        <small class="mapa-instruccion">
+          <i class="fa fa-info-circle"></i>
+          Haga clic en el mapa o arrastre el marcador para seleccionar la
+          ubicación
+        </small>
+      </div>
+    </div>
+
+    <!-- Sección: Sector y Detalles del Suceso -->
+    <div class="seccion-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sector">Sector: <span class="required">*</span></label>
+          <select
+            id="sector"
+            [(ngModel)]="ficha.sector"
+            name="sector"
+            (change)="onSectorChange()"
+            class="form-control"
+            required
+          >
+            <option value="" disabled selected>Seleccione una opción</option>
+            <option *ngFor="let sector of sectores" [value]="sector">
+              {{ sector }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="subsector">Subsector:</label>
+          <select
+            id="subsector"
+            [(ngModel)]="ficha.subsector"
+            name="subsector"
+            class="form-control"
+            [disabled]="subsectores.length === 0"
+          >
+            <option value="" disabled selected>Seleccione una opción</option>
+            <option *ngFor="let subsector of subsectores" [value]="subsector">
+              {{ subsector }}
+            </option>
+          </select>
+          <small class="subsectores-info" *ngIf="subsectores.length > 0">
+            SubSectores
+          </small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="horaInicioSuceso">Hora inicial del suceso:</label>
+          <input
+            type="time"
+            id="horaInicioSuceso"
+            [(ngModel)]="ficha.horaInicioSuceso"
+            name="horaInicioSuceso"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="horaFinSuceso">Hora final del suceso:</label>
+          <input
+            type="time"
+            id="horaFinSuceso"
+            [(ngModel)]="ficha.horaFinSuceso"
+            name="horaFinSuceso"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="fechaSuceso"
+            >Fecha del suceso: <span class="required">*</span></label
+          >
+          <input
+            type="date"
+            id="fechaSuceso"
+            [(ngModel)]="ficha.fechaSuceso"
+            name="fechaSuceso"
+            class="form-control"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="numeroAsistentes">Número de asistentes:</label>
+          <input
+            type="number"
+            id="numeroAsistentes"
+            [(ngModel)]="ficha.numeroAsistentes"
+            name="numeroAsistentes"
+            class="form-control"
+            min="0"
+            placeholder="0"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Clasificación -->
+    <div class="seccion-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="prioridad"
+            >Prioridad: <span class="required">*</span></label
+          >
+          <select
+            id="prioridad"
+            [(ngModel)]="ficha.prioridad"
+            name="prioridad"
+            class="form-control"
+            required
+          >
+            <option value="" disabled selected>Seleccione una opción</option>
+            <option *ngFor="let prioridad of prioridades" [value]="prioridad">
+              {{ prioridad }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="condicionEvento">Condición del evento:</label>
+          <select
+            id="condicionEvento"
+            [(ngModel)]="ficha.condicionEvento"
+            name="condicionEvento"
+            class="form-control"
+          >
+            <option value="" disabled selected>Seleccione una opción</option>
+            <option
+              *ngFor="let condicion of condicionesEvento"
+              [value]="condicion"
+            >
+              {{ condicion }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="informacion">Información:</label>
+          <select
+            id="informacion"
+            [(ngModel)]="ficha.informacion"
+            name="informacion"
+            class="form-control"
+          >
+            <option value="" disabled selected>Seleccione una opción</option>
+            <option *ngFor="let info of tiposInformacion" [value]="info">
+              {{ info }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Descripción -->
+    <div class="seccion-card">
+      <div class="form-group full-width">
+        <label for="asunto">Asunto:</label>
+        <textarea
+          id="asunto"
+          [(ngModel)]="ficha.asunto"
+          name="asunto"
+          class="form-control textarea-field"
+          rows="4"
+          placeholder="Describa el asunto"
+        ></textarea>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="hechos">Hechos:</label>
+        <textarea
+          id="hechos"
+          [(ngModel)]="ficha.hechos"
+          name="hechos"
+          class="form-control textarea-field"
+          rows="6"
+          placeholder="Describa los hechos ocurridos"
+        ></textarea>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="acuerdos">Acuerdos:</label>
+        <textarea
+          id="acuerdos"
+          [(ngModel)]="ficha.acuerdos"
+          name="acuerdos"
+          class="form-control textarea-field"
+          rows="4"
+          placeholder="Describa los acuerdos alcanzados"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Sección: Información de Recepción -->
+    <div class="seccion-card seccion-recepcion">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="informo">Informó:</label>
+          <select
+            id="informo"
+            [(ngModel)]="ficha.informo"
+            name="informo"
+            class="form-control"
+          >
+            <option value="" disabled selected>Seleccione una opción</option>
+            <option *ngFor="let informante of informantes" [value]="informante">
+              {{ informante }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaRecepcion">Fecha recepción:</label>
+          <input
+            type="date"
+            id="fechaRecepcion"
+            [(ngModel)]="ficha.fechaRecepcion"
+            name="fechaRecepcion"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="horaRecepcion">Hora recepción:</label>
+          <input
+            type="time"
+            id="horaRecepcion"
+            [(ngModel)]="ficha.horaRecepcion"
+            name="horaRecepcion"
+            class="form-control"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Salir -->
+    <div class="form-actions">
+      <button type="button" class="btn-salir" (click)="salir()">
+        <i class="fa fa-sign-out"></i> Salir
+      </button>
+    </div>
+
+    <!-- Mensajes -->
+    <div class="message success" *ngIf="mensajeExito">
+      <i class="fa fa-check-circle"></i> {{ mensajeExito }}
+    </div>
+    <div class="message error" *ngIf="mensajeError">
+      <i class="fa fa-exclamation-circle"></i> {{ mensajeError }}
+    </div>
+  </form>
+</div>

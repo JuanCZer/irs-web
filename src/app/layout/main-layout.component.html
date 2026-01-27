@@ -1,0 +1,47 @@
+<div class="main-layout">
+  <!-- Navbar lateral -->
+  <app-navbar></app-navbar>
+
+  <!-- Contenedor principal con header y contenido -->
+  <div class="content-wrapper" [class.sidebar-collapsed]="sidebarCollapsed">
+    <!-- Header superior -->
+    <header class="main-header">
+      <div class="header-content">
+        <div class="header-left">
+          <h1 class="page-title">Sistema IRS</h1>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <span class="user-name">{{ nombreUsuario }}</span>
+            <div class="user-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenido dinámico (aquí se cargan las páginas) -->
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <p>
+            &copy; {{ currentYear }} Sistema IRS. Todos los derechos reservados.
+          </p>
+        </div>
+        <div class="footer-right">
+          <a href="#" class="footer-link">Términos y Condiciones</a>
+          <span class="separator">|</span>
+          <a href="#" class="footer-link">Política de Privacidad</a>
+          <span class="separator">|</span>
+          <a href="#" class="footer-link">Soporte</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>

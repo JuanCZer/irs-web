@@ -1,0 +1,150 @@
+<div class="borradores-container">
+  <div class="header-section">
+    <h1 class="page-title">Borradores de Fichas Informativas</h1>
+    <p class="subtitle">Fichas guardadas como borrador</p>
+  </div>
+
+  <!-- Buscador -->
+  <div class="search-section" *ngIf="!cargando && borradores.length > 0">
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="buscarTexto"
+        (keyup.enter)="buscar()"
+        placeholder="Buscar por delegación, sector, prioridad, condición..."
+        class="search-input"
+      />
+      <button class="btn-search" (click)="buscar()">🔍 Buscar</button>
+      <button class="btn-clear" (click)="limpiarBusqueda()" *ngIf="buscarTexto">
+        ✖️ Limpiar
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="cargando" class="loading">
+    <p>Cargando borradores...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!cargando && !error && borradores.length === 0" class="no-data">
+    <p>No hay borradores disponibles</p>
+  </div>
+
+  <div
+    *ngIf="
+      !cargando && !error && borradoresFiltrados.length === 0 && buscarTexto
+    "
+    class="no-data"
+  >
+    <p>No se encontraron resultados para "{{ buscarTexto }}"</p>
+  </div>
+
+  <div
+    *ngIf="!cargando && !error && borradoresFiltrados.length > 0"
+    class="table-responsive"
+  >
+    <table class="fichas-table">
+      <thead>
+        <tr>
+          <th>Abrir/Eliminar</th>
+          <th>Fecha Elaboración</th>
+          <th>Fecha Suceso</th>
+          <th>Hora Suceso</th>
+          <th>Estado</th>
+          <th>Prioridad</th>
+          <th>Sector</th>
+          <th>Asistentes</th>
+          <th>Estado Actual</th>
+          <th>Borrador usuario</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let borrador of borradoresPaginados">
+          <td data-label="Abrir/Eliminar" class="action-buttons">
+            <button
+              class="btn-open"
+              (click)="abrirBorrador(borrador.id)"
+              title="Abrir borrador"
+            >
+              📝
+            </button>
+            <button
+              class="btn-delete"
+              (click)="eliminarBorrador(borrador.id)"
+              title="Eliminar borrador"
+            >
+              🗑️
+            </button>
+          </td>
+          <td data-label="Fecha Elaboración">
+            {{ borrador.fechaElaboracion }}
+          </td>
+          <td data-label="Fecha Suceso">{{ borrador.fechaSuceso }}</td>
+          <td data-label="Hora Suceso">{{ borrador.horaSuceso }}</td>
+          <td data-label="Estado">{{ borrador.estado }}</td>
+          <td data-label="Prioridad">{{ borrador.prioridad }}</td>
+          <td data-label="Sector">{{ borrador.sector }}</td>
+          <td data-label="Asistentes">{{ borrador.asistentes }}</td>
+          <td data-label="Estado Actual">{{ borrador.estadoActual }}</td>
+          <td data-label="Borrador usuario">{{ borrador.borradorUsuario }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginación -->
+  <div
+    class="pagination"
+    *ngIf="!cargando && borradoresFiltrados.length > registrosPorPagina"
+  >
+    <button
+      class="btn-page"
+      (click)="paginaAnterior()"
+      [disabled]="paginaActual === 1"
+    >
+      ◀ Anterior
+    </button>
+
+    <button
+      *ngFor="let pagina of paginasArray"
+      class="btn-page-number"
+      [class.active]="pagina === paginaActual"
+      (click)="irAPagina(pagina)"
+    >
+      {{ pagina }}
+    </button>
+
+    <button
+      class="btn-page"
+      (click)="paginaSiguiente()"
+      [disabled]="paginaActual === totalPaginas"
+    >
+      Siguiente ▶
+    </button>
+  </div>
+
+  <div class="stats" *ngIf="!cargando && borradoresFiltrados.length > 0">
+    <p>
+      Mostrando {{ (paginaActual - 1) * registrosPorPagina + 1 }} -
+      {{
+        Math.min(paginaActual * registrosPorPagina, borradoresFiltrados.length)
+      }}
+      de <strong>{{ borradoresFiltrados.length }}</strong> borradores
+      <span *ngIf="buscarTexto">
+        (filtrados de {{ borradores.length }} totales)</span
+      >
+    </p>
+  </div>
+</div>
+
+<!-- Modal para ver/editar ficha -->
+<app-modal-fichas-consulta
+  [mostrarModal]="mostrarModal"
+  [fichaSeleccionada]="fichaSeleccionada"
+  [cargandoFicha]="cargandoFicha"
+  (cerrar)="cerrarModal()"
+  (validarYGuardar)="validarYGuardar()"
+></app-modal-fichas-consulta>

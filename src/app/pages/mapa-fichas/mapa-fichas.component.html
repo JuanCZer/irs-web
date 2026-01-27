@@ -1,0 +1,170 @@
+<div class="mapa-fichas-container">
+  <!-- Sección del Mapa (2/3) -->
+  <div class="mapa-section">
+    <div id="map-container" class="map-container"></div>
+  </div>
+
+  <!-- Sección de Fichas (1/3) -->
+  <div class="fichas-section">
+    <!-- Encabezado -->
+    <div class="fichas-header">
+      <h2>FICHAS DEL MES</h2>
+      <div class="header-info">
+        <span class="fichas-count">{{ fichasVisible.length }} ficha(s)</span>
+        <span class="fichas-ubicadas" title="Fichas con coordenadas válidas">
+          📍 {{ contarFichasConCoordenadas() }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Sección de Filtros -->
+    <div class="filtros-container">
+      <!-- Rango de fechas -->
+      <div class="filtro-grupo">
+        <label for="fecha-inicio">Fecha inicio:</label>
+        <input
+          type="date"
+          id="fecha-inicio"
+          [(ngModel)]="fechaInicio"
+          (change)="cargarFichas()"
+          class="filtro-input"
+        />
+      </div>
+
+      <div class="filtro-grupo">
+        <label for="fecha-fin">Fecha fin:</label>
+        <input
+          type="date"
+          id="fecha-fin"
+          [(ngModel)]="fechaFin"
+          (change)="cargarFichas()"
+          class="filtro-input"
+        />
+      </div>
+
+      <div class="filtro-grupo">
+        <label for="filtro-estado">Estado:</label>
+        <select
+          id="filtro-estado"
+          [(ngModel)]="filtroEstado"
+          (change)="aplicarFiltros()"
+          class="filtro-select"
+        >
+          <option value="">Todos</option>
+          <option *ngFor="let estado of estados" [value]="estado">
+            {{ estado }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filtro-grupo">
+        <label for="filtro-sector">Sector:</label>
+        <select
+          id="filtro-sector"
+          [(ngModel)]="filtroSector"
+          (change)="aplicarFiltros()"
+          class="filtro-select"
+        >
+          <option value="">Todos</option>
+          <option *ngFor="let sector of sectores" [value]="sector">
+            {{ sector }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filtro-grupo">
+        <label for="filtro-condicion">Condición:</label>
+        <select
+          id="filtro-condicion"
+          [(ngModel)]="filtroCondicion"
+          (change)="aplicarFiltros()"
+          class="filtro-select"
+        >
+          <option value="">Todas</option>
+          <option *ngFor="let condicion of condiciones" [value]="condicion">
+            {{ condicion }}
+          </option>
+        </select>
+      </div>
+
+      <button class="btn-limpiar-filtros" (click)="limpiarFiltros()">
+        <i class="fa fa-times"></i> Limpiar
+      </button>
+    </div>
+
+    <!-- Lista de Fichas -->
+    <div class="fichas-list-container">
+      <div *ngIf="cargando" class="cargando-message">
+        <i class="fa fa-spinner fa-spin"></i>
+        <p>Cargando fichas...</p>
+      </div>
+
+      <div *ngIf="mensajeError" class="error-message">
+        <i class="fa fa-exclamation-circle"></i>
+        <p>{{ mensajeError }}</p>
+      </div>
+
+      <div *ngIf="!cargando && fichasVisible.length === 0" class="sin-fichas">
+        <i class="fa fa-inbox"></i>
+        <p>No hay fichas disponibles para los filtros seleccionados</p>
+      </div>
+
+      <div
+        *ngFor="let ficha of fichasVisible"
+        class="ficha-card"
+        (click)="seleccionarFicha(ficha)"
+      >
+        <!-- Contenido de la Tarjeta -->
+        <div class="card-content">
+          <!-- ID - Folio como título -->
+          <h3 class="card-titulo">{{ ficha.id }} - {{ ficha.folio }}</h3>
+
+          <div class="card-info">
+            <div class="info-item">
+              <span class="label">Lugar:</span>
+              <span class="value">{{ ficha.lugar }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Estado:</span>
+              <span class="value">{{ ficha.estado }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Sector:</span>
+              <span class="value">{{ ficha.sector }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Fecha:</span>
+              <span class="value">{{ ficha.fechaSuceso }}</span>
+            </div>
+
+            <div class="info-item" *ngIf="ficha.asistentes">
+              <span class="label">Asistentes:</span>
+              <span class="value">{{ ficha.asistentes }}</span>
+            </div>
+
+            <div class="info-item" *ngIf="ficha.estadoActual">
+              <span class="label">Condición:</span>
+              <span class="value">{{ ficha.estadoActual }}</span>
+            </div>
+
+            <!-- Coordenadas -->
+            <div class="info-item" *ngIf="ficha.latitud && ficha.longitud">
+              <span class="label">Ubicación:</span>
+              <span class="value coords-value">
+                {{ ficha.latitud.toFixed(4) }}, {{ ficha.longitud.toFixed(4) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flecha para indicar interacción -->
+        <div class="card-arrow">
+          <i class="fa fa-chevron-right"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

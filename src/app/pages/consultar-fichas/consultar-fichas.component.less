@@ -1,0 +1,405 @@
+// Variables
+@primary-color: #667eea;
+@secondary-color: #764ba2;
+@bg-pattern: #f5f7fa;
+@white: #ffffff;
+@text-dark: #2c3e50;
+@text-muted: #6c757d;
+@border-color: #e0e0e0;
+@teal-color: #16a085;
+
+.consultar-fichas-container {
+  background: @white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  padding: 30px;
+  min-height: calc(100vh - 200px);
+
+  // Encabezado con título y botón
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid @border-color;
+
+    .page-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #2c5aa0;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-tutorial {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: @teal-color;
+      color: @white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      i {
+        font-size: 16px;
+      }
+
+      &:hover {
+        background: darken(@teal-color, 8%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 160, 133, 0.3);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+
+      .page-title {
+        font-size: 16px;
+      }
+    }
+  }
+
+  // Sección de búsqueda
+  .search-section {
+    margin-bottom: 25px;
+
+    .search-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      max-width: 400px;
+
+      .search-label {
+        font-weight: 500;
+        color: @text-dark;
+        font-size: 15px;
+        white-space: nowrap;
+      }
+
+      .search-input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid @border-color;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+
+        &:focus {
+          outline: none;
+          border-color: @primary-color;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        &::placeholder {
+          color: #adb5bd;
+        }
+      }
+    }
+  }
+
+  // Contenedor de tabla con scroll
+  .table-container {
+    overflow-x: auto;
+    border: 1px solid @border-color;
+    border-radius: 8px;
+    margin-bottom: 20px;
+
+    // Scrollbar personalizado
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(
+        90deg,
+        @primary-color 0%,
+        @secondary-color 100%
+      );
+      border-radius: 4px;
+
+      &:hover {
+        background: linear-gradient(
+          90deg,
+          darken(@primary-color, 10%) 0%,
+          darken(@secondary-color, 10%) 100%
+        );
+      }
+    }
+  }
+
+  // Tabla
+  .fichas-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: @white;
+
+    thead {
+      background: linear-gradient(
+        135deg,
+        rgba(102, 126, 234, 0.1) 0%,
+        rgba(118, 75, 162, 0.1) 100%
+      );
+
+      tr {
+        th {
+          padding: 15px 12px;
+          text-align: left;
+          font-weight: 600;
+          font-size: 13px;
+          color: @text-dark;
+          border-bottom: 2px solid @border-color;
+          white-space: nowrap;
+          position: sticky;
+          top: 0;
+          background: inherit;
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(102, 126, 234, 0.03);
+        }
+
+        &:nth-child(even) {
+          background: #fafbfc;
+
+          &:hover {
+            background: rgba(102, 126, 234, 0.05);
+          }
+        }
+
+        td {
+          padding: 12px;
+          border-bottom: 1px solid @border-color;
+          font-size: 13px;
+          color: @text-dark;
+          white-space: nowrap;
+
+          &.empty-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: @text-muted;
+            font-style: italic;
+            white-space: normal;
+          }
+        }
+      }
+    }
+  }
+
+  // Paginación
+  .pagination-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+
+    .btn-pagination {
+      padding: 10px 24px;
+      background: @white;
+      color: @text-dark;
+      border: 1px solid @border-color;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.1) 0%,
+          rgba(118, 75, 162, 0.1) 100%
+        );
+        border-color: @primary-color;
+        color: @primary-color;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+
+        &:hover {
+          background: @white;
+          border-color: @border-color;
+          color: @text-dark;
+          box-shadow: none;
+        }
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn-pagination {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+    }
+  }
+
+  // Responsive
+  @media (max-width: 768px) {
+    padding: 20px 15px;
+
+    .header-section {
+      flex-direction: column;
+      gap: 15px;
+
+      .page-title {
+        font-size: 18px;
+      }
+    }
+
+    .search-section {
+      .search-wrapper {
+        flex-direction: column;
+
+        .search-label {
+          margin-bottom: 8px;
+        }
+      }
+    }
+  }
+
+  // Tabla responsiva con scroll horizontal
+  .table-container {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid @border-color;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: @primary-color;
+      border-radius: 4px;
+
+      &:hover {
+        background: @secondary-color;
+      }
+    }
+  }
+
+  @media (max-width: 992px) {
+    .table-container {
+      .fichas-table {
+        min-width: 1200px;
+        font-size: 13px;
+
+        th,
+        td {
+          padding: 10px 8px;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .table-container {
+      margin: 0 -15px;
+      border-radius: 0;
+
+      .table-responsive {
+        border-left: none;
+        border-right: none;
+        border-radius: 0;
+      }
+
+      .fichas-table {
+        min-width: 1200px;
+        font-size: 12px;
+
+        th {
+          padding: 12px 8px;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        td {
+          padding: 10px 8px;
+          white-space: nowrap;
+
+          &.folio-cell,
+          &.asunto-cell {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
+        .btn-ver {
+          padding: 6px 12px;
+          font-size: 11px;
+        }
+
+        .badge {
+          padding: 4px 8px;
+          font-size: 10px;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    .table-container {
+      .fichas-table {
+        min-width: 1000px;
+        font-size: 11px;
+
+        th {
+          padding: 10px 6px;
+          font-size: 10px;
+        }
+
+        td {
+          padding: 8px 6px;
+        }
+      }
+    }
+  }
+}

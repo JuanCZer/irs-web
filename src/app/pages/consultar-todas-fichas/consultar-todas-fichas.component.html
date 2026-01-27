@@ -1,0 +1,247 @@
+<div class="consultar-todas-fichas-container">
+  <!-- Encabezado con título y botones de acción -->
+  <div class="header-section">
+    <h1 class="page-title">TODAS LAS FICHAS INFORMATIVAS GENERADAS</h1>
+    <div class="header-actions">
+      <button class="btn-action btn-export" (click)="exportarExcel()">
+        <i class="fas fa-file-excel"></i>
+        Exportar Excel
+      </button>
+      <button class="btn-action btn-export" (click)="exportarPDF()">
+        <i class="fas fa-file-pdf"></i>
+        Exportar PDF
+      </button>
+      <button class="btn-action btn-tutorial" (click)="verTutorial()">
+        <i class="fas fa-question-circle"></i>
+        Ver tutorial
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros de fecha y búsqueda -->
+  <div class="filters-section">
+    <!-- Filtro por rango de fechas -->
+    <div class="date-filters">
+      <div class="date-group">
+        <label class="date-label">
+          <i class="fas fa-calendar-alt"></i>
+          Fecha Inicio:
+        </label>
+        <input
+          type="date"
+          class="date-input"
+          [(ngModel)]="fechaInicio"
+          name="fechaInicio"
+        />
+      </div>
+
+      <div class="date-group">
+        <label class="date-label">
+          <i class="fas fa-calendar-alt"></i>
+          Fecha Fin:
+        </label>
+        <input
+          type="date"
+          class="date-input"
+          [(ngModel)]="fechaFin"
+          name="fechaFin"
+        />
+      </div>
+
+      <!-- Botones de acceso rápido -->
+      <div class="quick-filters">
+        <button class="btn-quick" (click)="establecerHoy()" title="Hoy">
+          <i class="fas fa-calendar-day"></i>
+          Hoy
+        </button>
+        <button
+          class="btn-quick"
+          (click)="establecerUltimaSemana()"
+          title="Última semana"
+        >
+          <i class="fas fa-calendar-week"></i>
+          7 días
+        </button>
+        <button
+          class="btn-quick"
+          (click)="establecerUltimoMes()"
+          title="Último mes"
+        >
+          <i class="fas fa-calendar"></i>
+          30 días
+        </button>
+        <button
+          class="btn-quick btn-clear"
+          (click)="limpiarFiltros()"
+          title="Limpiar filtros"
+        >
+          <i class="fas fa-times-circle"></i>
+          Limpiar
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-wrapper">
+      <label class="search-label">
+        <i class="fas fa-search"></i>
+        Buscar:
+      </label>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar por folio, asunto, estado..."
+        [(ngModel)]="buscarTexto"
+        (input)="buscar()"
+      />
+    </div>
+  </div>
+
+  <!-- Información de resultados -->
+  <div class="info-section">
+    <div class="info-text">
+      <i class="fas fa-info-circle"></i>
+      <span
+        >Mostrando {{ (paginaActual - 1) * fichasPorPagina + 1 }} a
+        {{ Math.min(paginaActual * fichasPorPagina, fichasFiltradas.length) }}
+        de {{ fichasFiltradas.length }} fichas</span
+      >
+    </div>
+  </div>
+
+  <!-- Tabla de fichas -->
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="fichas-table">
+        <thead>
+          <tr>
+            <th>Ver Ficha</th>
+            <th>Fecha Elaboración</th>
+            <th>Folio</th>
+            <th>Fecha de Suceso</th>
+            <th>Hora de Suceso</th>
+            <th>Estado</th>
+            <th>Asunto</th>
+            <th>Prioridad</th>
+            <th>Sector</th>
+            <th>Asistentes</th>
+            <th>Estado Actual</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="fichasFiltradas.length === 0">
+            <td colspan="11" class="empty-message">
+              <em>Ningún dato disponible en esta tabla</em>
+            </td>
+          </tr>
+          <tr *ngFor="let ficha of fichasPaginadas" class="data-row">
+            <td class="action-cell" data-label="Ver Ficha">
+              <button class="btn-ver-ficha" (click)="verFicha(ficha.id)">
+                <i class="fas fa-eye"></i>
+                Ver
+              </button>
+            </td>
+            <td data-label="Fecha Elaboración">{{ ficha.fechaElaboracion }}</td>
+            <td class="folio-cell" data-label="Folio">{{ ficha.folio }}</td>
+            <td data-label="Fecha de Suceso">{{ ficha.fechaSuceso }}</td>
+            <td data-label="Hora de Suceso">{{ ficha.horaSuceso }}</td>
+            <td class="estado-cell" data-label="Estado">{{ ficha.estado }}</td>
+            <td class="asunto-cell" data-label="Asunto">{{ ficha.asunto }}</td>
+            <td data-label="Prioridad">
+              <span
+                class="badge-prioridad"
+                [ngClass]="'prioridad-' + ficha.prioridad.toLowerCase()"
+              >
+                {{ ficha.prioridad }}
+              </span>
+            </td>
+            <td data-label="Sector">{{ ficha.sector }}</td>
+            <td class="asistentes-cell" data-label="Asistentes">
+              {{ ficha.asistentes }}
+            </td>
+            <td data-label="Estado Actual">
+              <span
+                class="badge-estado"
+                [ngClass]="
+                  'estado-' + ficha.estadoActual.toLowerCase().replace(' ', '-')
+                "
+              >
+                {{ ficha.estadoActual }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Paginación avanzada -->
+  <div class="pagination-section">
+    <div class="pagination-info">
+      Página {{ paginaActual }} de {{ totalPaginas }}
+    </div>
+    <div class="pagination-controls">
+      <button
+        class="btn-pagination"
+        (click)="anterior()"
+        [disabled]="paginaActual === 1"
+      >
+        <i class="fas fa-chevron-left"></i>
+        Anterior
+      </button>
+
+      <button
+        *ngIf="paginasVisibles[0] > 1"
+        class="btn-pagination btn-page"
+        (click)="irAPagina(1)"
+      >
+        1
+      </button>
+
+      <span *ngIf="paginasVisibles[0] > 2" class="pagination-ellipsis"
+        >...</span
+      >
+
+      <button
+        *ngFor="let pagina of paginasVisibles"
+        class="btn-pagination btn-page"
+        [class.active]="pagina === paginaActual"
+        (click)="irAPagina(pagina)"
+      >
+        {{ pagina }}
+      </button>
+
+      <span
+        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas - 1"
+        class="pagination-ellipsis"
+        >...</span
+      >
+
+      <button
+        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas"
+        class="btn-pagination btn-page"
+        (click)="irAPagina(totalPaginas)"
+      >
+        {{ totalPaginas }}
+      </button>
+
+      <button
+        class="btn-pagination"
+        (click)="siguiente()"
+        [disabled]="paginaActual === totalPaginas"
+      >
+        Siguiente
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para ver la ficha completa en modo solo lectura -->
+<app-modal-fichas-consulta
+  [mostrarModal]="mostrarModal"
+  [fichaSeleccionada]="fichaSeleccionada"
+  [cargandoFicha]="cargandoFicha"
+  [modoSoloLectura]="true"
+  (cerrar)="cerrarModal()"
+></app-modal-fichas-consulta>

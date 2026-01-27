@@ -1,0 +1,102 @@
+<div class="consultar-fichas-container">
+  <!-- Encabezado -->
+  <div class="header-section">
+    <h1 class="page-title">Fichas Informativas del Día</h1>
+  </div>
+
+  <!-- Sección de búsqueda -->
+  <div class="search-section">
+    <div class="search-wrapper">
+      <label class="search-label">Buscar:</label>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar por folio, estado, asunto, sector..."
+        [(ngModel)]="buscarTexto"
+        (input)="filtrarFichas()"
+      />
+    </div>
+  </div>
+
+  <!-- Estado de carga -->
+  <div *ngIf="cargando" class="loading-message">
+    <i class="fas fa-spinner fa-spin"></i> Cargando fichas...
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+    <button class="btn-retry" (click)="cargarFichas()">Reintentar</button>
+  </div>
+
+  <!-- Tabla de fichas -->
+  <div class="table-container" *ngIf="!cargando && !error">
+    <div class="table-responsive">
+      <table class="fichas-table">
+        <thead>
+          <tr>
+            <th>Ver Ficha</th>
+            <th>Fecha Elaboración</th>
+            <th>Folio</th>
+            <th>Fecha de Suceso</th>
+            <th>Hora de Suceso</th>
+            <th>Estado</th>
+            <th>Asunto</th>
+            <th>Prioridad</th>
+            <th>Sector</th>
+            <th>Asistentes</th>
+            <th>Estado Actual</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="fichasFiltradas.length === 0">
+            <td colspan="11" class="empty-message">
+              Ningún dato disponible en esta tabla
+            </td>
+          </tr>
+          <tr *ngFor="let ficha of fichasFiltradas">
+            <td class="action-cell" data-label="Ver Ficha">
+              <button
+                class="btn-ver"
+                (click)="verDetalleFicha(ficha)"
+                title="Ver detalle"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+            <td data-label="Fecha Elaboración">
+              {{ formatearFecha(ficha.fechaElaboracion) }}
+            </td>
+            <td class="folio-cell" data-label="Folio">{{ ficha.folio }}</td>
+            <td data-label="Fecha de Suceso">
+              {{ formatearFecha(ficha.fechaSuceso) }}
+            </td>
+            <td data-label="Hora de Suceso">{{ ficha.horaSuceso }}</td>
+            <td data-label="Estado">{{ ficha.estado }}</td>
+            <td class="asunto-cell" data-label="Asunto">{{ ficha.asunto }}</td>
+            <td data-label="Prioridad">
+              <span
+                class="badge"
+                [ngClass]="obtenerColorPrioridad(ficha.prioridad)"
+              >
+                {{ ficha.prioridad }}
+              </span>
+            </td>
+            <td data-label="Sector">{{ ficha.sector }}</td>
+            <td class="asistentes-cell" data-label="Asistentes">
+              {{ ficha.asistentes }}
+            </td>
+            <td data-label="Estado Actual">
+              <span
+                class="badge"
+                [ngClass]="obtenerColorEstado(ficha.estadoActual)"
+              >
+                {{ ficha.estadoActual }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,317 @@
+<!-- Modal para ver/editar ficha -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        📋 Ficha Informativa{{ modoSoloLectura ? " (Solo Lectura)" : "" }} - ID:
+        {{ fichaSeleccionada?.id }}
+      </h2>
+      <button class="btn-close-modal" (click)="cerrarModal()">✖</button>
+    </div>
+
+    <div class="modal-body" *ngIf="cargandoFicha">
+      <p class="cargando-ficha">Cargando información de la ficha...</p>
+    </div>
+
+    <div
+      class="modal-body"
+      [class.solo-lectura]="modoSoloLectura"
+      *ngIf="!cargandoFicha && fichaSeleccionada"
+    >
+      <div class="ficha-grid">
+        <!-- Sección 1: Información General -->
+        <div class="ficha-section">
+          <h3>📍 Información General</h3>
+          <div class="ficha-field">
+            <label>Cédula:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.cedula"
+              placeholder="Ingrese cédula"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Delegación:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.delegacion"
+              placeholder="Ingrese delegación"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Municipio:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.municipio"
+              placeholder="Ingrese municipio"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Lugar:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.lugar"
+              placeholder="Ingrese lugar"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Dirección:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.direccion"
+              placeholder="Ingrese dirección"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Latitud:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.latitud"
+              placeholder="Ingrese latitud"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Longitud:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.longitud"
+              placeholder="Ingrese longitud"
+            />
+          </div>
+        </div>
+
+        <!-- Sección 2: Fecha y Hora del Suceso -->
+        <div class="ficha-section">
+          <h3>🕐 Fecha y Hora del Suceso</h3>
+          <div class="ficha-field">
+            <label>Fecha del Suceso:</label>
+            <input type="date" [(ngModel)]="fichaSeleccionada.fechaSuceso" />
+          </div>
+          <div class="ficha-field">
+            <label>Hora Inicio:</label>
+            <input
+              type="time"
+              [(ngModel)]="fichaSeleccionada.horaSucesoInicio"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Hora Fin:</label>
+            <input type="time" [(ngModel)]="fichaSeleccionada.horaSucesoFin" />
+          </div>
+        </div>
+
+        <!-- Sección 3: Clasificación -->
+        <div class="ficha-section">
+          <h3>🏷️ Clasificación</h3>
+          <div class="ficha-field">
+            <label>Sector:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.sector"
+              placeholder="Ingrese sector"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Subsector:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.subsector"
+              placeholder="Ingrese subsector"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Prioridad:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.prioridad"
+              placeholder="Ingrese prioridad"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Condición:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.condicion"
+              placeholder="Ingrese condición"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Número de Asistentes:</label>
+            <input
+              type="number"
+              [(ngModel)]="fichaSeleccionada.numAsistentes"
+              placeholder="0"
+            />
+          </div>
+        </div>
+
+        <!-- Sección 4: Elaboración y Recepción -->
+        <div class="ficha-section">
+          <h3>📅 Elaboración y Recepción</h3>
+          <div class="ficha-field">
+            <label>Fecha Elaboración:</label>
+            <input
+              type="date"
+              [(ngModel)]="fichaSeleccionada.fechaElaboracion"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Hora Elaboración:</label>
+            <input
+              type="time"
+              [(ngModel)]="fichaSeleccionada.horaElaboracion"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Fecha Recepción:</label>
+            <input type="date" [(ngModel)]="fichaSeleccionada.fechaRecepcion" />
+          </div>
+          <div class="ficha-field">
+            <label>Hora Recepción:</label>
+            <input type="time" [(ngModel)]="fichaSeleccionada.horaRecepcion" />
+          </div>
+          <div class="ficha-field">
+            <label>Folio Interno:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.folioInterno"
+              placeholder="Ingrese folio"
+            />
+          </div>
+        </div>
+
+        <!-- Sección 5: Descripción -->
+        <div class="ficha-section full-width">
+          <h3>📝 Descripción</h3>
+          <div class="ficha-field">
+            <label>Información:</label>
+            <textarea
+              [(ngModel)]="fichaSeleccionada.informacion"
+              rows="4"
+              placeholder="Ingrese información"
+            ></textarea>
+          </div>
+          <div class="ficha-field">
+            <label>Asunto:</label>
+            <textarea
+              [(ngModel)]="fichaSeleccionada.asunto"
+              rows="4"
+              placeholder="Ingrese asunto"
+            ></textarea>
+          </div>
+          <div class="ficha-field">
+            <label>Hechos:</label>
+            <textarea
+              [(ngModel)]="fichaSeleccionada.hechos"
+              rows="4"
+              placeholder="Ingrese hechos"
+            ></textarea>
+          </div>
+          <div class="ficha-field">
+            <label>Acuerdos:</label>
+            <textarea
+              [(ngModel)]="fichaSeleccionada.acuerdos"
+              rows="4"
+              placeholder="Ingrese acuerdos"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Sección 6: Responsables -->
+        <div class="ficha-section">
+          <h3>👥 Responsables</h3>
+          <div class="ficha-field">
+            <label>ID Usuario:</label>
+            <input
+              type="number"
+              [(ngModel)]="fichaSeleccionada.idUsuario"
+              placeholder="0"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>ID Informó:</label>
+            <input
+              type="number"
+              [(ngModel)]="fichaSeleccionada.idInformo"
+              placeholder="0"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>ID Autorizó:</label>
+            <input
+              type="number"
+              [(ngModel)]="fichaSeleccionada.idAutorizo"
+              placeholder="0"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Estado Actual:</label>
+            <input
+              type="number"
+              [(ngModel)]="fichaSeleccionada.idEstadoActual"
+              placeholder="0"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Activo:</label>
+            <input
+              type="number"
+              [(ngModel)]="fichaSeleccionada.activo"
+              placeholder="0"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Visto:</label>
+            <input
+              type="number"
+              [(ngModel)]="fichaSeleccionada.visto"
+              placeholder="0"
+            />
+          </div>
+        </div>
+
+        <!-- Sección 7: Información Adicional -->
+        <div class="ficha-section">
+          <h3>📌 Información Adicional</h3>
+          <div class="ficha-field">
+            <label>Motivo Cancelación:</label>
+            <input
+              type="text"
+              [(ngModel)]="fichaSeleccionada.motivoCancelacion"
+              placeholder="Ingrese motivo de cancelación"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>ID Ficha Anterior:</label>
+            <input
+              type="number"
+              [(ngModel)]="fichaSeleccionada.idFichaAnterior"
+              placeholder="0"
+            />
+          </div>
+          <div class="ficha-field">
+            <label>Fecha Validación:</label>
+            <input
+              type="datetime-local"
+              [(ngModel)]="fichaSeleccionada.fechaValidacion"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarModal()">
+        {{ modoSoloLectura ? "Cerrar" : "Cancelar" }}
+      </button>
+      <button
+        *ngIf="!modoSoloLectura"
+        class="btn-validar"
+        (click)="onValidarYGuardar()"
+        [disabled]="cargandoFicha"
+      >
+        ✅ Validar y Guardar
+      </button>
+    </div>
+  </div>
+</div>

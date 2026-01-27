@@ -1,0 +1,124 @@
+<div class="borradores-container">
+  <!-- Encabezado -->
+  <div class="header-section">
+    <h1 class="page-title">FICHAS INFORMATIVAS GUARDADAS</h1>
+    <button class="btn-tutorial" (click)="verTutorial()">Ver tutorial</button>
+  </div>
+
+  <!-- Buscador y controles -->
+  <div class="controls-section">
+    <div class="search-box">
+      <label for="buscar">Buscar:</label>
+      <input
+        type="text"
+        id="buscar"
+        [(ngModel)]="busqueda"
+        (input)="buscar()"
+        placeholder="Buscar por estado, fecha..."
+        class="search-input"
+      />
+    </div>
+
+    <!-- Paginación superior -->
+    <div class="pagination-controls">
+      <button
+        class="btn-pagination"
+        (click)="cambiarPagina(paginaActual - 1)"
+        [disabled]="paginaActual === 1"
+      >
+        Anterior
+      </button>
+
+      <button
+        *ngFor="let pagina of paginasArray"
+        class="btn-page"
+        [class.active]="pagina === paginaActual"
+        (click)="cambiarPagina(pagina)"
+      >
+        {{ pagina }}
+      </button>
+
+      <button
+        class="btn-pagination"
+        (click)="cambiarPagina(paginaActual + 1)"
+        [disabled]="paginaActual === totalPaginas"
+      >
+        Siguiente
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla de borradores -->
+  <div class="table-container">
+    <table class="borradores-table">
+      <thead>
+        <tr>
+          <th>Abrir/Eliminar</th>
+          <th>Fecha Elaboración</th>
+          <th>Fecha Suceso</th>
+          <th>Hora Suceso</th>
+          <th>Estado</th>
+          <th>Prioridad</th>
+          <th>Sector</th>
+          <th>Asistentes</th>
+          <th>Estado Actual</th>
+          <th>Borrador usuario</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let borrador of borradorespaginados">
+          <td class="acciones-cell">
+            <button
+              class="btn-accion btn-editar"
+              (click)="editarBorrador(borrador)"
+              title="Editar borrador"
+            >
+              <i class="fas fa-folder-open"></i>
+            </button>
+            <button
+              class="btn-accion btn-eliminar"
+              (click)="eliminarBorrador(borrador.id)"
+              title="Eliminar borrador"
+            >
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </td>
+          <td>{{ borrador.fechaElaboracion }}</td>
+          <td>{{ borrador.fechaSuceso }}</td>
+          <td>
+            {{ borrador.horaInicioSuceso || "-" }} -
+            {{ borrador.horaFinSuceso || "-" }}
+          </td>
+          <td>{{ borrador.estado || "-" }}</td>
+          <td>{{ borrador.prioridad || "-" }}</td>
+          <td>{{ borrador.sector || "-" }}</td>
+          <td>{{ borrador.numeroAsistentes || 0 }}</td>
+          <td>
+            <span
+              class="badge-estado"
+              [class.nuevo]="borrador.estadoActual === 'NUEVO'"
+            >
+              {{ borrador.estadoActual }}
+            </span>
+          </td>
+          <td>{{ borrador.borradorUsuario || "-" }}</td>
+        </tr>
+
+        <tr *ngIf="borradorespaginados.length === 0">
+          <td colspan="10" class="no-data">No se encontraron borradores</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginación inferior -->
+  <div class="pagination-footer">
+    <p class="pagination-info">
+      Mostrando {{ (paginaActual - 1) * elementosPorPagina + 1 }} -
+      {{
+        Math.min(paginaActual * elementosPorPagina, borradoresFiltrados.length)
+      }}
+      de {{ borradoresFiltrados.length }} borradores
+    </p>
+  </div>
+</div>

@@ -1,0 +1,264 @@
+<div class="despacho-container">
+  <div class="page-header">
+    <h1>
+      <i class="fas fa-briefcase"></i>
+      Despacho - Fichas Confluidas
+    </h1>
+    <p class="subtitle">
+      Gestión de medidas de seguridad para fichas en estado confluido
+    </p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ error }}
+  </div>
+
+  <!-- Mensaje de cargando -->
+  <div *ngIf="cargando" class="loading-message">
+    <i class="fas fa-spinner fa-spin"></i>
+    Cargando fichas...
+  </div>
+
+  <!-- Información de fichas -->
+  <div *ngIf="!cargando && !error" class="info-section">
+    <p>
+      Total de fichas confluidas: <strong>{{ fichas.length }}</strong>
+    </p>
+  </div>
+
+  <!-- Tabla de fichas -->
+  <div *ngIf="!cargando && !error && fichas.length > 0" class="table-container">
+    <table class="fichas-table">
+      <thead>
+        <tr>
+          <th>Folio</th>
+          <th>Fecha Suceso</th>
+          <th>Delegación</th>
+          <th>Municipio</th>
+          <th>Lugar</th>
+          <th>Prioridad</th>
+          <th>Sector</th>
+          <th>Asunto</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ficha of fichasPaginadas">
+          <td>
+            <div style="display: flex; align-items: center; gap: 10px">
+              <button
+                class="btn-icon"
+                (click)="abrirModalVerFicha(ficha)"
+                title="Ver detalles de la ficha"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+              <strong>{{ ficha.folio }}</strong>
+            </div>
+          </td>
+          <td>{{ ficha.fechaSuceso }}</td>
+          <td>{{ ficha.delegacion }}</td>
+          <td>{{ ficha.municipio }}</td>
+          <td>{{ ficha.lugar }}</td>
+          <td>
+            <span
+              class="badge-prioridad"
+              [ngClass]="getPrioridadClass(ficha.prioridad)"
+            >
+              {{ ficha.prioridad }}
+            </span>
+          </td>
+          <td>{{ ficha.sector }}</td>
+          <td class="asunto-cell">{{ ficha.asunto }}</td>
+          <td>
+            <div class="acciones-container">
+              <button
+                class="btn-medidas"
+                (click)="abrirModalMedidas(ficha)"
+                title="Aplicar medidas de seguridad"
+              >
+                <i class="fas fa-shield-alt"></i>
+                Medidas
+              </button>
+              <button
+                class="btn-validar"
+                (click)="abrirModalValidar(ficha)"
+                title="Validar ficha"
+              >
+                <i class="fas fa-check-circle"></i>
+                Validar
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mensaje cuando no hay fichas -->
+  <div *ngIf="!cargando && !error && fichas.length === 0" class="empty-message">
+    <i class="fas fa-inbox"></i>
+    <p>No hay fichas en estado confluido</p>
+  </div>
+
+  <!-- Paginación -->
+  <div *ngIf="!cargando && fichas.length > 0" class="pagination-section">
+    <div class="pagination-info">
+      Página {{ paginaActual }} de {{ totalPaginas || 1 }}
+    </div>
+    <div class="pagination-controls">
+      <button
+        class="btn-pagination"
+        (click)="cambiarPagina(paginaActual - 1)"
+        [disabled]="paginaActual === 1"
+      >
+        <i class="fas fa-chevron-left"></i>
+        Anterior
+      </button>
+
+      <button
+        *ngIf="paginasVisibles[0] > 1"
+        class="btn-pagination btn-page"
+        (click)="cambiarPagina(1)"
+      >
+        1
+      </button>
+
+      <span *ngIf="paginasVisibles[0] > 2" class="pagination-ellipsis"
+        >...</span
+      >
+
+      <button
+        *ngFor="let pagina of paginasVisibles"
+        class="btn-pagination btn-page"
+        [class.active]="pagina === paginaActual"
+        (click)="cambiarPagina(pagina)"
+      >
+        {{ pagina }}
+      </button>
+
+      <span
+        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas - 1"
+        class="pagination-ellipsis"
+        >...</span
+      >
+
+      <button
+        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas"
+        class="btn-pagination btn-page"
+        (click)="cambiarPagina(totalPaginas)"
+      >
+        {{ totalPaginas }}
+      </button>
+
+      <button
+        class="btn-pagination"
+        (click)="cambiarPagina(paginaActual + 1)"
+        [disabled]="paginaActual === totalPaginas || totalPaginas === 0"
+      >
+        Siguiente
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de medidas de seguridad -->
+<app-modal-medidas
+  [visible]="mostrarModalMedidas"
+  [folioFicha]="fichaSeleccionada?.folio || ''"
+  [delegacion]="fichaSeleccionada?.delegacion || ''"
+  [municipio]="fichaSeleccionada?.municipio || ''"
+  [lugar]="fichaSeleccionada?.lugar || ''"
+  [prioridad]="fichaSeleccionada?.prioridad || ''"
+  [medidasSeguridad]="medidasSeguridad"
+  (cerrar)="cerrarModal()"
+  (aplicar)="onAplicarMedidas($event)"
+></app-modal-medidas>
+
+<!-- Modal para ver detalles de ficha -->
+<div class="modal-overlay" *ngIf="mostrarModalVerFicha" (click)="cerrarModal()">
+  <div class="modal-content modal-detalle" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-file-alt"></i>
+        Detalles de la Ficha
+      </h2>
+      <button class="btn-close" (click)="cerrarModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body" *ngIf="fichaDetalleCompleta">
+      <!-- Información General -->
+      <div class="detalle-section">
+        <h3>Información General</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Folio:</span>
+            <span class="value">{{ fichaDetalleCompleta.folio }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Fecha Suceso:</span>
+            <span class="value">{{ fichaDetalleCompleta.fechaSuceso }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Delegación:</span>
+            <span class="value">{{ fichaDetalleCompleta.estado }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Municipio:</span>
+            <span class="value">{{ fichaDetalleCompleta.municipio }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Lugar:</span>
+            <span class="value">{{ fichaDetalleCompleta.lugar }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Sector:</span>
+            <span class="value">{{ fichaDetalleCompleta.sector }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Prioridad:</span>
+            <span
+              class="badge-prioridad"
+              [ngClass]="getPrioridadClass(fichaDetalleCompleta.prioridad)"
+            >
+              {{ fichaDetalleCompleta.prioridad }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="detalle-section">
+        <h3>Descripción</h3>
+        <div class="info-item-full">
+          <span class="label">Asunto:</span>
+          <p class="value-text">{{ fichaDetalleCompleta.asunto }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarModal()">
+        <i class="fas fa-times"></i>
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de validación con drag & drop -->
+<app-modal-validar
+  [visible]="mostrarModalValidar"
+  [folioFicha]="fichaSeleccionada?.folio || ''"
+  [delegacion]="fichaSeleccionada?.delegacion || ''"
+  [municipio]="fichaSeleccionada?.municipio || ''"
+  [lugar]="fichaSeleccionada?.lugar || ''"
+  [prioridad]="fichaSeleccionada?.prioridad || ''"
+  (cerrar)="cerrarModal()"
+  (validar)="onValidarFicha($event)"
+></app-modal-validar>

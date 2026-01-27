@@ -1,0 +1,211 @@
+<div class="editar-usuario-container">
+  <!-- Encabezado -->
+  <div class="header-section">
+    <h1 class="page-title">ADMINISTRACIÓN DE USUARIOS</h1>
+    <div class="header-actions">
+      <button class="btn-action btn-tutorial" (click)="verTutorial()">
+        <i class="fas fa-question-circle"></i>
+        Ver tutorial
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros y búsqueda -->
+  <div class="filters-section">
+    <div class="search-wrapper">
+      <label class="search-label">
+        <i class="fas fa-search"></i>
+        Buscar:
+      </label>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar por usuario, nombre, alias..."
+        [(ngModel)]="terminoBusqueda"
+        (input)="buscar()"
+      />
+    </div>
+
+    <div class="pagination-controls-top">
+      <label>Mostrar</label>
+      <select
+        [(ngModel)]="usuariosPorPagina"
+        (change)="calcularTotalPaginas(); paginaActual = 1"
+      >
+        <option [value]="10">10</option>
+        <option [value]="25">25</option>
+        <option [value]="50">50</option>
+        <option [value]="100">100</option>
+      </select>
+      <label>registros</label>
+    </div>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div class="error-message" *ngIf="error">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ error }}
+  </div>
+
+  <!-- Información de resultados -->
+  <div class="info-section">
+    <div class="info-text">
+      <i class="fas fa-info-circle"></i>
+      <span>
+        Mostrando {{ (paginaActual - 1) * usuariosPorPagina + 1 }} a
+        {{
+          Math.min(paginaActual * usuariosPorPagina, usuariosFiltrados.length)
+        }}
+        de {{ usuariosFiltrados.length }} usuarios
+      </span>
+    </div>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="usuarios-table">
+        <thead>
+          <tr>
+            <th>Acciones</th>
+            <th>Usuario</th>
+            <th>Nombre Completo</th>
+            <th>Alias</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Último Acceso</th>
+            <th>Fecha Creación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="cargando">
+            <td colspan="8" class="loading-message">
+              <i class="fas fa-spinner fa-spin"></i>
+              Cargando usuarios...
+            </td>
+          </tr>
+          <tr *ngIf="!cargando && usuariosFiltrados.length === 0">
+            <td colspan="8" class="empty-message">
+              <em>No se encontraron usuarios</em>
+            </td>
+          </tr>
+          <tr *ngFor="let usuario of usuariosPaginados" class="data-row">
+            <td class="action-cell">
+              <button
+                class="btn-action-table btn-editar"
+                (click)="abrirModalEditar(usuario.idUsuario)"
+                title="Editar usuario"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                class="btn-action-table btn-eliminar"
+                (click)="eliminarUsuario(usuario.idUsuario, usuario.usuario)"
+                title="Eliminar usuario"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+            <td data-label="Usuario">{{ usuario.usuario }}</td>
+            <td data-label="Nombre Completo">
+              {{ usuario.nombre || "" }} {{ usuario.app || "" }}
+              {{ usuario.apm || "" }}
+            </td>
+            <td data-label="Alias">{{ usuario.alias || "N/A" }}</td>
+            <td data-label="Rol">
+              <span class="badge-rol">{{
+                usuario.nombreRol || "Sin rol"
+              }}</span>
+            </td>
+            <td data-label="Estado">
+              <span
+                class="badge-estado"
+                [ngClass]="
+                  usuario.status === 1 ? 'estado-activo' : 'estado-inactivo'
+                "
+              >
+                {{ usuario.status === 1 ? "Activo" : "Inactivo" }}
+              </span>
+            </td>
+            <td data-label="Último Acceso">
+              {{ usuario.ultimoAcceso || "Nunca" }}
+            </td>
+            <td data-label="Fecha Creación">
+              {{ usuario.fechaHoraCreacion || "N/A" }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination-section">
+    <div class="pagination-info">
+      Página {{ paginaActual }} de {{ totalPaginas || 1 }}
+    </div>
+    <div class="pagination-controls">
+      <button
+        class="btn-pagination"
+        (click)="anterior()"
+        [disabled]="paginaActual === 1"
+      >
+        <i class="fas fa-chevron-left"></i>
+        Anterior
+      </button>
+
+      <button
+        *ngIf="paginasVisibles[0] > 1"
+        class="btn-pagination btn-page"
+        (click)="paginaActual = 1"
+      >
+        1
+      </button>
+
+      <span *ngIf="paginasVisibles[0] > 2" class="pagination-ellipsis"
+        >...</span
+      >
+
+      <button
+        *ngFor="let pagina of paginasVisibles"
+        class="btn-pagination btn-page"
+        [class.active]="pagina === paginaActual"
+        (click)="paginaActual = pagina"
+      >
+        {{ pagina }}
+      </button>
+
+      <span
+        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas - 1"
+        class="pagination-ellipsis"
+        >...</span
+      >
+
+      <button
+        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas"
+        class="btn-pagination btn-page"
+        (click)="paginaActual = totalPaginas"
+      >
+        {{ totalPaginas }}
+      </button>
+
+      <button
+        class="btn-pagination"
+        (click)="siguiente()"
+        [disabled]="paginaActual === totalPaginas || totalPaginas === 0"
+      >
+        Siguiente
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para editar usuario -->
+<app-modal-editar-usuario
+  [mostrarModal]="mostrarModal"
+  [usuarioSeleccionado]="usuarioSeleccionado"
+  [cargandoUsuario]="cargandoUsuario"
+  (cerrar)="cerrarModal()"
+  (guardar)="guardarUsuario($event)"
+></app-modal-editar-usuario>
