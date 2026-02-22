@@ -93,6 +93,7 @@ export class AuthService {
 
   isAdmin(): boolean {
     const user = this.currentUserValue;
-    return user?.nombreRol?.toUpperCase() === 'Admin';
+    console.log('Verificando rol de usuario:', user);
+    return user?.nombreRol?.toUpperCase() === 'ADMIN';
   }
 }
