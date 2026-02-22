@@ -101,7 +101,7 @@ namespace Backend.Services
                     }
 
                     // Verificar que sea Administrador
-                    if (usuarioCrea.Rol?.NombreRol?.ToUpper() != "ADMINISTRADOR")
+                    if (usuarioCrea.Rol?.NombreRol?.ToUpper() != "ADMIN")
                     {
                         throw new InvalidOperationException("Solo los administradores pueden crear nuevos usuarios");
                     }

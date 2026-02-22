@@ -113,7 +113,7 @@ export class RegistrarUsuarioComponent implements OnInit {
   }
 
   async registrarUsuario() {
-    // ✅ Validar que sea Administrador
+
     if (!this.isAdmin()) {
       this.mensajeError =
         'Solo los administradores pueden crear nuevos usuarios.';
