@@ -72,7 +72,7 @@ export class RegistrarUsuarioComponent implements OnInit {
       tieneMayuscula: /[A-Z]/.test(password),
       tieneMinuscula: /[a-z]/.test(password),
       tieneNumero: /\d/.test(password),
-      tieneEspecial: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      tieneEspecial: /[!@#$%^&*(),.?":{}|<>_-]/.test(password),
     };
   }
 
