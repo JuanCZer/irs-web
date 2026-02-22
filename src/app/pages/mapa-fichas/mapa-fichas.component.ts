@@ -5,6 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import { FichasService, FichasTodosDTO } from '../../services/fichas.service';
 import { NavbarService } from '../../services/navbar.service';
 import { Subscription } from 'rxjs';
+import { environment } from '../../environment/environment.local';
 
 // Interfaz extendida para manejar coordenadas numéricas
 interface FichaConCoordenadas extends Omit<
@@ -26,8 +27,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
   private map!: mapboxgl.Map;
   private markers: mapboxgl.Marker[] = [];
   private mapReady = false;
-  private readonly MAPBOX_TOKEN =
-    'pk.eyJ1IjoianVhbmN6ZXJvbmciLCJhIjoiY21lbTRuY3pwMHAzdjJub294eWM3ZDNxeiJ9.GR7kio2VVQvxV55zolMCKQ';
+  private readonly MAPBOX_TOKEN = environment.mapboxToken;
 
   // Datos de fichas
   todasLasFichas: FichaConCoordenadas[] = [];
@@ -87,7 +87,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private fichasService: FichasService,
-    private navbarService: NavbarService
+    private navbarService: NavbarService,
   ) {}
 
   ngOnInit(): void {
@@ -97,7 +97,6 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-
     // Exponer datos para debugging en consola
     const self = this;
     (window as any).fichasDebug = {
@@ -150,7 +149,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
             return;
           }
         }, 350);
-      })
+      }),
     );
   }
 
@@ -168,14 +167,12 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   cargarFichas(): void {
-
     this.cargando = true;
     this.mensajeError = '';
 
     this.fichasService
       .obtenerFichasPorRangoFechas(this.fechaInicio, this.fechaFin)
       .then((fichas) => {
-
         // Convertir string de latitud/longitud a number y validar
         this.todasLasFichas = fichas.map(
           (ficha: any, index: number): FichaConCoordenadas => {
@@ -270,7 +267,6 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private actualizarMarcadores(): void {
-
     // Validar que el mapa esté inicializado
     if (!this.map) {
       return;
@@ -280,8 +276,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.markers.forEach((marker) => {
       try {
         marker.remove();
-      } catch (e) {
-      }
+      } catch (e) {}
     });
     this.markers = [];
 
@@ -330,8 +325,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
 
           this.markers.push(marker);
           contadorMarcadores++;
-        } catch (error) {
-        }
+        } catch (error) {}
       } else {
         contadorSinCoordenadas++;
       }

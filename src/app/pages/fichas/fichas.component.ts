@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import mapboxgl from 'mapbox-gl';
+import { environment } from '../../environment/environment.local';
 
 interface FichaInformativa {
   estado: string;
@@ -37,8 +38,7 @@ interface FichaInformativa {
 export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
   private map!: mapboxgl.Map;
   private marker!: mapboxgl.Marker;
-  private readonly MAPBOX_TOKEN =
-    'pk.eyJ1IjoianVhbmN6ZXJvbmciLCJhIjoiY21lbTRuY3pwMHAzdjJub294eWM3ZDNxeiJ9.GR7kio2VVQvxV55zolMCKQ';
+  private readonly MAPBOX_TOKEN = environment.mapboxToken;
 
   ficha: FichaInformativa = {
     estado: '',
