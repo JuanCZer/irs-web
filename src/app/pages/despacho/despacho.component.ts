@@ -75,13 +75,10 @@ export class DespachoComponent implements OnInit {
 
   async cargarMedidasSeguridad(): Promise<void> {
     try {
-       this.medidasSeguridad =
+      this.medidasSeguridad =
         await this.catalogosService.obtenerMedidasSeguridad();
-         `✅ ${this.medidasSeguridad.length} medidas de seguridad cargadas:`,
-        this.medidasSeguridad
-      );
     } catch (error) {
-       this.error = 'Error al cargar las medidas de seguridad';
+      this.error = 'Error al cargar las medidas de seguridad';
     }
   }
 
@@ -89,7 +86,7 @@ export class DespachoComponent implements OnInit {
     try {
       this.cargando = true;
       this.error = '';
- 
+
       // Obtener fichas con estado "Concluido" desde el backend
       const fichasDTO = await this.fichasService.obtenerFichasPorEstado(
         'Concluido'
@@ -107,10 +104,8 @@ export class DespachoComponent implements OnInit {
         sector: dto.sector,
         asunto: dto.asunto,
       }));
-         `✅ ${this.fichas.length} fichas con estado "Concluido" cargadas`
-      );
     } catch (error) {
-       this.error =
+      this.error =
         'Error al cargar las fichas. Verifique que el backend esté corriendo.';
     } finally {
       this.cargando = false;
@@ -185,7 +180,7 @@ export class DespachoComponent implements OnInit {
 
       this.mostrarModalVerFicha = true;
     } catch (error) {
-       alert('Error al cargar los detalles de la ficha');
+      alert('Error al cargar los detalles de la ficha');
     } finally {
       this.cargando = false;
     }
@@ -204,7 +199,7 @@ export class DespachoComponent implements OnInit {
 
     this.medidasSeleccionadasIds = event.medidas;
     this.comentarioTemporal = event.comentario;
-  
+
     alert(
       `Se han seleccionado ${event.medidas.length} medidas. Ahora use el botón "Validar" para subir la evidencia.`
     );
@@ -216,7 +211,7 @@ export class DespachoComponent implements OnInit {
     if (!this.fichaSeleccionada) return;
 
     try {
- 
+
       const usuario = this.authService.currentUserValue;
 
       await this.despachoService.validarFicha({
@@ -234,7 +229,7 @@ export class DespachoComponent implements OnInit {
       this.medidasSeleccionadasIds = [];
       this.comentarioTemporal = '';
     } catch (error) {
-       alert('Error al validar la ficha. Intente nuevamente.');
+      alert('Error al validar la ficha. Intente nuevamente.');
     }
   }
 

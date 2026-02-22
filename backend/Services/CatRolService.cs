@@ -16,13 +16,10 @@ namespace Backend.Services
 
         public async Task<List<CatRol>> ObtenerTodosLosRolesAsync()
         {
-            Console.WriteLine("📋 Obteniendo catálogo de roles...");
             
             var roles = await _context.CatRoles
                 .OrderBy(r => r.IdCatRol)
                 .ToListAsync();
-
-            Console.WriteLine($"✅ Total roles encontrados: {roles.Count}");
 
             return roles;
         }

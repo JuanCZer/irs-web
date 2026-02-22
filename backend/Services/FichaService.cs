@@ -119,8 +119,6 @@ public class FichaService : IFichaService
             .Where(f => f.Activo == 2)
             .OrderByDescending(f => f.FechaElaboracion)
             .ToListAsync();
-
-        Console.WriteLine($"🔍 Total borradores encontrados: {borradores.Count}");
         
         if (borradores.Any())
         {
@@ -187,7 +185,6 @@ public class FichaService : IFichaService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"⚠️ Error al formatear {nombreCampo} para ficha {fichaId}: {ex.Message}");
             return null;
         }
     }
@@ -196,9 +193,6 @@ public class FichaService : IFichaService
     {
         // Solo usar HoraSucesoFin para la columna Hora Suceso
         var horaSuceso = ficha.HoraSucesoFin?.ToString(@"HH\:mm") ?? "Sin hora";
-
-        Console.WriteLine($"🕐 Mapeando borrador ID {ficha.Id}:");
-        Console.WriteLine($"   HoraSucesoFin: {ficha.HoraSucesoFin} -> {horaSuceso}");
 
         return new FichasBorradorDto
         {
@@ -328,8 +322,6 @@ public class FichaService : IFichaService
     {
         try
         {
-            Console.WriteLine("📊 Calculando estadísticas de fichas...");
-            
             var hoy = DateTime.UtcNow.Date;
             var inicioSemana = hoy.AddDays(-(int)hoy.DayOfWeek);
             var inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
@@ -339,7 +331,6 @@ public class FichaService : IFichaService
 
             var todasLasFichas = await _context.Fichas.ToListAsync();
 
-            // 📊 RESUMEN
             var totalFichas = todasLasFichas.Count;
             var fichasHoy = todasLasFichas.Count(f => f.FechaElaboracion.HasValue && f.FechaElaboracion.Value.Date == hoy);
             var fichasSemana = todasLasFichas.Count(f => f.FechaElaboracion.HasValue && f.FechaElaboracion.Value.Date >= inicioSemana && f.FechaElaboracion.Value.Date <= hoy);
@@ -375,9 +366,6 @@ public class FichaService : IFichaService
                 CrecimientoMensual = Math.Round(crecimientoMensual, 2)
             };
 
-            Console.WriteLine($"✅ Total: {totalFichas} | Hoy: {fichasHoy} | Semana: {fichasSemana} | Mes: {fichasMes}");
-
-            // 📍 FICHAS POR ESTADO/DELEGACIÓN
             var fichasPorDelegacion = todasLasFichas
                 .GroupBy(f => f.Delegacion ?? "Sin delegación")
                 .OrderByDescending(g => g.Count())
@@ -398,9 +386,6 @@ public class FichaService : IFichaService
                 fichasPorEstado.Data.Add(otros);
             }
 
-            Console.WriteLine($"✅ Fichas por delegación: {fichasPorEstado.Labels.Count} delegaciones");
-
-            // 📅 FICHAS POR MES (año actual)
             var fichasPorMes = new FichasPorMesDto();
             var meses = new[] { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" };
 
@@ -416,9 +401,6 @@ public class FichaService : IFichaService
                 fichasPorMes.Data.Add(fichasEnMes);
             }
 
-            Console.WriteLine($"✅ Fichas por mes del año actual calculadas");
-
-            // 📈 TENDENCIA MENSUAL (Año anterior vs Año actual)
             var tendenciaMensual = new TendenciaMensualDto();
             var dataAñoAnterior = new List<int>();
             var dataAñoActual = new List<int>();
@@ -445,8 +427,6 @@ public class FichaService : IFichaService
             tendenciaMensual.Datasets.Add(new DatasetDto { Label = (hoy.Year - 1).ToString(), Data = dataAñoAnterior });
             tendenciaMensual.Datasets.Add(new DatasetDto { Label = hoy.Year.ToString(), Data = dataAñoActual });
 
-            Console.WriteLine($"✅ Tendencia mensual calculada");
-
             return new FichasEstadisticasDto
             {
                 Resumen = resumen,
@@ -457,7 +437,6 @@ public class FichaService : IFichaService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Error al calcular estadísticas: {ex.Message}");
             throw;
         }
     }

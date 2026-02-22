@@ -21,7 +21,6 @@ namespace Backend.Controllers
         {
             try
             {
-                Console.WriteLine($"🔐 Intento de login: {loginDto.Usuario}");
 
                 if (string.IsNullOrWhiteSpace(loginDto.Usuario))
                 {
@@ -37,16 +36,12 @@ namespace Backend.Controllers
 
                 if (usuario == null)
                 {
-                    Console.WriteLine($"❌ Credenciales inválidas para: {loginDto.Usuario}");
                     return Unauthorized(new { error = "Usuario o contraseña incorrectos" });
                 }
-
-                Console.WriteLine($"✅ Login exitoso: {usuario.Usuario} (ID: {usuario.IdUsuario})");
                 return Ok(usuario);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error en login: {ex.Message}");
                 return StatusCode(500, new { error = "Error al procesar el login", detalle = ex.Message });
             }
         }
@@ -56,7 +51,6 @@ namespace Backend.Controllers
         {
             try
             {
-                Console.WriteLine($"🔐 Solicitud de cambio de contraseña para usuario ID: {cambioContraseñaDto.IdUsuario}");
 
                 if (cambioContraseñaDto == null)
                 {
@@ -74,13 +68,10 @@ namespace Backend.Controllers
                 {
                     return BadRequest(resultado);
                 }
-
-                Console.WriteLine($"✅ Contraseña cambiada exitosamente para usuario ID: {cambioContraseñaDto.IdUsuario}");
                 return Ok(resultado);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error en cambio de contraseña: {ex.Message}");
                 return StatusCode(500, new RespuestaCambioContrasenaDTO
                 {
                     Exitoso = false,

@@ -21,7 +21,6 @@ namespace Backend.Services
         {
             try
             {
-                Console.WriteLine("🔍 Ejecutando ipconfig para obtener IP...");
                 
                 var processStartInfo = new ProcessStartInfo
                 {
@@ -34,7 +33,6 @@ namespace Backend.Services
                 using var process = Process.Start(processStartInfo);
                 if (process == null)
                 {
-                    Console.WriteLine("⚠️ No se pudo iniciar ipconfig");
                     return "0.0.0.0";
                 }
 
@@ -51,24 +49,19 @@ namespace Backend.Services
                     // Ignorar localhost y IPs de link-local
                     if (ip != "127.0.0.1" && !ip.StartsWith("169.254"))
                     {
-                        Console.WriteLine($"✅ IP detectada: {ip}");
                         return ip;
                     }
                 }
-
-                Console.WriteLine("⚠️ No se encontró IP válida, usando 0.0.0.0");
                 return "0.0.0.0";
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error al obtener IP: {ex.Message}");
                 return "0.0.0.0";
             }
         }
 
         public async Task<List<UsuarioDTO>> ObtenerTodosLosUsuariosAsync()
         {
-            Console.WriteLine("📋 Obteniendo todos los usuarios...");
             
             var usuarios = await _context.Usuarios
                 .Include(u => u.Rol) // Incluir la relación con CatRol
@@ -76,26 +69,19 @@ namespace Backend.Services
                 .OrderByDescending(u => u.FechaHoraCreacion)
                 .ToListAsync();
 
-            Console.WriteLine($"✅ Total usuarios encontrados: {usuarios.Count}");
-
             return usuarios.Select(u => MapearAUsuarioDTO(u)).ToList();
         }
 
         public async Task<UsuarioDTO?> ObtenerUsuarioPorIdAsync(int id)
-        {
-            Console.WriteLine($"🔍 Buscando usuario con ID: {id}");
-            
+        {      
             var usuario = await _context.Usuarios
                 .Include(u => u.Rol) // Incluir la relación con CatRol
                 .FirstOrDefaultAsync(u => u.IdUsuario == id);
 
             if (usuario == null)
             {
-                Console.WriteLine($"❌ Usuario con ID {id} no encontrado");
                 return null;
             }
-
-            Console.WriteLine($"✅ Usuario encontrado: {usuario.Usuario1}");
             return MapearAUsuarioDTO(usuario);
         }
 
@@ -103,12 +89,6 @@ namespace Backend.Services
         {
             try
             {
-                Console.WriteLine($"➕ Creando nuevo usuario: {usuarioDto.Usuario}");
-                Console.WriteLine($"   Nombre: {usuarioDto.Nombre}");
-                Console.WriteLine($"   App: {usuarioDto.App}");
-                Console.WriteLine($"   IdRol: {usuarioDto.IdRol}");
-
-                // ✅ VALIDACIÓN DE AUTORIZACIÓN: Solo Administrador puede crear usuarios
                 if (usuarioDto.IdUsuarioCrea.HasValue)
                 {
                     var usuarioCrea = await _context.Usuarios
@@ -123,11 +103,8 @@ namespace Backend.Services
                     // Verificar que sea Administrador
                     if (usuarioCrea.Rol?.NombreRol?.ToUpper() != "ADMINISTRADOR")
                     {
-                        Console.WriteLine($"❌ Usuario {usuarioCrea.Usuario1} no tiene permisos de Administrador");
                         throw new InvalidOperationException("Solo los administradores pueden crear nuevos usuarios");
                     }
-
-                    Console.WriteLine($"✅ Usuario {usuarioCrea.Usuario1} (Admin) autorizado para crear usuarios");
                 }
                 else
                 {
@@ -144,7 +121,6 @@ namespace Backend.Services
                 }
 
                 // Encriptar contraseña
-                Console.WriteLine("🔒 Encriptando contraseña...");
                 var passwordHash = BCrypt.Net.BCrypt.HashPassword(usuarioDto.Password);
 
                 // Obtener IP local del sistema
@@ -166,12 +142,8 @@ namespace Backend.Services
                     Intento = 0,
                     Ip = ipLocal
                 };
-
-                Console.WriteLine("💾 Guardando en la base de datos...");
                 _context.Usuarios.Add(nuevoUsuario);
                 await _context.SaveChangesAsync();
-
-                Console.WriteLine($"✅ Usuario creado con ID: {nuevoUsuario.IdUsuario}");
 
                 // Recargar el usuario con la navegación del rol
                 var usuarioConRol = await _context.Usuarios
@@ -182,11 +154,8 @@ namespace Backend.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error en CrearUsuarioAsync: {ex.Message}");
-                Console.WriteLine($"   Stack Trace: {ex.StackTrace}");
                 if (ex.InnerException != null)
                 {
-                    Console.WriteLine($"   Inner Exception: {ex.InnerException.Message}");
                 }
                 throw;
             }
@@ -194,13 +163,10 @@ namespace Backend.Services
 
         public async Task<bool> ActualizarUsuarioAsync(int id, ActualizarUsuarioDTO usuarioDto)
         {
-            Console.WriteLine($"✏️ Actualizando usuario con ID: {id}");
-
             var usuario = await _context.Usuarios.FindAsync(id);
 
             if (usuario == null)
             {
-                Console.WriteLine($"❌ Usuario con ID {id} no encontrado");
                 return false;
             }
 
@@ -220,29 +186,21 @@ namespace Backend.Services
             }
 
             await _context.SaveChangesAsync();
-
-            Console.WriteLine($"✅ Usuario actualizado correctamente");
-
             return true;
         }
 
         public async Task<bool> EliminarUsuarioAsync(int id)
         {
-            Console.WriteLine($"🗑️ Eliminando usuario con ID: {id}");
-
             var usuario = await _context.Usuarios.FindAsync(id);
 
             if (usuario == null)
             {
-                Console.WriteLine($"❌ Usuario con ID {id} no encontrado");
                 return false;
             }
 
             // Eliminación lógica: cambiar status a 0 (inactivo)
             usuario.Status = 0;
             await _context.SaveChangesAsync();
-
-            Console.WriteLine($"✅ Usuario eliminado (desactivado) correctamente");
 
             return true;
         }
@@ -251,16 +209,12 @@ namespace Backend.Services
         {
             try
             {
-                Console.WriteLine($"🔍 Validando credenciales para usuario: {usuario}");
-
-                // Buscar usuario por nombre de usuario, incluyendo el rol
                 var usuarioEncontrado = await _context.Usuarios
                     .Include(u => u.Rol)
                     .FirstOrDefaultAsync(u => u.Usuario1 == usuario && u.Status == 1);
 
                 if (usuarioEncontrado == null)
                 {
-                    Console.WriteLine($"❌ Usuario no encontrado o inactivo: {usuario}");
                     return null;
                 }
 
@@ -269,16 +223,11 @@ namespace Backend.Services
 
                 if (!passwordValida)
                 {
-                    Console.WriteLine($"❌ Contraseña incorrecta para usuario: {usuario}");
-                    
-                    // Incrementar contador de intentos fallidos
                     usuarioEncontrado.Intento = (usuarioEncontrado.Intento ?? 0) + 1;
                     await _context.SaveChangesAsync();
                     
                     return null;
                 }
-
-                Console.WriteLine($"✅ Credenciales válidas para usuario: {usuario}");
 
                 // Actualizar último acceso y reiniciar intentos
                 usuarioEncontrado.UltimoAcceso = DateTime.UtcNow;
@@ -289,7 +238,6 @@ namespace Backend.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error al validar credenciales: {ex.Message}");
                 throw;
             }
         }
@@ -319,9 +267,6 @@ namespace Backend.Services
         {
             try
             {
-                Console.WriteLine($"🔐 Iniciando cambio de contraseña para usuario ID: {cambioContraseñaDto.IdUsuario}");
-
-                // Validaciones básicas
                 var errores = new List<string>();
 
                 if (string.IsNullOrWhiteSpace(cambioContraseñaDto.ContraseñaActual))
@@ -346,7 +291,6 @@ namespace Backend.Services
 
                 if (errores.Count > 0)
                 {
-                    Console.WriteLine($"❌ Errores de validación: {string.Join(", ", errores)}");
                     return new RespuestaCambioContrasenaDTO
                     {
                         Exitoso = false,
@@ -360,7 +304,6 @@ namespace Backend.Services
 
                 if (usuario == null)
                 {
-                    Console.WriteLine($"❌ Usuario no encontrado con ID: {cambioContraseñaDto.IdUsuario}");
                     return new RespuestaCambioContrasenaDTO
                     {
                         Exitoso = false,
@@ -374,7 +317,6 @@ namespace Backend.Services
 
                 if (!contraseñaActualValida)
                 {
-                    Console.WriteLine($"❌ Contraseña actual incorrecta para usuario: {usuario.Usuario1}");
                     return new RespuestaCambioContrasenaDTO
                     {
                         Exitoso = false,
@@ -387,7 +329,6 @@ namespace Backend.Services
                 bool contraseñaIgual = BCrypt.Net.BCrypt.Verify(cambioContraseñaDto.ContraseñaNueva, usuario.Password);
                 if (contraseñaIgual)
                 {
-                    Console.WriteLine($"⚠️ Nueva contraseña igual a la actual para usuario: {usuario.Usuario1}");
                     return new RespuestaCambioContrasenaDTO
                     {
                         Exitoso = false,
@@ -405,8 +346,6 @@ namespace Backend.Services
 
                 await _context.SaveChangesAsync();
 
-                Console.WriteLine($"✅ Contraseña actualizada exitosamente para usuario: {usuario.Usuario1}");
-
                 return new RespuestaCambioContrasenaDTO
                 {
                     Exitoso = true,
@@ -415,7 +354,6 @@ namespace Backend.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error al cambiar contraseña: {ex.Message}");
                 return new RespuestaCambioContrasenaDTO
                 {
                     Exitoso = false,

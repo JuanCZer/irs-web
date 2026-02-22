@@ -22,18 +22,13 @@ namespace Backend.Controllers
         {
             try
             {
-                Console.WriteLine("� GET /api/roles - Obteniendo catálogo de roles");
                 var roles = await _rolService.ObtenerTodosLosRolesAsync();
-                Console.WriteLine($"✅ Retornando {roles.Count} roles");
                 return Ok(roles);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error al obtener roles: {ex.Message}");
-                Console.WriteLine($"   Stack: {ex.StackTrace}");
                 if (ex.InnerException != null)
                 {
-                    Console.WriteLine($"   Inner Exception: {ex.InnerException.Message}");
                 }
                 return StatusCode(500, new { error = "Error al obtener los roles", detalle = ex.Message });
             }

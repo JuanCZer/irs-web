@@ -69,7 +69,7 @@ export class UsuariosService {
 
   async obtenerRoles(): Promise<CatRol[]> {
     try {
- 
+
       const response = await fetch(this.rolesApiUrl, {
         method: 'GET',
         headers: {
@@ -78,22 +78,23 @@ export class UsuariosService {
         mode: 'cors',
         credentials: 'omit',
       });
-  
+
       if (!response.ok) {
         const errorText = await response.text();
-         throw new Error(`Error HTTP ${response.status}: ${errorText}`);
+        throw new Error(`Error HTTP ${response.status}: ${errorText}`);
       }
 
       const roles = await response.json();
-        return roles;
+      return roles;
     } catch (error) {
-   
+
       // Si es un error de red o CORS
       if (error instanceof TypeError) {
-            '   Verifica que el backend esté corriendo en:',
+        console.error(
+          '   Verifica que el backend esté corriendo en:',
           this.rolesApiUrl,
         );
-       }
+      }
 
       throw error;
     }
@@ -101,37 +102,37 @@ export class UsuariosService {
 
   async obtenerTodosLosUsuarios(): Promise<UsuarioDTO[]> {
     try {
-       const response = await fetch(this.apiUrl);
+      const response = await fetch(this.apiUrl);
 
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
       }
 
       const usuarios = await response.json();
-       return usuarios;
+      return usuarios;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
   async obtenerUsuarioPorId(id: number): Promise<UsuarioDTO> {
     try {
-       const response = await fetch(`${this.apiUrl}/${id}`);
+      const response = await fetch(`${this.apiUrl}/${id}`);
 
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
       }
 
       const usuario = await response.json();
-       return usuario;
+      return usuario;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
   async crearUsuario(usuario: CrearUsuarioDTO): Promise<UsuarioDTO> {
     try {
-       const response = await fetch(this.apiUrl, {
+      const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -145,9 +146,9 @@ export class UsuariosService {
       }
 
       const nuevoUsuario = await response.json();
-       return nuevoUsuario;
+      return nuevoUsuario;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
@@ -156,7 +157,7 @@ export class UsuariosService {
     usuario: ActualizarUsuarioDTO,
   ): Promise<void> {
     try {
-       const response = await fetch(`${this.apiUrl}/${id}`, {
+      const response = await fetch(`${this.apiUrl}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -168,14 +169,14 @@ export class UsuariosService {
         const errorData = await response.json();
         throw new Error(errorData.error || `Error HTTP: ${response.status}`);
       }
-     } catch (error) {
-       throw error;
+    } catch (error) {
+      throw error;
     }
   }
 
   async eliminarUsuario(id: number): Promise<void> {
     try {
-       const response = await fetch(`${this.apiUrl}/${id}`, {
+      const response = await fetch(`${this.apiUrl}/${id}`, {
         method: 'DELETE',
       });
 
@@ -183,8 +184,8 @@ export class UsuariosService {
         const errorData = await response.json();
         throw new Error(errorData.error || `Error HTTP: ${response.status}`);
       }
-     } catch (error) {
-       throw error;
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -192,7 +193,7 @@ export class UsuariosService {
     cambioContraseña: CambiarContrasenaDTO,
   ): Promise<RespuestaCambioContrasenaDTO> {
     try {
-       const response = await fetch(
+      const response = await fetch(
         'https://localhost:5001/api/auth/cambiar-contrasena',
         {
           method: 'POST',
@@ -205,11 +206,11 @@ export class UsuariosService {
 
       if (!response.ok) {
         const errorData = await response.json();
-         throw new Error(errorData.mensaje || `Error HTTP: ${response.status}`);
+        throw new Error(errorData.mensaje || `Error HTTP: ${response.status}`);
       }
 
       const resultado = await response.json();
- 
+
       // Mapear respuesta del backend (PascalCase) a camelCase
       return {
         exitoso:
@@ -220,7 +221,7 @@ export class UsuariosService {
         errores: resultado.errores || resultado.Errores,
       };
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 }

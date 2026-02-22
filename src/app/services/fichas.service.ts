@@ -118,23 +118,21 @@ export class FichasService {
 
   async obtenerTodasLasFichas(): Promise<FichasTodosDTO[]> {
     try {
-       const response = await fetch(this.apiUrl);
- 
+      const response = await fetch(this.apiUrl);
+
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-       return data;
+      return data;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
   async obtenerFichasPorEstado(estado: string): Promise<FichasTodosDTO[]> {
     try {
-         '🔍 Obteniendo fichas concluidas desde /api/fichas/concluidas',
-      );
       const response = await fetch(`${this.apiUrl}/concluidas`);
 
       if (!response.ok) {
@@ -142,28 +140,28 @@ export class FichasService {
       }
 
       const data = await response.json();
-       return data;
+      return data;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
   async obtenerFichaPorId(id: number): Promise<FichaInformativa> {
     try {
-       const response = await fetch(`${this.apiUrl}/${id}`);
+      const response = await fetch(`${this.apiUrl}/${id}`);
       if (!response.ok) {
         throw new Error('Error al cargar la ficha');
       }
       const data = await response.json();
-       return data;
+      return data;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
   async crearFicha(ficha: FichaInformativa): Promise<FichaInformativa> {
     try {
-       const response = await fetch(this.apiUrl, {
+      const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,9 +174,9 @@ export class FichasService {
       }
 
       const data = await response.json();
-       return data;
+      return data;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
@@ -187,7 +185,7 @@ export class FichasService {
     ficha: FichaInformativa,
   ): Promise<FichaInformativa> {
     try {
-       const response = await fetch(`${this.apiUrl}/${id}`, {
+      const response = await fetch(`${this.apiUrl}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -200,24 +198,24 @@ export class FichasService {
       }
 
       const data = await response.json();
-       return data;
+      return data;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
   async eliminarFicha(id: number): Promise<boolean> {
     try {
-       const response = await fetch(`${this.apiUrl}/${id}`, {
+      const response = await fetch(`${this.apiUrl}/${id}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
         throw new Error('Error al eliminar la ficha');
       }
-       return true;
+      return true;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
@@ -231,7 +229,7 @@ export class FichasService {
       }
       return await response.json();
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
@@ -240,10 +238,10 @@ export class FichasService {
     fechaFin: string,
   ): Promise<FichasTodosDTO[]> {
     try {
-   
+
       // Validar que las fechas no estén vacías
       if (!fechaInicio || !fechaFin) {
-         throw new Error('Las fechas son requeridas');
+        throw new Error('Las fechas son requeridas');
       }
 
       // Codificar las fechas para URL
@@ -251,16 +249,16 @@ export class FichasService {
       const fechaFinEncoded = encodeURIComponent(fechaFin);
 
       const url = `${this.apiUrl}/rango-fechas?fechaInicio=${fechaInicioEncoded}&fechaFin=${fechaFinEncoded}`;
- 
+
       const response = await fetch(url);
- 
+
       if (!response.ok) {
         const errorText = await response.text();
- 
+
         // Intentar parsear el error como JSON
         try {
           const errorJson = JSON.parse(errorText);
-           throw new Error(
+          throw new Error(
             errorJson.mensaje || 'Error al obtener fichas por rango de fechas',
           );
         } catch {
@@ -269,45 +267,45 @@ export class FichasService {
       }
 
       const data = await response.json();
-        return data;
+      return data;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
   async obtenerFichasDelDia(): Promise<FichasTodosDTO[]> {
     try {
       const url = `${this.apiUrl}/dia-actual`;
- 
+
       const response = await fetch(url);
- 
+
       if (!response.ok) {
         const errorText = await response.text();
-         throw new Error('Error al obtener fichas del día');
+        throw new Error('Error al obtener fichas del día');
       }
 
       const data = await response.json();
-       return data;
+      return data;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
   async obtenerBorradores(): Promise<FichasBorradorDTO[]> {
     try {
       const url = `${this.apiUrl}/borradores`;
- 
+
       const response = await fetch(url);
- 
+
       if (!response.ok) {
         const errorText = await response.text();
-         throw new Error('Error al obtener borradores');
+        throw new Error('Error al obtener borradores');
       }
 
       const data = await response.json();
-       return data;
+      return data;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 
@@ -316,18 +314,18 @@ export class FichasService {
       const url = `${
         this.apiUrl
       }/borradores/buscar?criterio=${encodeURIComponent(criterio)}`;
- 
+
       const response = await fetch(url);
- 
+
       if (!response.ok) {
         const errorText = await response.text();
-         throw new Error('Error al buscar borradores');
+        throw new Error('Error al buscar borradores');
       }
 
       const data = await response.json();
-       return data;
+      return data;
     } catch (error) {
-       throw error;
+      throw error;
     }
   }
 }

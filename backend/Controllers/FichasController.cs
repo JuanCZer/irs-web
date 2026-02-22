@@ -112,13 +112,11 @@ public class FichasController : ControllerBase
             // Validar que los parámetros no sean nulos o vacíos
             if (string.IsNullOrWhiteSpace(fechaInicio))
             {
-                Console.WriteLine($"❌ Error: fechaInicio es nulo o vacío");
                 return BadRequest(new { mensaje = "El parámetro 'fechaInicio' es requerido. Use formato: yyyy-MM-dd (ejemplo: 2024-11-01)" });
             }
             
             if (string.IsNullOrWhiteSpace(fechaFin))
             {
-                Console.WriteLine($"❌ Error: fechaFin es nulo o vacío");
                 return BadRequest(new { mensaje = "El parámetro 'fechaFin' es requerido. Use formato: yyyy-MM-dd (ejemplo: 2024-11-30)" });
             }
               
@@ -139,9 +137,6 @@ public class FichasController : ControllerBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ ERROR en ObtenerPorRangoFechas: {ex.Message}");
-            Console.WriteLine($"Stack trace: {ex.StackTrace}");
-            Console.WriteLine($"========================================");
             return BadRequest(new { mensaje = "Error al obtener fichas por rango de fechas", error = ex.Message, stackTrace = ex.StackTrace });
         }
     }
@@ -228,25 +223,17 @@ public class FichasController : ControllerBase
     {
         try
         {
-            Console.WriteLine("📊 GET /api/fichas/estadisticas - Obteniendo estadísticas");
             var estadisticas = await _fichaService.ObtenerEstadisticasAsync();
-            Console.WriteLine("✅ Estadísticas obtenidas correctamente");
             return Ok(estadisticas);
         }
         catch (InvalidOperationException ex)
         {
-            Console.WriteLine($"❌ Error de operación inválida: {ex.Message}");
-            Console.WriteLine($"   Stack: {ex.StackTrace}");
             return BadRequest(new { mensaje = "Error de validación", error = ex.Message });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Error al obtener estadísticas: {ex.Message}");
-            Console.WriteLine($"   Tipo: {ex.GetType().Name}");
-            Console.WriteLine($"   Stack: {ex.StackTrace}");
             if (ex.InnerException != null)
             {
-                Console.WriteLine($"   Inner: {ex.InnerException.Message}");
             }
             return StatusCode(500, new { mensaje = "Error al obtener estadísticas", error = ex.Message, tipo = ex.GetType().Name });
         }

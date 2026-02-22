@@ -32,12 +32,12 @@ export class ConsultarTodasFichasComponent implements OnInit {
   }
 
   set fechaInicio(value: string) {
-     const valorAnterior = this._fechaInicio;
+    const valorAnterior = this._fechaInicio;
     this._fechaInicio = value;
 
     // Solo filtrar si cambió el valor y ambas fechas están definidas
     if (valorAnterior !== value && this._fechaInicio && this._fechaFin) {
-       setTimeout(() => this.filtrarPorFechas(), 0); // Async para no bloquear el setter
+      setTimeout(() => this.filtrarPorFechas(), 0); // Async para no bloquear el setter
     }
   }
 
@@ -46,12 +46,12 @@ export class ConsultarTodasFichasComponent implements OnInit {
   }
 
   set fechaFin(value: string) {
-     const valorAnterior = this._fechaFin;
+    const valorAnterior = this._fechaFin;
     this._fechaFin = value;
 
     // Solo filtrar si cambió el valor y ambas fechas están definidas
     if (valorAnterior !== value && this._fechaInicio && this._fechaFin) {
-       setTimeout(() => this.filtrarPorFechas(), 0); // Async para no bloquear el setter
+      setTimeout(() => this.filtrarPorFechas(), 0); // Async para no bloquear el setter
     }
   }
 
@@ -68,27 +68,22 @@ export class ConsultarTodasFichasComponent implements OnInit {
   constructor(private fichasService: FichasService) {}
 
   async ngOnInit(): Promise<void> {
-     this.establecerFechasPorDefecto();
-       fechaInicio: this._fechaInicio,
-      fechaFin: this._fechaFin,
-    });
-
-    // Cargar fichas usando el filtro de fechas por defecto
+    this.establecerFechasPorDefecto();
     await this.filtrarPorFechas();
   }
 
   async cargarFichas(): Promise<void> {
-     this.cargando = true;
+    this.cargando = true;
     this.error = '';
 
     try {
       this.fichas = await this.fichasService.obtenerTodasLasFichas();
-       this.fichasFiltradas = [...this.fichas];
+      this.fichasFiltradas = [...this.fichas];
       this.calcularTotalPaginas();
     } catch (error) {
       this.error =
         'Error al cargar las fichas. Verifica que el backend esté corriendo.';
-     } finally {
+    } finally {
       this.cargando = false;
     }
   }
@@ -100,9 +95,6 @@ export class ConsultarTodasFichasComponent implements OnInit {
 
     this.fechaFin = this.formatearFechaInput(hoy);
     this.fechaInicio = this.formatearFechaInput(haceUnMes);
-       fechaInicio: this.fechaInicio,
-      fechaFin: this.fechaFin,
-    });
   }
 
   formatearFechaInput(fecha: Date): string {
@@ -130,54 +122,33 @@ export class ConsultarTodasFichasComponent implements OnInit {
   }
 
   async filtrarPorFechas(): Promise<void> {
-         '   fechaInicio:',
-      this._fechaInicio,
-      '(tipo:',
-      typeof this._fechaInicio,
-      ')',
-    );
-       '   fechaFin:',
-      this._fechaFin,
-      '(tipo:',
-      typeof this._fechaFin,
-      ')',
-    );
-
     if (this._fechaInicio && this._fechaFin) {
       // Validar que sean fechas válidas
       const regexFecha = /^\d{4}-\d{2}-\d{2}$/;
 
       if (!regexFecha.test(this._fechaInicio)) {
         this.error = `Formato de fecha inicio inválido: ${this._fechaInicio}. Use formato yyyy-MM-dd`;
-         return;
+        return;
       }
 
       if (!regexFecha.test(this._fechaFin)) {
         this.error = `Formato de fecha fin inválido: ${this._fechaFin}. Use formato yyyy-MM-dd`;
-         return;
+        return;
       }
 
       // Validar que fechaInicio sea menor o igual a fechaFin
       if (this._fechaInicio > this._fechaFin) {
         this.error =
           'La fecha de inicio debe ser anterior o igual a la fecha fin';
-         return;
+        return;
       }
 
       this.cargando = true;
       this.error = '';
-         '✅ Fechas válidas, filtrando fichas por rango:',
-        this._fechaInicio,
-        'a',
-        this._fechaFin,
-      );
 
       try {
-         // Obtener todas las fichas del servidor
+        // Obtener todas las fichas del servidor
         const todasLasFichas = await this.fichasService.obtenerTodasLasFichas();
-           '✅ Total de fichas obtenidas del backend:',
-          todasLasFichas.length,
-        );
 
         // Filtrar localmente por rango de fechas
         const fechaInicio = new Date(this._fechaInicio);
@@ -187,28 +158,20 @@ export class ConsultarTodasFichasComponent implements OnInit {
           const fechaSuceso = new Date(ficha.fechaSuceso);
           return fechaSuceso >= fechaInicio && fechaSuceso <= fechaFin;
         });
-           '📋 Fichas filtradas por rango de fechas:',
-          this.fichas.length,
-        );
- 
+
         this.fichasFiltradas = [...this.fichas];
         this.paginaActual = 1;
         this.calcularTotalPaginas();
-           '📊 Total de fichas filtradas:',
-          this.fichasFiltradas.length,
-        );
       } catch (error) {
         this.error = 'Error al filtrar por fechas';
-       } finally {
+      } finally {
         this.cargando = false;
       }
     } else if (!this._fechaInicio && !this._fechaFin) {
       // Si no hay fechas, cargar todas
-       await this.cargarFichas();
+      await this.cargarFichas();
     } else {
-         fechaInicio: this._fechaInicio,
-        fechaFin: this._fechaFin,
-      });
+      this.error = 'Ambas fechas son requeridas para filtrar por rango';
     }
   }
 
@@ -312,11 +275,11 @@ export class ConsultarTodasFichasComponent implements OnInit {
   }
 
   exportarExcel(): void {
-     // Implementar lógica para exportar a Excel
+    // Implementar lógica para exportar a Excel
   }
 
   exportarPDF(): void {
-     // Implementar lógica para exportar a PDF
+    // Implementar lógica para exportar a PDF
   }
 
   async verFicha(id: number): Promise<void> {
@@ -324,9 +287,9 @@ export class ConsultarTodasFichasComponent implements OnInit {
     this.mostrarModal = true;
 
     try {
-       this.fichaSeleccionada = await this.fichasService.obtenerFichaPorId(id);
-     } catch (error) {
-       this.cerrarModal();
+      this.fichaSeleccionada = await this.fichasService.obtenerFichaPorId(id);
+    } catch (error) {
+      this.cerrarModal();
     } finally {
       this.cargandoFicha = false;
     }
