@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import mapboxgl from 'mapbox-gl';
 import { environment } from '../../environment/environment.local';
+import { CatalogosService, CatCondicion, CatInformacion, CatPrioridad, CatSector, CatSubsector } from '../../services/catalogos.service';
 
 interface FichaInformativa {
   estado: string;
@@ -98,24 +99,79 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
     'Zacatecas',
   ];
 
-  sectores = ['Sector 1', 'Sector 2', 'Sector 3', 'Sector 4'];
-  subsectores: string[] = [];
+  sectores: CatSector[] = [];
+  subsectores: CatSubsector[] = [];
+  prioridades: CatPrioridad[] = [];
+  condicionesEvento: CatCondicion[] = [];
+  tiposInformacion: CatInformacion[] = [];
 
-  prioridades = ['Baja', 'Media', 'Alta', 'Crítica'];
-
-  condicionesEvento = ['Finalizado', 'En proceso', 'Pendiente', 'Cancelado'];
-
-  tiposInformacion = ['Pública', 'Confidencial', 'Restringida'];
-
-  informantes = ['Informante 1', 'Informante 2', 'Informante 3'];
+  informantes: string[] = ['Policía', 'Ciudadano', 'Medio de Comunicación', 'Otro'];
 
   mensajeExito = '';
   mensajeError = '';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private catalogosService: CatalogosService,
+  ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.cargarBorradorSiExiste();
+    await this.cargarSectores();
+    await this.cargarPrioridad();
+    await this.cargarCondicionEvento();
+    await this.cargarInformacion();
+  }
+
+  async cargarSectores() {
+    try {
+      this.sectores = await this.catalogosService.obtenerSectores();
+      console.log('Sectores cargados:', this.sectores);
+    } catch (error) {
+      this.mensajeError =
+        'Error al cargar el catálogo de sectores. Por favor, recargue la página.';
+    }
+  }
+
+  async cargarSubsector() {
+    try {
+      this.subsectores =
+        await this.catalogosService.obtenerSubsectoresPorSector(
+          this.sectores.find((s) => s.sector === this.ficha.sector)
+            ?.idCatSector!,
+        );
+    } catch (error) {
+      this.mensajeError =
+        'Error al cargar el catálogo de subsectores. Por favor, recargue la página.';
+    }
+  }
+
+  async cargarPrioridad() {
+    try {
+      this.prioridades = await this.catalogosService.obtenerPrioridades();
+    } catch (error) {
+      this.mensajeError =
+        'Error al cargar el catálogo de prioridades. Por favor, recargue la página.';
+    }
+  }
+
+  async cargarCondicionEvento() {
+    try {
+      this.condicionesEvento = await this.catalogosService.obtenerCondiciones();
+    } catch (error) {
+      this.mensajeError =
+        'Error al cargar el catálogo de condiciones del evento. Por favor, recargue la página.';
+    }
+  }
+
+  async cargarInformacion() {
+    try {
+      this.tiposInformacion =
+        await this.catalogosService.obtenerInformaciones();
+    } catch (error) {
+      this.mensajeError =
+        'Error al cargar el catálogo de tipos de informantes. Por favor, recargue la página.';
+    }
   }
 
   private cargarBorradorSiExiste(): void {
@@ -136,7 +192,7 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
 
           // Actualizar subsectores si hay un sector seleccionado
           if (this.ficha.sector) {
-            this.onSectorChange();
+            this.onSectorChange(this.ficha.sector);
           }
 
           // Si hay coordenadas, actualizar el mapa después de que se inicialice
@@ -251,16 +307,13 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.map.addControl(new mapboxgl.NavigationControl());
   }
 
-  onSectorChange(): void {
-    // Simulación de subsectores según el sector
-    const subsectoresMap: { [key: string]: string[] } = {
-      'Sector 1': ['SubSector A', 'SubSector B', 'SubSector C'],
-      'Sector 2': ['SubSector D', 'SubSector E', 'SubSector F'],
-      'Sector 3': ['SubSector G', 'SubSector H', 'SubSector I'],
-      'Sector 4': ['SubSector J', 'SubSector K', 'SubSector L'],
-    };
-    this.subsectores = subsectoresMap[this.ficha.sector] || [];
-    this.ficha.subsector = '';
+  async onSectorChange(sectorSeleccionado: string | null): Promise<void> {
+  this.ficha.subsector = null as any;
+  this.subsectores = [];
+
+  if (!sectorSeleccionado) return;
+
+  await this.cargarSubsector();
   }
 
   actualizarMarcadorDesdeInput(): void {

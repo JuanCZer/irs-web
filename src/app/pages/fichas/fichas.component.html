@@ -109,15 +109,15 @@
           <label for="sector">Sector: <span class="required">*</span></label>
           <select
             id="sector"
-            [(ngModel)]="ficha.sector"
             name="sector"
-            (change)="onSectorChange()"
             class="form-control"
+            [(ngModel)]="ficha.sector"
+            (ngModelChange)="onSectorChange($event)"
             required
           >
             <option value="" disabled selected>Seleccione una opción</option>
-            <option *ngFor="let sector of sectores" [value]="sector">
-              {{ sector }}
+            <option *ngFor="let sector of sectores" [value]="sector.sector">
+              {{ sector.sector }}
             </option>
           </select>
         </div>
@@ -126,19 +126,16 @@
           <label for="subsector">Subsector:</label>
           <select
             id="subsector"
-            [(ngModel)]="ficha.subsector"
             name="subsector"
             class="form-control"
+            [(ngModel)]="ficha.subsector"
             [disabled]="subsectores.length === 0"
           >
             <option value="" disabled selected>Seleccione una opción</option>
-            <option *ngFor="let subsector of subsectores" [value]="subsector">
-              {{ subsector }}
+            <option *ngFor="let subsector of subsectores" [value]="subsector.subsector">
+              {{ subsector.subsector }}
             </option>
           </select>
-          <small class="subsectores-info" *ngIf="subsectores.length > 0">
-            SubSectores
-          </small>
         </div>
       </div>
 
@@ -209,8 +206,8 @@
             required
           >
             <option value="" disabled selected>Seleccione una opción</option>
-            <option *ngFor="let prioridad of prioridades" [value]="prioridad">
-              {{ prioridad }}
+            <option *ngFor="let prioridad of prioridades" [value]="prioridad.prioridad">
+              {{ prioridad.prioridad }}
             </option>
           </select>
         </div>
@@ -226,9 +223,9 @@
             <option value="" disabled selected>Seleccione una opción</option>
             <option
               *ngFor="let condicion of condicionesEvento"
-              [value]="condicion"
+              [value]="condicion.condicion"
             >
-              {{ condicion }}
+              {{ condicion.condicion }}
             </option>
           </select>
         </div>
@@ -242,8 +239,8 @@
             class="form-control"
           >
             <option value="" disabled selected>Seleccione una opción</option>
-            <option *ngFor="let info of tiposInformacion" [value]="info">
-              {{ info }}
+            <option *ngFor="let info of tiposInformacion" [value]="info.informacion">
+              {{ info.informacion }}
             </option>
           </select>
         </div>
