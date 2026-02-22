@@ -1,14 +1,10 @@
 using Backend.Models;
 using IRS.API.Data;
 using Microsoft.EntityFrameworkCore;
+using IRS.API.Interfaces;
 
 namespace Backend.Services
 {
-    public interface ICatRolService
-    {
-        Task<List<CatRol>> ObtenerTodosLosRolesAsync();
-    }
-
     public class CatRolService : ICatRolService
     {
         private readonly IRSDbContext _context;

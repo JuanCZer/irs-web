@@ -1,63 +1,20 @@
-.registrar-usuario-container {
-  padding: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #667eea;
-
-    h2 {
-      color: #667eea;
-      font-size: 24px;
-      font-weight: 600;
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background: #3a415f;
+  padding: 25px;
+  border-radius: 12px;
+    .page-title {
       margin: 0;
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
     }
+}
 
-    .header-actions {
-      display: flex;
-      gap: 10px;
-
-      button {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-
-        i {
-          margin-right: 5px;
-        }
-      }
-
-      .btn-tutorial {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-      }
-
-      .btn-success {
-        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-        color: white;
-
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
-        }
-      }
-    }
-  }
-
+.registrar-usuario-container {
   .usuario-form {
     background: white;
     padding: 30px;

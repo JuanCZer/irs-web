@@ -1,17 +1,9 @@
-<div class="registrar-usuario-container">
-  <div class="header">
-    <h2>AGREGAR NUEVO USUARIO</h2>
-    <div class="header-actions">
-      <button type="button" class="btn-tutorial" (click)="verTutorial()">
-        <i class="fa fa-eye"></i> Bitácora
-      </button>
-      <button type="button" class="btn-success" (click)="verTutorial()">
-        Ver tutorial
-      </button>
-    </div>
-  </div>
+<div class="header-section">
+  <h1 class="page-title">Agregar nuevo usuario</h1>
+</div>
 
-  <form class="usuario-form" (ngSubmit)="registrarUsuario()">
+<div class="registrar-usuario-container">
+  <form class="usuario-form" (ngSubmit)="registrarUsuario()" autocomplete="off">
     <div class="form-row">
       <div class="form-group">
         <label for="nombres">Nombre(s):</label>
@@ -21,6 +13,7 @@
           [(ngModel)]="usuario.nombres"
           name="nombres"
           class="form-control"
+          autocomplete="off"
           required
         />
       </div>
@@ -33,6 +26,7 @@
           [(ngModel)]="usuario.primerApellido"
           name="primerApellido"
           class="form-control"
+          autocomplete="off"
           required
         />
       </div>
@@ -45,6 +39,7 @@
           [(ngModel)]="usuario.segundoApellido"
           name="segundoApellido"
           class="form-control"
+          autocomplete="off"
         />
       </div>
     </div>
@@ -58,6 +53,7 @@
           [(ngModel)]="usuario.usuario"
           name="usuario"
           class="form-control"
+          autocomplete="new-username"
           required
         />
       </div>
@@ -70,6 +66,7 @@
           [(ngModel)]="usuario.alias"
           name="alias"
           class="form-control"
+          autocomplete="off"
         />
       </div>
     </div>
@@ -84,6 +81,7 @@
             [(ngModel)]="usuario.contrasena"
             name="contrasena"
             class="form-control"
+            autocomplete="new-password"
             required
           />
           <button
@@ -155,6 +153,7 @@
             [(ngModel)]="usuario.confirmarContrasena"
             name="confirmarContrasena"
             class="form-control"
+            autocomplete="new-password"
             required
           />
           <button
@@ -195,7 +194,7 @@
           class="form-control"
           required
         >
-          <option value="" disabled selected>Seleccione una opción</option>
+          <option value="" disabled>Seleccione una opción</option>
           <option *ngFor="let rol of roles" [value]="rol.idCatRol">
             {{ rol.nombreRol }}
           </option>
@@ -207,7 +206,8 @@
       <button
         type="submit"
         class="btn-registrar"
-        [disabled]="!formularioValido || registrando"
+        [disabled]="!formularioValido || registrando || !isAdminFlag"
+        [title]="!isAdminFlag ? 'Solo administradores pueden crear usuarios' : ''"
       >
         {{ registrando ? "Registrando..." : "Registrar Usuario" }}
       </button>

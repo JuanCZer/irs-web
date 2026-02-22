@@ -1,5 +1,5 @@
+using IRS.API.Interfaces;
 using IRS.API.Models;
-using IRS.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IRS.API.Controllers;

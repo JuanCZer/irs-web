@@ -1,5 +1,6 @@
 using Backend.DTOs;
 using Backend.Services;
+using IRS.API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
@@ -50,8 +51,8 @@ namespace Backend.Controllers
             }
         }
 
-        [HttpPost("cambiar-contraseña")]
-        public async Task<ActionResult<RespuestaCambioContraseñaDTO>> CambiarContraseña([FromBody] CambiarContraseñaDTO cambioContraseñaDto)
+        [HttpPost("cambiar-contrasena")]
+        public async Task<ActionResult<RespuestaCambioContrasenaDTO>> CambiarContrasena([FromBody] CambiarContrasenaDTO cambioContraseñaDto)
         {
             try
             {
@@ -59,7 +60,7 @@ namespace Backend.Controllers
 
                 if (cambioContraseñaDto == null)
                 {
-                    return BadRequest(new RespuestaCambioContraseñaDTO
+                    return BadRequest(new RespuestaCambioContrasenaDTO
                     {
                         Exitoso = false,
                         Mensaje = "Los datos de cambio de contraseña son requeridos",
@@ -67,7 +68,7 @@ namespace Backend.Controllers
                     });
                 }
 
-                var resultado = await _usuariosService.CambiarContraseñaAsync(cambioContraseñaDto);
+                var resultado = await _usuariosService.CambiarContrasenaAsync(cambioContraseñaDto);
 
                 if (!resultado.Exitoso)
                 {
@@ -80,7 +81,7 @@ namespace Backend.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ Error en cambio de contraseña: {ex.Message}");
-                return StatusCode(500, new RespuestaCambioContraseñaDTO
+                return StatusCode(500, new RespuestaCambioContrasenaDTO
                 {
                     Exitoso = false,
                     Mensaje = "Error al procesar el cambio de contraseña",

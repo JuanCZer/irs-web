@@ -4,20 +4,10 @@ using IRS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using IRS.API.Interfaces;
 
 namespace Backend.Services
 {
-    public interface IUsuariosService
-    {
-        Task<List<UsuarioDTO>> ObtenerTodosLosUsuariosAsync();
-        Task<UsuarioDTO?> ObtenerUsuarioPorIdAsync(int id);
-        Task<UsuarioDTO> CrearUsuarioAsync(CrearUsuarioDTO usuarioDto);
-        Task<bool> ActualizarUsuarioAsync(int id, ActualizarUsuarioDTO usuarioDto);
-        Task<bool> EliminarUsuarioAsync(int id);
-        Task<UsuarioDTO?> ValidarCredencialesAsync(string usuario, string password);
-        Task<RespuestaCambioContraseñaDTO> CambiarContraseñaAsync(CambiarContraseñaDTO cambioContraseñaDto);
-    }
-
     public class UsuariosService : IUsuariosService
     {
         private readonly IRSDbContext _context;
@@ -117,6 +107,32 @@ namespace Backend.Services
                 Console.WriteLine($"   Nombre: {usuarioDto.Nombre}");
                 Console.WriteLine($"   App: {usuarioDto.App}");
                 Console.WriteLine($"   IdRol: {usuarioDto.IdRol}");
+
+                // ✅ VALIDACIÓN DE AUTORIZACIÓN: Solo Administrador puede crear usuarios
+                if (usuarioDto.IdUsuarioCrea.HasValue)
+                {
+                    var usuarioCrea = await _context.Usuarios
+                        .Include(u => u.Rol)
+                        .FirstOrDefaultAsync(u => u.IdUsuario == usuarioDto.IdUsuarioCrea.Value);
+
+                    if (usuarioCrea == null)
+                    {
+                        throw new InvalidOperationException("El usuario que intenta crear no fue encontrado");
+                    }
+
+                    // Verificar que sea Administrador
+                    if (usuarioCrea.Rol?.NombreRol?.ToUpper() != "ADMINISTRADOR")
+                    {
+                        Console.WriteLine($"❌ Usuario {usuarioCrea.Usuario1} no tiene permisos de Administrador");
+                        throw new InvalidOperationException("Solo los administradores pueden crear nuevos usuarios");
+                    }
+
+                    Console.WriteLine($"✅ Usuario {usuarioCrea.Usuario1} (Admin) autorizado para crear usuarios");
+                }
+                else
+                {
+                    throw new InvalidOperationException("El ID del usuario que crea es requerido");
+                }
 
                 // Verificar si el usuario ya existe
                 var usuarioExistente = await _context.Usuarios
@@ -299,7 +315,7 @@ namespace Backend.Services
             };
         }
 
-        public async Task<RespuestaCambioContraseñaDTO> CambiarContraseñaAsync(CambiarContraseñaDTO cambioContraseñaDto)
+        public async Task<RespuestaCambioContrasenaDTO> CambiarContrasenaAsync(CambiarContrasenaDTO cambioContraseñaDto)
         {
             try
             {
@@ -331,7 +347,7 @@ namespace Backend.Services
                 if (errores.Count > 0)
                 {
                     Console.WriteLine($"❌ Errores de validación: {string.Join(", ", errores)}");
-                    return new RespuestaCambioContraseñaDTO
+                    return new RespuestaCambioContrasenaDTO
                     {
                         Exitoso = false,
                         Mensaje = "Errores de validación",
@@ -345,7 +361,7 @@ namespace Backend.Services
                 if (usuario == null)
                 {
                     Console.WriteLine($"❌ Usuario no encontrado con ID: {cambioContraseñaDto.IdUsuario}");
-                    return new RespuestaCambioContraseñaDTO
+                    return new RespuestaCambioContrasenaDTO
                     {
                         Exitoso = false,
                         Mensaje = "Usuario no encontrado",
@@ -359,7 +375,7 @@ namespace Backend.Services
                 if (!contraseñaActualValida)
                 {
                     Console.WriteLine($"❌ Contraseña actual incorrecta para usuario: {usuario.Usuario1}");
-                    return new RespuestaCambioContraseñaDTO
+                    return new RespuestaCambioContrasenaDTO
                     {
                         Exitoso = false,
                         Mensaje = "La contraseña actual es incorrecta",
@@ -372,7 +388,7 @@ namespace Backend.Services
                 if (contraseñaIgual)
                 {
                     Console.WriteLine($"⚠️ Nueva contraseña igual a la actual para usuario: {usuario.Usuario1}");
-                    return new RespuestaCambioContraseñaDTO
+                    return new RespuestaCambioContrasenaDTO
                     {
                         Exitoso = false,
                         Mensaje = "La nueva contraseña debe ser diferente a la actual",
@@ -391,7 +407,7 @@ namespace Backend.Services
 
                 Console.WriteLine($"✅ Contraseña actualizada exitosamente para usuario: {usuario.Usuario1}");
 
-                return new RespuestaCambioContraseñaDTO
+                return new RespuestaCambioContrasenaDTO
                 {
                     Exitoso = true,
                     Mensaje = "Contraseña actualizada exitosamente"
@@ -400,7 +416,7 @@ namespace Backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ Error al cambiar contraseña: {ex.Message}");
-                return new RespuestaCambioContraseñaDTO
+                return new RespuestaCambioContrasenaDTO
                 {
                     Exitoso = false,
                     Mensaje = "Error al cambiar la contraseña",

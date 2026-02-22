@@ -18,33 +18,26 @@ export class ConsultarFichasComponent implements OnInit {
 
   constructor(
     private fichasService: FichasService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    console.log('🔵 Componente inicializado, cargando fichas del día...');
     this.cargarFichas();
   }
 
   async cargarFichas(): Promise<void> {
     this.cargando = true;
     this.error = '';
-    console.log('🔵 Iniciando carga de fichas del día actual...');
 
     try {
       this.fichas = await this.fichasService.obtenerFichasDelDia();
-      console.log('✅ Fichas del día cargadas:', this.fichas);
-      console.log('📊 Total de fichas del día:', this.fichas.length);
       this.fichasFiltradas = [...this.fichas];
-      console.log('📋 Fichas filtradas:', this.fichasFiltradas.length);
       this.cdr.detectChanges(); // Forzar detección de cambios
     } catch (error) {
       this.error =
         'No se pudieron cargar las fichas del día. Verifica que el backend esté corriendo en https://localhost:5001';
-      console.error('❌ Error al cargar fichas del día:', error);
     } finally {
       this.cargando = false;
-      console.log('🔵 Carga finalizada. Cargando:', this.cargando);
     }
   }
 
@@ -59,7 +52,6 @@ export class ConsultarFichasComponent implements OnInit {
       await this.cargarFichas();
     } catch (error) {
       alert('Error al eliminar la ficha');
-      console.error('Error:', error);
     }
   }
 
@@ -77,7 +69,7 @@ export class ConsultarFichasComponent implements OnInit {
         ficha.sector.toLowerCase().includes(texto) ||
         ficha.prioridad.toLowerCase().includes(texto) ||
         ficha.asunto.toLowerCase().includes(texto) ||
-        ficha.estadoActual.toLowerCase().includes(texto)
+        ficha.estadoActual.toLowerCase().includes(texto),
     );
   }
 
@@ -110,7 +102,6 @@ export class ConsultarFichasComponent implements OnInit {
   }
 
   verDetalleFicha(ficha: FichasTodosDTO): void {
-    console.log('Ver detalle de ficha:', ficha);
     // Implementar navegación al detalle
   }
 }

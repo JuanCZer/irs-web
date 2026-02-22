@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Backend.DTOs
 {
-    public class CambiarContraseñaDTO
+    public class CambiarContrasenaDTO
     {
         [Required(ErrorMessage = "El ID del usuario es requerido")]
         public int IdUsuario { get; set; }
@@ -21,7 +21,7 @@ namespace Backend.DTOs
         public string ConfirmarContraseña { get; set; } = string.Empty;
     }
 
-    public class RespuestaCambioContraseñaDTO
+    public class RespuestaCambioContrasenaDTO
     {
         public bool Exitoso { get; set; }
         public string Mensaje { get; set; } = string.Empty;

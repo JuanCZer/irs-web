@@ -75,16 +75,13 @@ export class DespachoComponent implements OnInit {
 
   async cargarMedidasSeguridad(): Promise<void> {
     try {
-      console.log('🔄 Cargando medidas de seguridad desde API...');
-      this.medidasSeguridad =
+       this.medidasSeguridad =
         await this.catalogosService.obtenerMedidasSeguridad();
-      console.log(
-        `✅ ${this.medidasSeguridad.length} medidas de seguridad cargadas:`,
+         `✅ ${this.medidasSeguridad.length} medidas de seguridad cargadas:`,
         this.medidasSeguridad
       );
     } catch (error) {
-      console.error('❌ Error al cargar medidas de seguridad:', error);
-      this.error = 'Error al cargar las medidas de seguridad';
+       this.error = 'Error al cargar las medidas de seguridad';
     }
   }
 
@@ -92,9 +89,7 @@ export class DespachoComponent implements OnInit {
     try {
       this.cargando = true;
       this.error = '';
-
-      console.log('🔄 Cargando fichas con estado "Concluido"...');
-
+ 
       // Obtener fichas con estado "Concluido" desde el backend
       const fichasDTO = await this.fichasService.obtenerFichasPorEstado(
         'Concluido'
@@ -112,13 +107,10 @@ export class DespachoComponent implements OnInit {
         sector: dto.sector,
         asunto: dto.asunto,
       }));
-
-      console.log(
-        `✅ ${this.fichas.length} fichas con estado "Concluido" cargadas`
+         `✅ ${this.fichas.length} fichas con estado "Concluido" cargadas`
       );
     } catch (error) {
-      console.error('❌ Error al cargar fichas:', error);
-      this.error =
+       this.error =
         'Error al cargar las fichas. Verifique que el backend esté corriendo.';
     } finally {
       this.cargando = false;
@@ -193,8 +185,7 @@ export class DespachoComponent implements OnInit {
 
       this.mostrarModalVerFicha = true;
     } catch (error) {
-      console.error('❌ Error al cargar detalles de ficha:', error);
-      alert('Error al cargar los detalles de la ficha');
+       alert('Error al cargar los detalles de la ficha');
     } finally {
       this.cargando = false;
     }
@@ -213,10 +204,7 @@ export class DespachoComponent implements OnInit {
 
     this.medidasSeleccionadasIds = event.medidas;
     this.comentarioTemporal = event.comentario;
-
-    console.log('📋 Medidas seleccionadas:', event.medidas);
-    console.log('📝 Comentario:', event.comentario);
-
+  
     alert(
       `Se han seleccionado ${event.medidas.length} medidas. Ahora use el botón "Validar" para subir la evidencia.`
     );
@@ -228,8 +216,7 @@ export class DespachoComponent implements OnInit {
     if (!this.fichaSeleccionada) return;
 
     try {
-      console.log('📋 Validando ficha con evidencia...');
-
+ 
       const usuario = this.authService.currentUserValue;
 
       await this.despachoService.validarFicha({
@@ -247,8 +234,7 @@ export class DespachoComponent implements OnInit {
       this.medidasSeleccionadasIds = [];
       this.comentarioTemporal = '';
     } catch (error) {
-      console.error('❌ Error al validar ficha:', error);
-      alert('Error al validar la ficha. Intente nuevamente.');
+       alert('Error al validar la ficha. Intente nuevamente.');
     }
   }
 

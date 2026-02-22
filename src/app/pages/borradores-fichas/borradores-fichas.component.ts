@@ -330,10 +330,4 @@ export class BorradoresFichasComponent implements OnInit {
   guardarEnLocalStorage(): void {
     localStorage.setItem('borradores_fichas', JSON.stringify(this.borradores));
   }
-
-  verTutorial(): void {
-    alert(
-      'Tutorial:\n\n1. Aquí se guardan las fichas que no has completado.\n2. Puedes editarlas haciendo clic en el botón azul.\n3. Puedes eliminarlas haciendo clic en el botón rojo.\n4. Usa el buscador para encontrar borradores específicos.'
-    );
-  }
 }

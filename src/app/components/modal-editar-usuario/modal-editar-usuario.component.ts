@@ -35,10 +35,7 @@ export class ModalEditarUsuarioComponent implements OnInit {
   async cargarRoles(): Promise<void> {
     try {
       this.roles = await this.usuariosService.obtenerRoles();
-      console.log('✅ Roles cargados en modal:', this.roles);
-    } catch (error) {
-      console.error('❌ Error al cargar roles en modal:', error);
-    }
+    } catch (error) {}
   }
 
   cerrarModal(): void {

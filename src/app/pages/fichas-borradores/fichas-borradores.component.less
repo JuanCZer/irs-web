@@ -4,6 +4,48 @@
   margin: 0 auto;
 }
 
+@import "../../../styles/responsive.less";
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  .borradores-container {
+    padding: 12px;
+  }
+
+  .header-section {
+    text-align: left;
+    margin-bottom: 18px;
+  }
+
+  .search-box {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .search-input {
+    min-width: 100%;
+  }
+
+  .btn-search,
+  .btn-clear {
+    width: 100%;
+  }
+
+  .table-responsive {
+    margin: 10px -8px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .fichas-table {
+    .responsive-table();
+    .stacked-table-mobile();
+  }
+
+  .pagination {
+    gap: 6px;
+  }
+}
+
 .header-section {
   margin-bottom: 30px;
   text-align: center;
@@ -190,7 +232,7 @@
   justify-content: flex-start;
 
   button {
-    padding: 8px 12px;
+    padding: 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;

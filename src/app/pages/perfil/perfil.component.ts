@@ -2,7 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, UsuarioAutenticado } from '../../services/auth.service';
-import { UsuariosService } from '../../services/usuarios.service';
+import {
+  UsuariosService,
+  CambiarContrasenaDTO,
+  RespuestaCambioContrasenaDTO,
+} from '../../services/usuarios.service';
 
 @Component({
   selector: 'app-perfil',
@@ -18,7 +22,7 @@ export class PerfilComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private usuariosService: UsuariosService
+    private usuariosService: UsuariosService,
   ) {}
 
   ngOnInit(): void {
@@ -27,7 +31,7 @@ export class PerfilComponent implements OnInit {
     if (this.usuario) {
       this.nombreCompleto = this.authService.getNombreCompleto();
       this.ultimoAccesoFormateado = this.formatearFecha(
-        this.usuario.ultimoAcceso
+        this.usuario.ultimoAcceso,
       );
     }
   }
@@ -68,7 +72,7 @@ export class PerfilComponent implements OnInit {
       tieneMinuscula: /[a-z]/.test(password),
       tieneNumero: /[0-9]/.test(password),
       tieneCaracterEspecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
-        password
+        password,
       ),
     };
   }
@@ -106,58 +110,73 @@ export class PerfilComponent implements OnInit {
     }
   }
 
+  private validateCambioPassword(): string | null {
+    const actual = (this.cambioPassword.passwordActual || '').trim();
+    const nueva = (this.cambioPassword.passwordNueva || '').trim();
+    const confirmar = (this.cambioPassword.passwordConfirmar || '').trim();
+
+    if (!actual) return 'Debes ingresar tu contraseña actual';
+    if (!nueva) return 'Debes ingresar una nueva contraseña';
+    if (!this.passwordValida)
+      return 'La nueva contraseña no cumple con todos los requisitos de seguridad';
+    if (nueva !== confirmar) return 'Las contraseñas no coinciden';
+    if (actual === nueva)
+      return 'La nueva contraseña debe ser diferente a la actual';
+
+    return null;
+  }
+
   cambiarPassword(): void {
     this.mensajeError = '';
     this.mensajeExito = '';
 
-    // Validaciones
-    if (!this.cambioPassword.passwordActual) {
-      this.mensajeError = 'Debes ingresar tu contraseña actual';
+    // Validaciones (centralizadas)
+    const validError = this.validateCambioPassword();
+    if (validError) {
+      this.mensajeError = validError;
       return;
     }
 
-    if (!this.cambioPassword.passwordNueva) {
-      this.mensajeError = 'Debes ingresar una nueva contraseña';
-      return;
-    }
-
-    if (!this.passwordValida) {
-      this.mensajeError =
-        'La nueva contraseña no cumple con todos los requisitos de seguridad';
-      return;
-    }
-
-    if (!this.passwordsCoinciden) {
-      this.mensajeError = 'Las contraseñas no coinciden';
-      return;
-    }
-
-    if (
-      this.cambioPassword.passwordActual === this.cambioPassword.passwordNueva
-    ) {
-      this.mensajeError = 'La nueva contraseña debe ser diferente a la actual';
-      return;
-    }
-
-    // Simular llamada al backend
+    // Llamada real al backend
     this.cargando = true;
 
-    setTimeout(() => {
-      this.cargando = false;
-      this.mensajeExito = '¡Contraseña cambiada exitosamente!';
+    const datoCambio = {
+      idUsuario: this.usuario?.idUsuario || 0,
+      contraseñaActual: (this.cambioPassword.passwordActual || '').trim(),
+      contraseñaNueva: (this.cambioPassword.passwordNueva || '').trim(),
+      confirmarContraseña: (this.cambioPassword.passwordConfirmar || '').trim(),
+    };
 
-      // Limpiar el formulario
-      this.cambioPassword = {
-        passwordActual: '',
-        passwordNueva: '',
-        passwordConfirmar: '',
-      };
+    this.usuariosService
+      .cambiarContrasena(datoCambio)
+      .then((respuesta) => {
+        this.cargando = false;
+        if (respuesta.exitoso) {
+          this.mensajeExito = '¡Contraseña cambiada exitosamente!';
 
-      // Ocultar mensaje después de 5 segundos
-      setTimeout(() => {
-        this.mensajeExito = '';
-      }, 5000);
-    }, 1500);
+          // Limpiar el formulario
+          this.cambioPassword = {
+            passwordActual: '',
+            passwordNueva: '',
+            passwordConfirmar: '',
+          };
+
+          // Ocultar mensaje después de 5 segundos
+          setTimeout(() => {
+            this.mensajeExito = '';
+          }, 5000);
+        } else {
+          this.mensajeError =
+            respuesta.mensaje || 'Error al cambiar la contraseña';
+          if (respuesta.errores && respuesta.errores.length > 0) {
+            this.mensajeError += ': ' + respuesta.errores.join(', ');
+          }
+        }
+      })
+      .catch((error) => {
+        this.cargando = false;
+        this.mensajeError = 'Error al cambiar la contraseña: ' + error.message;
+      });
   }
 
   cancelar(): void {

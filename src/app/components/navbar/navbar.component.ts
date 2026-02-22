@@ -19,9 +19,12 @@ export class NavbarComponent {
   constructor(
     private router: Router,
     private navbarService: NavbarService,
-    public authService: AuthService
+    public authService: AuthService,
   ) {
     this.checkScreenSize();
+    if (this.isMobile) {
+      this.sidebarActive = false;
+    }
   }
 
   get esRolDespacho(): boolean {
@@ -75,6 +78,32 @@ export class NavbarComponent {
     }
   }
 
+  /**
+   * Handle clicks on submenu toggles so that when the sidebar is collapsed
+   * it behaves like `toggleSidebar()` (expands) and then opens the submenu.
+   */
+  handleSubmenuClick(event: MouseEvent, menu: string) {
+    event.preventDefault();
+    // If collapsed, expand and open the submenu
+    if (this.sidebarCollapsed) {
+      this.sidebarCollapsed = false;
+      this.navbarService.setSidebarCollapsed(this.sidebarCollapsed);
+      // open the submenu
+      // close others first
+      Object.keys(this.submenuOpen).forEach(
+        (key) => (this.submenuOpen[key] = false),
+      );
+      // small delay to allow CSS/layout update (next tick)
+      setTimeout(() => {
+        this.submenuOpen[menu] = true;
+      }, 10);
+      return;
+    }
+
+    // Default behaviour when not collapsed
+    this.toggleSubmenu(menu);
+  }
+
   closeSidebarOnMobile() {
     if (this.isMobile) {
       this.sidebarActive = false;
@@ -94,7 +123,6 @@ export class NavbarComponent {
   }
 
   cerrarSesion() {
-    console.log('🚪 Cerrando sesión desde navbar...');
     this.closeSidebarOnMobile();
     this.authService.logout();
   }

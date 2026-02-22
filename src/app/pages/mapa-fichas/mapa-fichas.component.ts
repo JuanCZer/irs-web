@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import mapboxgl from 'mapbox-gl';
 import { FichasService, FichasTodosDTO } from '../../services/fichas.service';
+import { NavbarService } from '../../services/navbar.service';
+import { Subscription } from 'rxjs';
 
 // Interfaz extendida para manejar coordenadas numéricas
 interface FichaConCoordenadas extends Omit<
@@ -81,16 +83,21 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
   cargando = false;
   mensajeError = '';
 
-  constructor(private fichasService: FichasService) {}
+  private subscriptions: Subscription = new Subscription();
+
+  constructor(
+    private fichasService: FichasService,
+    private navbarService: NavbarService
+  ) {}
 
   ngOnInit(): void {
     this.establecerFechasDefecto();
     this.cargarSectoresUnicos();
+    this.subscribeToSidebarChanges();
   }
 
   ngAfterViewInit(): void {
-    console.log('🔧 ngAfterViewInit() ejecutado');
-
+ 
     // Exponer datos para debugging en consola
     const self = this;
     (window as any).fichasDebug = {
@@ -116,8 +123,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Luego cargar las fichas (el mapa estará listo cuando se carguen)
     setTimeout(() => {
-      console.log('⏱️ Ejecutando cargarFichas() después de 500ms...');
-      this.cargarFichas();
+       this.cargarFichas();
     }, 500);
   }
 
@@ -125,6 +131,26 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.map) {
       this.map.remove();
     }
+    this.subscriptions.unsubscribe();
+  }
+
+  /**
+   * Subscribe to sidebar collapse changes to resize the map and adjust layout.
+   */
+  private subscribeToSidebarChanges(): void {
+    this.subscriptions.add(
+      this.navbarService.sidebarCollapsed$.subscribe((collapsed) => {
+         // Allow CSS transition to finish before resizing map
+        setTimeout(() => {
+          try {
+            if (this.map) {
+              this.map.resize();
+             }
+          } catch (e) {
+           }
+        }, 350);
+      })
+    );
   }
 
   private establecerFechasDefecto(): void {
@@ -141,26 +167,20 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   cargarFichas(): void {
-    console.log('📥 cargarFichas() - Iniciando carga desde API...');
-    console.log('📅 Con rango de fechas:', {
-      fechaInicio: this.fechaInicio,
+        fechaInicio: this.fechaInicio,
       fechaFin: this.fechaFin,
     });
-    console.log('mapReady:', this.mapReady);
-    console.log('map existe:', !!this.map);
-
+  
     this.cargando = true;
     this.mensajeError = '';
 
     this.fichasService
       .obtenerFichasPorRangoFechas(this.fechaInicio, this.fechaFin)
       .then((fichas) => {
-        console.log(
-          '✅ Fichas obtenidas del API (con filtro de fechas):',
+           '✅ Fichas obtenidas del API (con filtro de fechas):',
           fichas,
         );
-        console.log('📊 Total fichas:', fichas.length);
-
+ 
         // Convertir string de latitud/longitud a number y validar
         this.todasLasFichas = fichas.map(
           (ficha: any, index: number): FichaConCoordenadas => {
@@ -168,9 +188,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
             const longitudRaw = ficha.longitud;
             const latitudParsed = latitudRaw ? parseFloat(latitudRaw) : null;
             const longitudParsed = longitudRaw ? parseFloat(longitudRaw) : null;
-
-            console.log(`Ficha ${index} (${ficha.id}):`, {
-              latitudRaw,
+               latitudRaw,
               latitudParsed,
               longitudRaw,
               longitudParsed,
@@ -191,10 +209,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
             return result as FichaConCoordenadas;
           },
         );
-
-        console.log('✅ Fichas procesadas:', this.todasLasFichas.length);
-        console.log(
-          '🧭 Fichas con coordenadas válidas:',
+            '🧭 Fichas con coordenadas válidas:',
           this.todasLasFichas.filter((f) => f.latitud && f.longitud).length,
         );
 
@@ -202,19 +217,16 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
         this.aplicarFiltros();
       })
       .catch((error) => {
-        console.error('❌ Error al cargar fichas:', error);
-        this.cargando = false;
+         this.cargando = false;
         this.mensajeError =
           'Error al cargar fichas del servidor. Intenta de nuevo más tarde.';
       });
   }
 
   aplicarFiltros(): void {
-    console.log(
-      '🔍 aplicarFiltros() - Filtrando por estado/sector/condición...',
+       '🔍 aplicarFiltros() - Filtrando por estado/sector/condición...',
     );
-    console.log('Filtros activos:', {
-      estado: this.filtroEstado || 'todos',
+       estado: this.filtroEstado || 'todos',
       sector: this.filtroSector || 'todos',
       condicion: this.filtroCondicion || 'todos',
     });
@@ -237,9 +249,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
 
       return cumpleEstado && cumpleSector && cumpleCondicion;
     });
-
-    console.log('✅ Filtrado completado:', {
-      totalFichas: this.todasLasFichas.length,
+       totalFichas: this.todasLasFichas.length,
       fichasVisibles: this.fichasVisible.length,
       conCoordenadas: this.fichasVisible.filter((f) => f.latitud && f.longitud)
         .length,
@@ -247,29 +257,23 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Actualizar marcadores del mapa (si el mapa está listo)
     if (this.mapReady && this.map) {
-      console.log('📍 Mapa listo, actualizando marcadores...');
-      if (this.map.isStyleLoaded()) {
-        console.log(
-          '🎨 Estilo del mapa cargado, llamando actualizarMarcadores()',
+       if (this.map.isStyleLoaded()) {
+           '🎨 Estilo del mapa cargado, llamando actualizarMarcadores()',
         );
         this.actualizarMarcadores();
       } else {
-        console.warn('⚠️ Estilo del mapa aún cargándose, esperando...');
-        this.map.once('style.load', () => {
-          console.log('🎨 Estilo cargado, actualizando marcadores ahora');
-          this.actualizarMarcadores();
+         this.map.once('style.load', () => {
+           this.actualizarMarcadores();
         });
       }
     } else {
-      console.warn('⚠️ Mapa no está listo aún', {
-        mapReady: this.mapReady,
+         mapReady: this.mapReady,
         mapExists: !!this.map,
       });
       // Fallback: reintentar en 500ms
       setTimeout(() => {
         if (this.mapReady && this.map && this.map.isStyleLoaded()) {
-          console.log(
-            '🔄 Reintentando actualizarMarcadores() después de espera',
+             '🔄 Reintentando actualizarMarcadores() después de espera',
           );
           this.actualizarMarcadores();
         }
@@ -278,8 +282,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initMap(): void {
-    console.log('🗺️ Inicializando mapa...');
-    mapboxgl.accessToken = this.MAPBOX_TOKEN;
+     mapboxgl.accessToken = this.MAPBOX_TOKEN;
 
     // Centro de México
     const centerLat = 23.6345;
@@ -293,8 +296,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.map.on('load', () => {
-      console.log('✅ Mapa cargado correctamente');
-      this.mapReady = true;
+       this.mapReady = true;
       // Si las fichas ya se cargaron, actualizar marcadores
       if (this.fichasVisible.length > 0) {
         this.actualizarMarcadores();
@@ -306,36 +308,27 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private actualizarMarcadores(): void {
-    console.log('🗺️ actualizarMarcadores() llamado');
-    console.log('mapReady:', this.mapReady);
-    console.log('this.map:', !!this.map);
-
+   
     // Validar que el mapa esté inicializado
     if (!this.map) {
-      console.error('❌ Mapa no inicializado');
-      return;
+       return;
     }
 
     // Limpiar marcadores anteriores
-    console.log('🧹 Limpiando', this.markers.length, 'marcadores anteriores');
-    this.markers.forEach((marker) => {
+     this.markers.forEach((marker) => {
       try {
         marker.remove();
       } catch (e) {
-        console.warn('Error removiendo marcador:', e);
-      }
+       }
     });
     this.markers = [];
 
     // Validar que el mapa haya cargado el estilo
     if (!this.map.isStyleLoaded()) {
-      console.warn('⚠️ Mapa aún no ha cargado el estilo, reintentando...');
-      setTimeout(() => this.actualizarMarcadores(), 500);
+       setTimeout(() => this.actualizarMarcadores(), 500);
       return;
     }
-
-    console.log('📍 Procesando', this.fichasVisible.length, 'fichas...');
-
+ 
     let contadorMarcadores = 0;
     let contadorSinCoordenadas = 0;
 
@@ -356,8 +349,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
         const color = '#667eea';
 
         try {
-          console.log(`✏️ Creando marcador para ficha ${ficha.id}:`, {
-            latitud: ficha.latitud,
+             latitud: ficha.latitud,
             longitud: ficha.longitud,
           });
 
@@ -381,12 +373,10 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
           this.markers.push(marker);
           contadorMarcadores++;
         } catch (error) {
-          console.error('❌ Error al crear marcador:', error, ficha);
-        }
+         }
       } else {
         contadorSinCoordenadas++;
-        console.warn('⚠️ Ficha sin coordenadas válidas:', {
-          id: ficha.id,
+           id: ficha.id,
           latitud: ficha.latitud,
           longitud: ficha.longitud,
           tipoLat: typeof ficha.latitud,
@@ -394,20 +384,16 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       }
     });
-
-    console.log('✅ Resultado:', {
-      marcadoresCreados: contadorMarcadores,
+       marcadoresCreados: contadorMarcadores,
       fichasSinCoordenadas: contadorSinCoordenadas,
       totalProcesadas: this.fichasVisible.length,
     });
 
     // Ajustar zoom si hay marcadores
     if (this.markers.length > 0) {
-      console.log('🎯 Ajustando zoom a marcadores');
-      this.ajustarZoomAMarcadores();
+       this.ajustarZoomAMarcadores();
     } else {
-      console.warn('⚠️ No hay marcadores para mostrar');
-    }
+     }
   }
 
   private ajustarZoomAMarcadores(): void {

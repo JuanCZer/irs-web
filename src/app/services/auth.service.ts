@@ -32,7 +32,7 @@ export class AuthService {
     const userJson = localStorage.getItem('currentUser');
     const user = userJson ? JSON.parse(userJson) : null;
     this.currentUserSubject = new BehaviorSubject<UsuarioAutenticado | null>(
-      user
+      user,
     );
     this.currentUser = this.currentUserSubject.asObservable();
   }
@@ -47,8 +47,6 @@ export class AuthService {
 
   async login(credentials: LoginCredentials): Promise<UsuarioAutenticado> {
     try {
-      console.log('🔐 Intentando login con usuario:', credentials.usuario);
-
       const response = await fetch(`${this.apiUrl}/login`, {
         method: 'POST',
         headers: {
@@ -63,7 +61,6 @@ export class AuthService {
       }
 
       const usuario: UsuarioAutenticado = await response.json();
-      console.log('✅ Login exitoso:', usuario.usuario);
 
       // Guardar usuario en localStorage y actualizar observable
       localStorage.setItem('currentUser', JSON.stringify(usuario));
@@ -71,14 +68,11 @@ export class AuthService {
 
       return usuario;
     } catch (error) {
-      console.error('❌ Error en login:', error);
       throw error;
     }
   }
 
   logout(): void {
-    console.log('👋 Cerrando sesión...');
-
     // Limpiar localStorage y observable
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
@@ -92,8 +86,13 @@ export class AuthService {
     if (!user) return 'Usuario';
 
     const partes = [user.nombre, user.app, user.apm].filter(
-      (p) => p && p.trim() !== ''
+      (p) => p && p.trim() !== '',
     );
     return partes.length > 0 ? partes.join(' ') : user.usuario;
+  }
+
+  isAdmin(): boolean {
+    const user = this.currentUserValue;
+    return user?.nombreRol?.toUpperCase() === 'ADMINISTRADOR';
   }
 }

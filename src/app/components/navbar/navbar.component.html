@@ -15,17 +15,17 @@
     <div class="sidebar-content">
       <div class="sidebar-brand">
         <div id="close-sidebar" (click)="toggleSidebar()">
-          <i class="fas fa-times fa-lg"></i>
+          <i class="fi fi-rr-menu-burger"></i>
         </div>
       </div>
-      <div class="sidebar-header">
+      <!-- <div class="sidebar-header">
         <div class="user-pic">
-          <img src="assets/img/irs-logo-chico.png" alt="Logotipo empresa" />
+          <img src="src/assets/img/irs-Picsart-BackgroundRemover.PNG" alt="Logotipo empresa" />
         </div>
         <div class="user-info" *ngIf="!sidebarCollapsed">
           <span class="user-name">Sistema IRS</span>
         </div>
-      </div>
+      </div> -->
 
       <div class="sidebar-menu">
         <ul>
@@ -35,18 +35,18 @@
               (click)="closeSidebarOnMobile()"
               [title]="sidebarCollapsed ? 'Inicio' : ''"
             >
-              <i class="fas fa-home"></i>
+              <i class="fi fi-rr-home"></i>
               <span *ngIf="!sidebarCollapsed">Inicio</span>
             </a>
           </li>
 
           <li [class.has-submenu-open]="submenuOpen['fichas']">
             <a
-              (click)="toggleSubmenu('fichas')"
+              (click)="handleSubmenuClick($event,'fichas')"
               class="submenu-desplegable"
               [title]="sidebarCollapsed ? 'Fichas' : ''"
             >
-              <i class="far fa-file-alt"></i>
+              <i class="fi fi-rs-memo-circle-check"></i>
               <span *ngIf="!sidebarCollapsed">Fichas</span>
               <i
                 *ngIf="!sidebarCollapsed"
@@ -66,7 +66,7 @@
                   (click)="closeSidebarOnMobile()"
                   [class.active]="isActiveRoute('/fichas/registrar')"
                 >
-                  <i class="fas fa-plus-circle"></i>
+                  <i class="fi fi-rs-add-document"></i>
                   <span>Registrar ficha</span>
                 </a>
               </li>
@@ -77,7 +77,7 @@
                   (click)="closeSidebarOnMobile()"
                   [class.active]="isActiveRoute('/fichas/borradores')"
                 >
-                  <i class="fas fa-file-edit"></i>
+                  <i class="fi fi-rs-document-circle-wrong"></i>
                   <span>Borradores</span>
                 </a>
               </li>
@@ -85,11 +85,11 @@
           </li>
           <li [class.has-submenu-open]="submenuOpen['consultar-fichas']">
             <a
-              (click)="toggleSubmenu('consultar-fichas')"
+              (click)="handleSubmenuClick($event,'consultar-fichas')"
               class="submenu-desplegable"
               [title]="sidebarCollapsed ? 'Consultar Fichas' : ''"
             >
-              <i class="fas fa-search"></i>
+              <i class="fi fi-rr-search-alt"></i>
               <span *ngIf="!sidebarCollapsed">Consultar Fichas</span>
               <i
                 *ngIf="!sidebarCollapsed"
@@ -109,7 +109,7 @@
                   (click)="closeSidebarOnMobile()"
                   [class.active]="isActiveRoute('/consultar-fichas/dia')"
                 >
-                  <i class="fas fa-calendar-day"></i>
+                  <i class="fi fi-rr-calendar-day"></i>
                   <span>Del día</span>
                 </a>
               </li>
@@ -120,7 +120,7 @@
                   (click)="closeSidebarOnMobile()"
                   [class.active]="isActiveRoute('/consultar-fichas/todas')"
                 >
-                  <i class="fas fa-folder-open"></i>
+                  <i class="fi fi-rr-calendar-days"></i>
                   <span>Todas</span>
                 </a>
               </li>
@@ -133,161 +133,44 @@
               (click)="closeSidebarOnMobile()"
               [title]="sidebarCollapsed ? 'Mapa de fichas' : ''"
             >
-              <i class="fas fa-map-marker-alt"></i>
+              <i class="fi fi-rs-map-marker"></i>
               <span *ngIf="!sidebarCollapsed">Mapa de fichas</span>
             </a>
           </li>
 
-          <!-- <li [class.has-submenu-open]="submenuOpen['rutas']">
+          <li [class.li-activa]="isActiveRoute('/estadisticas')">
             <a
-              (click)="toggleSubmenu('rutas')"
-              class="submenu-desplegable"
-              [title]="sidebarCollapsed ? 'Rutas' : ''"
+              routerLink="/estadisticas"
+              (click)="closeSidebarOnMobile()"
+              [title]="sidebarCollapsed ? 'Mis estadísticas' : ''"
             >
-              <i class="fas fa-route"></i>
-              <span *ngIf="!sidebarCollapsed">Rutas</span>
-              <i
-                *ngIf="!sidebarCollapsed"
-                class="fas fa-angle-down arrow-icon"
-                [class.rotate]="submenuOpen['rutas']"
-              ></i>
+              <i class="fi fi-rs-chart-histogram"></i>
+              <span *ngIf="!sidebarCollapsed">Mis estadísticas</span>
             </a>
-            <ul
-              class="submenu"
-              [class.show]="submenuOpen['rutas']"
-              *ngIf="!sidebarCollapsed"
-            >
-              <li>
-                <a
-                  routerLink="/rutas/generar"
-                  class="option-submenu"
-                  (click)="closeSidebarOnMobile()"
-                  [class.active]="isActiveRoute('/rutas/generar')"
-                >
-                  <i class="fas fa-plus-square"></i>
-                  <span>Generar Ruta</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  routerLink="/rutas/asignadas"
-                  class="option-submenu"
-                  (click)="closeSidebarOnMobile()"
-                  [class.active]="isActiveRoute('/rutas/asignadas')"
-                >
-                  <i class="fas fa-clipboard-list"></i>
-                  <span>Rutas asignadas</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  routerLink="/rutas/mis-rutas"
-                  class="option-submenu"
-                  (click)="closeSidebarOnMobile()"
-                  [class.active]="isActiveRoute('/rutas/mis-rutas')"
-                >
-                  <i class="fas fa-user-tag"></i>
-                  <span>Mis rutas</span>
-                </a>
-              </li>
-            </ul>
-          </li> -->
-
-          <li [class.has-submenu-open]="submenuOpen['clientes']">
-            <a
-              (click)="toggleSubmenu('clientes')"
-              class="submenu-desplegable"
-              [title]="sidebarCollapsed ? 'Lista de clientes' : ''"
-            >
-              <i class="fas fa-address-book"></i>
-              <span *ngIf="!sidebarCollapsed">Lista de clientes</span>
-              <i
-                *ngIf="!sidebarCollapsed"
-                class="fas fa-angle-down arrow-icon"
-                [class.rotate]="submenuOpen['clientes']"
-              ></i>
-            </a>
-            <ul
-              class="submenu"
-              [class.show]="submenuOpen['clientes']"
-              *ngIf="!sidebarCollapsed"
-            >
-              <li>
-                <a
-                  routerLink="/clientes/registrar"
-                  class="option-submenu"
-                  (click)="closeSidebarOnMobile()"
-                  [class.active]="isActiveRoute('/clientes/registrar')"
-                >
-                  <i class="fas fa-user-plus"></i>
-                  <span>Registrar cliente</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  routerLink="/clientes/editar"
-                  class="option-submenu"
-                  (click)="closeSidebarOnMobile()"
-                  [class.active]="isActiveRoute('/clientes/editar')"
-                >
-                  <i class="fas fa-user-edit"></i>
-                  <span>Ver o editar clientes</span>
-                </a>
-              </li>
-            </ul>
           </li>
 
-          <!-- <li [class.has-submenu-open]="submenuOpen['personal']">
+          <!-- Opción Despacho - Solo visible para rol 6 -->
+          <li
+            *ngIf="esRolDespacho"
+            [class.li-activa]="isActiveRoute('/despacho')"
+          >
             <a
-              (click)="toggleSubmenu('personal')"
-              class="submenu-desplegable"
-              [title]="sidebarCollapsed ? 'Plantilla de personal' : ''"
+              routerLink="/despacho"
+              (click)="closeSidebarOnMobile()"
+              [title]="sidebarCollapsed ? 'Despacho' : ''"
             >
-              <i class="fas fa-users"></i>
-              <span *ngIf="!sidebarCollapsed">Plantilla de personal</span>
-              <i
-                *ngIf="!sidebarCollapsed"
-                class="fas fa-angle-down arrow-icon"
-                [class.rotate]="submenuOpen['personal']"
-              ></i>
+              <i class="fi fi-rr-file-user"></i>
+              <span *ngIf="!sidebarCollapsed">Despacho</span>
             </a>
-            <ul
-              class="submenu"
-              [class.show]="submenuOpen['personal']"
-              *ngIf="!sidebarCollapsed"
-            >
-              <li>
-                <a
-                  routerLink="/personal/registrar"
-                  class="option-submenu"
-                  (click)="closeSidebarOnMobile()"
-                  [class.active]="isActiveRoute('/personal/registrar')"
-                >
-                  <i class="fas fa-id-badge"></i>
-                  <span>Registrar empleado</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  routerLink="/personal/editar"
-                  class="option-submenu"
-                  (click)="closeSidebarOnMobile()"
-                  [class.active]="isActiveRoute('/personal/editar')"
-                >
-                  <i class="fas fa-user-cog"></i>
-                  <span>Ver o editar empleado</span>
-                </a>
-              </li>
-            </ul>
-          </li> -->
+          </li>
 
           <li [class.has-submenu-open]="submenuOpen['admin-usuarios']">
             <a
-              (click)="toggleSubmenu('admin-usuarios')"
+              (click)="handleSubmenuClick($event,'admin-usuarios')"
               class="submenu-desplegable"
               [title]="sidebarCollapsed ? 'Admin Usuarios' : ''"
             >
-              <i class="fas fa-users-cog"></i>
+              <i class="fi fi-rr-users-alt"></i>
               <span *ngIf="!sidebarCollapsed">Admin Usuarios</span>
               <i
                 *ngIf="!sidebarCollapsed"
@@ -307,7 +190,7 @@
                   (click)="closeSidebarOnMobile()"
                   [class.active]="isActiveRoute('/admin-usuarios/registrar')"
                 >
-                  <i class="fas fa-user-shield"></i>
+                  <i class="fi fi-rs-user-add"></i>
                   <span>Registrar usuario</span>
                 </a>
               </li>
@@ -318,37 +201,11 @@
                   (click)="closeSidebarOnMobile()"
                   [class.active]="isActiveRoute('/admin-usuarios/editar')"
                 >
-                  <i class="fas fa-user-lock"></i>
+                  <i class="fi fi-rs-admin-alt"></i>
                   <span>Editar usuario</span>
                 </a>
               </li>
             </ul>
-          </li>
-
-          <li [class.li-activa]="isActiveRoute('/estadisticas')">
-            <a
-              routerLink="/estadisticas"
-              (click)="closeSidebarOnMobile()"
-              [title]="sidebarCollapsed ? 'Mis estadísticas' : ''"
-            >
-              <i class="fas fa-chart-line"></i>
-              <span *ngIf="!sidebarCollapsed">Mis estadísticas</span>
-            </a>
-          </li>
-
-          <!-- Opción Despacho - Solo visible para rol 6 -->
-          <li
-            *ngIf="esRolDespacho"
-            [class.li-activa]="isActiveRoute('/despacho')"
-          >
-            <a
-              routerLink="/despacho"
-              (click)="closeSidebarOnMobile()"
-              [title]="sidebarCollapsed ? 'Despacho' : ''"
-            >
-              <i class="fas fa-briefcase"></i>
-              <span *ngIf="!sidebarCollapsed">Despacho</span>
-            </a>
           </li>
 
           <li [class.li-activa]="isActiveRoute('/perfil')">
@@ -357,7 +214,7 @@
               (click)="closeSidebarOnMobile()"
               [title]="sidebarCollapsed ? 'Cambiar contraseña' : ''"
             >
-              <i class="fas fa-lock"></i>
+              <i class="fi fi-rr-user-key"></i>
               <span *ngIf="!sidebarCollapsed">Cambiar contraseña</span>
             </a>
           </li>
@@ -367,7 +224,7 @@
               (click)="cerrarSesion()"
               [title]="sidebarCollapsed ? 'Cerrar sesión' : ''"
             >
-              <i class="fas fa-sign-out-alt"></i>
+              <i class="fi fi-rs-sign-out-alt"></i>
               <span *ngIf="!sidebarCollapsed">Cerrar sesión</span>
             </a>
           </li>
@@ -375,4 +232,9 @@
       </div>
     </div>
   </nav>
+  <div
+    class="overlay-backdrop"
+    [class.active]="sidebarActive && isMobile"
+    (click)="closeSidebarOnMobile()"
+  ></div>
 </div>

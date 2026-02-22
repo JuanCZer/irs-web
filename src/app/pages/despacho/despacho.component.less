@@ -1,9 +1,43 @@
 .despacho-container {
   padding: 30px;
-  max-width: 1600px;
-  margin: 0 auto;
+  width: 100%;
   min-height: 100vh;
   background: #f8f9fa;
+  box-sizing: border-box;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .despacho-container { padding: 12px; }
+
+  .page-header { padding: 16px; }
+
+  .table-container { margin-bottom: 12px; }
+
+  .fichas-table thead { display: none; }
+  @import "../../../styles/responsive.less";
+
+  .fichas-table {
+    .responsive-table();
+    .stacked-table-mobile();
+  }
+
+  .acciones-container { flex-direction: column; gap: 6px; align-items: flex-start; }
+
+  .pagination-section { flex-direction: column; gap: 8px; }
+}
+
+/* Tablet responsive */
+@media (max-width: 1024px) {
+  .fichas-table {
+    min-width: 1000px;
+    font-size: 0.9rem;
+
+    thead th,
+    tbody td {
+      padding: 12px 8px;
+    }
+  }
 }
 
 .page-header {
@@ -73,13 +107,34 @@
 .table-container {
   background: white;
   border-radius: 12px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 4px;
+
+    &:hover {
+      background: #764ba2;
+    }
+  }
 }
 
 .fichas-table {
   width: 100%;
+  min-width: 1200px;
   border-collapse: collapse;
 
   thead {

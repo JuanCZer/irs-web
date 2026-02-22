@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using IRS.API.Services;
 using IRS.API.Models;
 using IRS.API.DTOs;
+using IRS.API.Interfaces;
 
 namespace IRS.API.Controllers;
 

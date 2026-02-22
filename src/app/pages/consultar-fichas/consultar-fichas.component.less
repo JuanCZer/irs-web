@@ -145,6 +145,8 @@
     }
   }
 
+@import "../../../styles/responsive.less";
+
   // Tabla
   .fichas-table {
     width: 100%;
@@ -400,6 +402,29 @@
           padding: 8px 6px;
         }
       }
+    }
+  }
+
+  /* Additional mobile stack behavior */
+  @media (max-width: 768px) {
+    .consultar-fichas-container {
+      padding: 12px;
+    }
+
+    .search-wrapper {
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .table-container {
+      margin: 0 -12px;
+      border-radius: 8px;
+    }
+
+    .fichas-table {
+      .responsive-table();
+      .stacked-table-mobile();
     }
   }
 }

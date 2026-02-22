@@ -61,7 +61,6 @@ export class CatalogosService {
       }
       return await response.json();
     } catch (error) {
-      console.error('Error al obtener sectores:', error);
       return [];
     }
   }
@@ -74,7 +73,6 @@ export class CatalogosService {
       }
       return await response.json();
     } catch (error) {
-      console.error('Error al obtener subsectores:', error);
       return [];
     }
   }
@@ -82,14 +80,13 @@ export class CatalogosService {
   async obtenerSubsectoresPorSector(idSector: number): Promise<CatSubsector[]> {
     try {
       const response = await fetch(
-        `${this.apiUrl}/subsectores/sector/${idSector}`
+        `${this.apiUrl}/subsectores/sector/${idSector}`,
       );
       if (!response.ok) {
         throw new Error(`Error al obtener subsectores: ${response.statusText}`);
       }
       return await response.json();
     } catch (error) {
-      console.error('Error al obtener subsectores por sector:', error);
       return [];
     }
   }
@@ -102,7 +99,6 @@ export class CatalogosService {
       }
       return await response.json();
     } catch (error) {
-      console.error('Error al obtener prioridades:', error);
       return [];
     }
   }
@@ -115,7 +111,6 @@ export class CatalogosService {
       }
       return await response.json();
     } catch (error) {
-      console.error('Error al obtener condiciones:', error);
       return [];
     }
   }
@@ -125,12 +120,11 @@ export class CatalogosService {
       const response = await fetch(`${this.apiUrl}/informaciones`);
       if (!response.ok) {
         throw new Error(
-          `Error al obtener informaciones: ${response.statusText}`
+          `Error al obtener informaciones: ${response.statusText}`,
         );
       }
       return await response.json();
     } catch (error) {
-      console.error('Error al obtener informaciones:', error);
       return [];
     }
   }
@@ -143,7 +137,6 @@ export class CatalogosService {
       }
       return await response.json();
     } catch (error) {
-      console.error('Error al obtener municipios:', error);
       return [];
     }
   }
@@ -153,36 +146,29 @@ export class CatalogosService {
       const response = await fetch(`${this.apiUrl}/delegaciones`);
       if (!response.ok) {
         throw new Error(
-          `Error al obtener delegaciones: ${response.statusText}`
+          `Error al obtener delegaciones: ${response.statusText}`,
         );
       }
       return await response.json();
     } catch (error) {
-      console.error('Error al obtener delegaciones:', error);
       return [];
     }
   }
 
   async obtenerMedidasSeguridad(): Promise<CatMedidaSeguridad[]> {
     try {
-      console.log('🌐 Llamando a:', `${this.apiUrl}/medidas-seguridad`);
       const response = await fetch(`${this.apiUrl}/medidas-seguridad`);
-
-      console.log('📡 Response status:', response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Error response:', errorText);
         throw new Error(
-          `Error al obtener medidas de seguridad: ${response.statusText}`
+          `Error al obtener medidas de seguridad: ${response.statusText}`,
         );
       }
 
       const data = await response.json();
-      console.log('✅ Medidas de seguridad recibidas:', data);
       return data;
     } catch (error) {
-      console.error('💥 Error al obtener medidas de seguridad:', error);
       return [];
     }
   }

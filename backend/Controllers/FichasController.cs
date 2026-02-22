@@ -1,7 +1,8 @@
 using IRS.API.DTOs;
 using IRS.API.Models;
-using IRS.API.Services;
 using Microsoft.AspNetCore.Mvc;
+using Backend.DTOs;
+using IRS.API.Interfaces;
 
 namespace IRS.API.Controllers;
 
@@ -216,6 +217,38 @@ public class FichasController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(new { mensaje = "Error al buscar borradores", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Obtener estadísticas de fichas (resumen, por estado, por mes, tendencia anual)
+    /// </summary>
+    [HttpGet("estadisticas")]
+    public async Task<ActionResult<FichasEstadisticasDto>> ObtenerEstadisticas()
+    {
+        try
+        {
+            Console.WriteLine("📊 GET /api/fichas/estadisticas - Obteniendo estadísticas");
+            var estadisticas = await _fichaService.ObtenerEstadisticasAsync();
+            Console.WriteLine("✅ Estadísticas obtenidas correctamente");
+            return Ok(estadisticas);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine($"❌ Error de operación inválida: {ex.Message}");
+            Console.WriteLine($"   Stack: {ex.StackTrace}");
+            return BadRequest(new { mensaje = "Error de validación", error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error al obtener estadísticas: {ex.Message}");
+            Console.WriteLine($"   Tipo: {ex.GetType().Name}");
+            Console.WriteLine($"   Stack: {ex.StackTrace}");
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"   Inner: {ex.InnerException.Message}");
+            }
+            return StatusCode(500, new { mensaje = "Error al obtener estadísticas", error = ex.Message, tipo = ex.GetType().Name });
         }
     }
 }

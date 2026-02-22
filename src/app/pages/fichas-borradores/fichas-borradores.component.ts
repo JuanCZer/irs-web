@@ -44,27 +44,22 @@ export class FichasBorradoresComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('🔵 Componente borradores inicializado');
-    this.cargarBorradores();
+     this.cargarBorradores();
   }
 
   async cargarBorradores(): Promise<void> {
     this.cargando = true;
     this.error = '';
-    console.log('🔵 Cargando borradores...');
-
+ 
     try {
       this.borradores = await this.fichasService.obtenerBorradores();
-      console.log('✅ Borradores cargados:', this.borradores);
-      console.log('📊 Total de borradores:', this.borradores.length);
-      this.borradoresFiltrados = [...this.borradores];
+        this.borradoresFiltrados = [...this.borradores];
       this.calcularPaginacion();
       this.cdr.detectChanges();
     } catch (error) {
       this.error =
         'No se pudieron cargar los borradores. Verifica que el backend esté corriendo.';
-      console.error('❌ Error al cargar borradores:', error);
-    } finally {
+     } finally {
       this.cargando = false;
     }
   }
@@ -79,19 +74,16 @@ export class FichasBorradoresComponent implements OnInit {
 
     this.cargando = true;
     try {
-      console.log('🔍 Buscando:', this.buscarTexto);
-      this.borradoresFiltrados = await this.fichasService.buscarBorradores(
+       this.borradoresFiltrados = await this.fichasService.buscarBorradores(
         this.buscarTexto
       );
       this.paginaActual = 1;
       this.calcularPaginacion();
-      console.log(
-        '✅ Resultados encontrados:',
+         '✅ Resultados encontrados:',
         this.borradoresFiltrados.length
       );
     } catch (error) {
-      console.error('❌ Error en búsqueda:', error);
-      this.error = 'Error al realizar la búsqueda';
+       this.error = 'Error al realizar la búsqueda';
     } finally {
       this.cargando = false;
     }
@@ -123,8 +115,7 @@ export class FichasBorradoresComponent implements OnInit {
   irAPagina(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginas) {
       this.paginaActual = pagina;
-      console.log('📄 Página actual:', this.paginaActual);
-    }
+     }
   }
 
   paginaAnterior(): void {
@@ -140,8 +131,7 @@ export class FichasBorradoresComponent implements OnInit {
   }
 
   abrirBorrador(id: number): void {
-    console.log('📝 Abriendo borrador ID:', id);
-    this.cargarFichaCompleta(id);
+     this.cargarFichaCompleta(id);
   }
 
   async cargarFichaCompleta(id: number): Promise<void> {
@@ -150,13 +140,10 @@ export class FichasBorradoresComponent implements OnInit {
     this.fichaSeleccionada = null;
 
     try {
-      console.log('🔍 Cargando ficha completa ID:', id);
-      this.fichaSeleccionada = await this.fichasService.obtenerFichaPorId(id);
-      console.log('✅ Ficha cargada:', this.fichaSeleccionada);
-      this.cdr.detectChanges();
+       this.fichaSeleccionada = await this.fichasService.obtenerFichaPorId(id);
+       this.cdr.detectChanges();
     } catch (error) {
-      console.error('❌ Error al cargar ficha:', error);
-      alert('Error al cargar la ficha');
+       alert('Error al cargar la ficha');
       this.cerrarModal();
     } finally {
       this.cargandoFicha = false;
@@ -209,22 +196,17 @@ export class FichasBorradoresComponent implements OnInit {
       // Cambiar Activo de 2 a 3 (o el valor que corresponda para fichas validadas)
       this.fichaSeleccionada.activo = 3;
       this.fichaSeleccionada.fechaValidacion = new Date().toISOString();
-
-      console.log('💾 Guardando ficha validada:', this.fichaSeleccionada);
-
+ 
       await this.fichasService.actualizarFicha(
         this.fichaSeleccionada.id,
         this.fichaSeleccionada
       );
-
-      console.log('✅ Ficha validada y guardada correctamente');
-      alert('✅ Ficha validada y guardada correctamente');
+       alert('✅ Ficha validada y guardada correctamente');
 
       this.cerrarModal();
       await this.cargarBorradores(); // Recargar lista (ya no aparecerá este borrador)
     } catch (error) {
-      console.error('❌ Error al validar y guardar:', error);
-      alert('❌ Error al validar y guardar la ficha');
+       alert('❌ Error al validar y guardar la ficha');
     } finally {
       this.cargandoFicha = false;
     }
@@ -235,12 +217,10 @@ export class FichasBorradoresComponent implements OnInit {
       this.cargando = true;
       try {
         await this.fichasService.eliminarFicha(id);
-        console.log('✅ Borrador eliminado');
-        alert('Borrador eliminado correctamente');
+         alert('Borrador eliminado correctamente');
         await this.cargarBorradores(); // Recargar lista
       } catch (error) {
-        console.error('❌ Error al eliminar borrador:', error);
-        alert('Error al eliminar el borrador');
+         alert('Error al eliminar el borrador');
       } finally {
         this.cargando = false;
       }

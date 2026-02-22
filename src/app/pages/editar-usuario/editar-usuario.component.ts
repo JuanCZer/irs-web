@@ -122,10 +122,6 @@ export class EditarUsuarioComponent implements OnInit {
     }
   }
 
-  verTutorial() {
-    console.log('Ver tutorial de administración de usuarios');
-  }
-
   get paginasVisibles(): number[] {
     const paginas: number[] = [];
     const rango = 2;

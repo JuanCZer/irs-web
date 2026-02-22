@@ -21,7 +21,10 @@ export class LoginComponent {
   loading = false;
   errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {
     // Si ya está autenticado, redirigir al inicio
     if (this.authService.isAuthenticated) {
       this.router.navigate(['/inicio']);
@@ -47,7 +50,6 @@ export class LoginComponent {
       // Redirigir al inicio después del login exitoso
       this.router.navigate(['/inicio']);
     } catch (error) {
-      console.error('Error en login:', error);
       this.errorMessage =
         error instanceof Error
           ? error.message

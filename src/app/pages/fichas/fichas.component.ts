@@ -115,7 +115,6 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    console.log('Componente Fichas iniciado');
     this.cargarBorradorSiExiste();
   }
 
@@ -145,7 +144,7 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
             setTimeout(() => {
               this.actualizarMarcadorMapa(
                 this.ficha.latitud!,
-                this.ficha.longitud!
+                this.ficha.longitud!,
               );
             }, 500);
           }
@@ -192,8 +191,6 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Esperar a que el mapa esté completamente cargado
     this.map.on('load', () => {
-      console.log('Mapa cargado correctamente');
-
       // Crear marcador draggable con popup
       this.marker = new mapboxgl.Marker({
         draggable: true,
@@ -203,14 +200,12 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
         .setLngLat([centerLng, centerLat])
         .addTo(this.map);
 
-      console.log('Marcador agregado al mapa');
-
       // Agregar popup al marcador
       const popup = new mapboxgl.Popup({
         offset: 25,
         closeButton: false,
       }).setHTML(
-        '<strong>Arrastre para ubicar</strong><br/>o haga clic en el mapa'
+        '<strong>Arrastre para ubicar</strong><br/>o haga clic en el mapa',
       );
       this.marker.setPopup(popup);
 
@@ -229,7 +224,7 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
         popup.setHTML(
           `<strong>Ubicación seleccionada</strong><br/>` +
             `Lat: ${this.ficha.latitud}<br/>` +
-            `Lng: ${this.ficha.longitud}`
+            `Lng: ${this.ficha.longitud}`,
         );
       });
 
@@ -243,7 +238,7 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
         popup.setHTML(
           `<strong>Ubicación seleccionada</strong><br/>` +
             `Lat: ${this.ficha.latitud}<br/>` +
-            `Lng: ${this.ficha.longitud}`
+            `Lng: ${this.ficha.longitud}`,
         );
         const markerPopup = this.marker.getPopup();
         if (markerPopup && !markerPopup.isOpen()) {
@@ -292,7 +287,7 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
         popup.setHTML(
           `<strong>Ubicación del borrador</strong><br/>` +
             `Lat: ${lat}<br/>` +
-            `Lng: ${lng}`
+            `Lng: ${lng}`,
         );
         if (!popup.isOpen()) {
           this.marker.togglePopup();
@@ -341,7 +336,6 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   guardarBorrador(): void {
-    console.log('Guardando como borrador:', this.ficha);
     this.mensajeExito = 'Ficha guardada como borrador';
     this.mensajeError = '';
 
@@ -357,8 +351,6 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
       }, 5000);
       return;
     }
-
-    console.log('Guardando y validando ficha:', this.ficha);
     this.mensajeExito = 'Ficha guardada y validada correctamente';
     this.mensajeError = '';
 
@@ -371,15 +363,11 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
   salir(): void {
     if (
       confirm(
-        '¿Está seguro de que desea salir? Los cambios no guardados se perderán.'
+        '¿Está seguro de que desea salir? Los cambios no guardados se perderán.',
       )
     ) {
       this.router.navigate(['/inicio']);
     }
-  }
-
-  verTutorial(): void {
-    console.log('Ver tutorial de fichas informativas');
   }
 
   limpiarFormulario(): void {

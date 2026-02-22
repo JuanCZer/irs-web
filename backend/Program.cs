@@ -3,6 +3,7 @@ using IRS.API.Services;
 using IRS.API.Hubs;
 using Backend.Services;
 using Microsoft.EntityFrameworkCore;
+using IRS.API.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

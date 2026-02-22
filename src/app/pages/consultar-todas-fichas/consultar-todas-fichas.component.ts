@@ -32,14 +32,12 @@ export class ConsultarTodasFichasComponent implements OnInit {
   }
 
   set fechaInicio(value: string) {
-    console.log('📅 SET fechaInicio:', value);
-    const valorAnterior = this._fechaInicio;
+     const valorAnterior = this._fechaInicio;
     this._fechaInicio = value;
 
     // Solo filtrar si cambió el valor y ambas fechas están definidas
     if (valorAnterior !== value && this._fechaInicio && this._fechaFin) {
-      console.log('✅ Valor cambió, filtrando inmediatamente...');
-      setTimeout(() => this.filtrarPorFechas(), 0); // Async para no bloquear el setter
+       setTimeout(() => this.filtrarPorFechas(), 0); // Async para no bloquear el setter
     }
   }
 
@@ -48,14 +46,12 @@ export class ConsultarTodasFichasComponent implements OnInit {
   }
 
   set fechaFin(value: string) {
-    console.log('📅 SET fechaFin:', value);
-    const valorAnterior = this._fechaFin;
+     const valorAnterior = this._fechaFin;
     this._fechaFin = value;
 
     // Solo filtrar si cambió el valor y ambas fechas están definidas
     if (valorAnterior !== value && this._fechaInicio && this._fechaFin) {
-      console.log('✅ Valor cambió, filtrando inmediatamente...');
-      setTimeout(() => this.filtrarPorFechas(), 0); // Async para no bloquear el setter
+       setTimeout(() => this.filtrarPorFechas(), 0); // Async para no bloquear el setter
     }
   }
 
@@ -72,10 +68,8 @@ export class ConsultarTodasFichasComponent implements OnInit {
   constructor(private fichasService: FichasService) {}
 
   async ngOnInit(): Promise<void> {
-    console.log('🔄 ngOnInit - Inicializando componente');
-    this.establecerFechasPorDefecto();
-    console.log('📅 Fechas por defecto establecidas:', {
-      fechaInicio: this._fechaInicio,
+     this.establecerFechasPorDefecto();
+       fechaInicio: this._fechaInicio,
       fechaFin: this._fechaFin,
     });
 
@@ -84,20 +78,17 @@ export class ConsultarTodasFichasComponent implements OnInit {
   }
 
   async cargarFichas(): Promise<void> {
-    console.log('🔄 cargarFichas - Cargando todas las fichas sin filtro');
-    this.cargando = true;
+     this.cargando = true;
     this.error = '';
 
     try {
       this.fichas = await this.fichasService.obtenerTodasLasFichas();
-      console.log('✅ Total fichas cargadas:', this.fichas.length);
-      this.fichasFiltradas = [...this.fichas];
+       this.fichasFiltradas = [...this.fichas];
       this.calcularTotalPaginas();
     } catch (error) {
       this.error =
         'Error al cargar las fichas. Verifica que el backend esté corriendo.';
-      console.error('❌ Error:', error);
-    } finally {
+     } finally {
       this.cargando = false;
     }
   }
@@ -109,9 +100,7 @@ export class ConsultarTodasFichasComponent implements OnInit {
 
     this.fechaFin = this.formatearFechaInput(hoy);
     this.fechaInicio = this.formatearFechaInput(haceUnMes);
-
-    console.log('📅 Fechas establecidas:', {
-      fechaInicio: this.fechaInicio,
+       fechaInicio: this.fechaInicio,
       fechaFin: this.fechaFin,
     });
   }
@@ -141,17 +130,13 @@ export class ConsultarTodasFichasComponent implements OnInit {
   }
 
   async filtrarPorFechas(): Promise<void> {
-    console.log('🔍 filtrarPorFechas() llamado');
-    console.log('📅 ESTADO ACTUAL DE LAS FECHAS:');
-    console.log(
-      '   fechaInicio:',
+         '   fechaInicio:',
       this._fechaInicio,
       '(tipo:',
       typeof this._fechaInicio,
       ')',
     );
-    console.log(
-      '   fechaFin:',
+       '   fechaFin:',
       this._fechaFin,
       '(tipo:',
       typeof this._fechaFin,
@@ -164,39 +149,33 @@ export class ConsultarTodasFichasComponent implements OnInit {
 
       if (!regexFecha.test(this._fechaInicio)) {
         this.error = `Formato de fecha inicio inválido: ${this._fechaInicio}. Use formato yyyy-MM-dd`;
-        console.error('❌', this.error);
-        return;
+         return;
       }
 
       if (!regexFecha.test(this._fechaFin)) {
         this.error = `Formato de fecha fin inválido: ${this._fechaFin}. Use formato yyyy-MM-dd`;
-        console.error('❌', this.error);
-        return;
+         return;
       }
 
       // Validar que fechaInicio sea menor o igual a fechaFin
       if (this._fechaInicio > this._fechaFin) {
         this.error =
           'La fecha de inicio debe ser anterior o igual a la fecha fin';
-        console.error('❌', this.error);
-        return;
+         return;
       }
 
       this.cargando = true;
       this.error = '';
-      console.log(
-        '✅ Fechas válidas, filtrando fichas por rango:',
+         '✅ Fechas válidas, filtrando fichas por rango:',
         this._fechaInicio,
         'a',
         this._fechaFin,
       );
 
       try {
-        console.log('🌐 Llamando al servicio obtenerTodasLasFichas...');
-        // Obtener todas las fichas del servidor
+         // Obtener todas las fichas del servidor
         const todasLasFichas = await this.fichasService.obtenerTodasLasFichas();
-        console.log(
-          '✅ Total de fichas obtenidas del backend:',
+           '✅ Total de fichas obtenidas del backend:',
           todasLasFichas.length,
         );
 
@@ -208,33 +187,26 @@ export class ConsultarTodasFichasComponent implements OnInit {
           const fechaSuceso = new Date(ficha.fechaSuceso);
           return fechaSuceso >= fechaInicio && fechaSuceso <= fechaFin;
         });
-
-        console.log(
-          '📋 Fichas filtradas por rango de fechas:',
+           '📋 Fichas filtradas por rango de fechas:',
           this.fichas.length,
         );
-        console.log('📋 Datos recibidos:', this.fichas);
-
+ 
         this.fichasFiltradas = [...this.fichas];
         this.paginaActual = 1;
         this.calcularTotalPaginas();
-        console.log(
-          '📊 Total de fichas filtradas:',
+           '📊 Total de fichas filtradas:',
           this.fichasFiltradas.length,
         );
       } catch (error) {
         this.error = 'Error al filtrar por fechas';
-        console.error('❌ Error al filtrar por fechas:', error);
-      } finally {
+       } finally {
         this.cargando = false;
       }
     } else if (!this._fechaInicio && !this._fechaFin) {
       // Si no hay fechas, cargar todas
-      console.log('🔄 Sin filtros de fecha, cargando todas las fichas');
-      await this.cargarFichas();
+       await this.cargarFichas();
     } else {
-      console.warn('⚠️ Falta una de las dos fechas:', {
-        fechaInicio: this._fechaInicio,
+         fechaInicio: this._fechaInicio,
         fechaFin: this._fechaFin,
       });
     }
@@ -339,19 +311,12 @@ export class ConsultarTodasFichasComponent implements OnInit {
     return paginas;
   }
 
-  verTutorial(): void {
-    console.log('Mostrar tutorial');
-    // Implementar lógica para mostrar tutorial
-  }
-
   exportarExcel(): void {
-    console.log('Exportar a Excel');
-    // Implementar lógica para exportar a Excel
+     // Implementar lógica para exportar a Excel
   }
 
   exportarPDF(): void {
-    console.log('Exportar a PDF');
-    // Implementar lógica para exportar a PDF
+     // Implementar lógica para exportar a PDF
   }
 
   async verFicha(id: number): Promise<void> {
@@ -359,12 +324,9 @@ export class ConsultarTodasFichasComponent implements OnInit {
     this.mostrarModal = true;
 
     try {
-      console.log('🔍 Cargando ficha con ID:', id);
-      this.fichaSeleccionada = await this.fichasService.obtenerFichaPorId(id);
-      console.log('✅ Ficha cargada:', this.fichaSeleccionada);
-    } catch (error) {
-      console.error('❌ Error al cargar la ficha:', error);
-      this.cerrarModal();
+       this.fichaSeleccionada = await this.fichasService.obtenerFichaPorId(id);
+     } catch (error) {
+       this.cerrarModal();
     } finally {
       this.cargandoFicha = false;
     }

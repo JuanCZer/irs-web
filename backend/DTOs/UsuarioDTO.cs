@@ -20,6 +20,7 @@ namespace Backend.DTOs
 
     public class CrearUsuarioDTO
     {
+        public int? IdUsuarioCrea { get; set; } // Usuario autenticado que crea este usuario
         public string? Nombre { get; set; }
         public string? App { get; set; }
         public string? Apm { get; set; }

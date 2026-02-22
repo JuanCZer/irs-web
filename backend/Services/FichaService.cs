@@ -2,6 +2,8 @@ using IRS.API.Data;
 using IRS.API.DTOs;
 using IRS.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Backend.DTOs;
+using IRS.API.Interfaces;
 
 namespace IRS.API.Services;
 
@@ -320,5 +322,143 @@ public class FichaService : IFichaService
                 FechaElaboracion = f.FechaElaboracion
             })
             .ToListAsync();
+    }
+
+    public async Task<FichasEstadisticasDto> ObtenerEstadisticasAsync()
+    {
+        try
+        {
+            Console.WriteLine("📊 Calculando estadísticas de fichas...");
+            
+            var hoy = DateTime.UtcNow.Date;
+            var inicioSemana = hoy.AddDays(-(int)hoy.DayOfWeek);
+            var inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
+            var inicioAñoActual = new DateTime(hoy.Year, 1, 1);
+            var inicioAñoAnterior = new DateTime(hoy.Year - 1, 1, 1);
+            var finAñoAnterior = new DateTime(hoy.Year - 1, 12, 31);
+
+            var todasLasFichas = await _context.Fichas.ToListAsync();
+
+            // 📊 RESUMEN
+            var totalFichas = todasLasFichas.Count;
+            var fichasHoy = todasLasFichas.Count(f => f.FechaElaboracion.HasValue && f.FechaElaboracion.Value.Date == hoy);
+            var fichasSemana = todasLasFichas.Count(f => f.FechaElaboracion.HasValue && f.FechaElaboracion.Value.Date >= inicioSemana && f.FechaElaboracion.Value.Date <= hoy);
+            var fichasMes = todasLasFichas.Count(f => f.FechaElaboracion.HasValue && f.FechaElaboracion.Value >= inicioMes && f.FechaElaboracion.Value < inicioMes.AddMonths(1));
+
+            // Promedio mensual del mes actual
+            var diasDelMes = DateTime.DaysInMonth(hoy.Year, hoy.Month);
+            var promedioMensual = fichasMes > 0 ? (decimal)fichasMes / diasDelMes : 0;
+
+            // Crecimiento mensual (comparar promedio actual vs mes anterior)
+            var inicioMesAnterior = inicioMes.AddMonths(-1);
+            var fichasMesAnterior = todasLasFichas.Count(f => f.FechaElaboracion.HasValue && f.FechaElaboracion.Value >= inicioMesAnterior && f.FechaElaboracion.Value < inicioMes);
+            var diasDelMesAnterior = DateTime.DaysInMonth(inicioMesAnterior.Year, inicioMesAnterior.Month);
+            var promedioMesAnterior = fichasMesAnterior > 0 ? (decimal)fichasMesAnterior / diasDelMesAnterior : 0;
+
+            decimal crecimientoMensual = 0;
+            if (promedioMesAnterior > 0)
+            {
+                crecimientoMensual = ((promedioMensual - promedioMesAnterior) / promedioMesAnterior) * 100;
+            }
+            else if (promedioMensual > 0)
+            {
+                crecimientoMensual = 100; // Si el mes anterior no tenía fichas pero ahora sí
+            }
+
+            var resumen = new EstadisticasResumenDto
+            {
+                TotalFichas = totalFichas,
+                FichasHoy = fichasHoy,
+                FichasSemana = fichasSemana,
+                FichasMes = fichasMes,
+                PromedioMensual = Math.Round(promedioMensual, 2),
+                CrecimientoMensual = Math.Round(crecimientoMensual, 2)
+            };
+
+            Console.WriteLine($"✅ Total: {totalFichas} | Hoy: {fichasHoy} | Semana: {fichasSemana} | Mes: {fichasMes}");
+
+            // 📍 FICHAS POR ESTADO/DELEGACIÓN
+            var fichasPorDelegacion = todasLasFichas
+                .GroupBy(f => f.Delegacion ?? "Sin delegación")
+                .OrderByDescending(g => g.Count())
+                .ToList();
+
+            var fichasPorEstado = new FichasPorEstadoDto();
+            foreach (var grupo in fichasPorDelegacion.Take(6)) // Top 6
+            {
+                fichasPorEstado.Labels.Add(grupo.Key);
+                fichasPorEstado.Data.Add(grupo.Count());
+            }
+
+            // Agrupar el resto como "Otros"
+            if (fichasPorDelegacion.Count > 6)
+            {
+                var otros = fichasPorDelegacion.Skip(6).Sum(g => g.Count());
+                fichasPorEstado.Labels.Add("Otros");
+                fichasPorEstado.Data.Add(otros);
+            }
+
+            Console.WriteLine($"✅ Fichas por delegación: {fichasPorEstado.Labels.Count} delegaciones");
+
+            // 📅 FICHAS POR MES (año actual)
+            var fichasPorMes = new FichasPorMesDto();
+            var meses = new[] { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" };
+
+            for (int mes = 1; mes <= 12; mes++)
+            {
+                var inicioDelMes = new DateTime(hoy.Year, mes, 1);
+                var finDelMes = inicioDelMes.AddMonths(1).AddDays(-1);
+                var fichasEnMes = todasLasFichas.Count(f => f.FechaElaboracion.HasValue && 
+                    f.FechaElaboracion.Value >= inicioDelMes && 
+                    f.FechaElaboracion.Value <= finDelMes);
+                
+                fichasPorMes.Labels.Add(meses[mes - 1]);
+                fichasPorMes.Data.Add(fichasEnMes);
+            }
+
+            Console.WriteLine($"✅ Fichas por mes del año actual calculadas");
+
+            // 📈 TENDENCIA MENSUAL (Año anterior vs Año actual)
+            var tendenciaMensual = new TendenciaMensualDto();
+            var dataAñoAnterior = new List<int>();
+            var dataAñoActual = new List<int>();
+
+            for (int mes = 1; mes <= 6; mes++) // Primeros 6 meses para comparación
+            {
+                var inicioDelMesAñoAnterior = new DateTime(hoy.Year - 1, mes, 1);
+                var finDelMesAñoAnterior = inicioDelMesAñoAnterior.AddMonths(1).AddDays(-1);
+                var fichasAñoAnterior = todasLasFichas.Count(f => f.FechaElaboracion.HasValue && 
+                    f.FechaElaboracion.Value >= inicioDelMesAñoAnterior && 
+                    f.FechaElaboracion.Value <= finDelMesAñoAnterior);
+
+                var inicioDelMesAñoActual = new DateTime(hoy.Year, mes, 1);
+                var finDelMesAñoActual = inicioDelMesAñoActual.AddMonths(1).AddDays(-1);
+                var fichasAñoActual = todasLasFichas.Count(f => f.FechaElaboracion.HasValue && 
+                    f.FechaElaboracion.Value >= inicioDelMesAñoActual && 
+                    f.FechaElaboracion.Value <= finDelMesAñoActual);
+
+                tendenciaMensual.Labels.Add(meses[mes - 1]);
+                dataAñoAnterior.Add(fichasAñoAnterior);
+                dataAñoActual.Add(fichasAñoActual);
+            }
+
+            tendenciaMensual.Datasets.Add(new DatasetDto { Label = (hoy.Year - 1).ToString(), Data = dataAñoAnterior });
+            tendenciaMensual.Datasets.Add(new DatasetDto { Label = hoy.Year.ToString(), Data = dataAñoActual });
+
+            Console.WriteLine($"✅ Tendencia mensual calculada");
+
+            return new FichasEstadisticasDto
+            {
+                Resumen = resumen,
+                FichasPorEstado = fichasPorEstado,
+                FichasPorMes = fichasPorMes,
+                TendenciaMensual = tendenciaMensual
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error al calcular estadísticas: {ex.Message}");
+            throw;
+        }
     }
 }

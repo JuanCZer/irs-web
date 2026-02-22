@@ -6,6 +6,7 @@ import {
   CrearUsuarioDTO,
   CatRol,
 } from '../../services/usuarios.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-registrar-usuario',
@@ -33,23 +34,30 @@ export class RegistrarUsuarioComponent implements OnInit {
   cargandoRoles = false;
   registrando = false;
 
+  // Flag cached para template (evita llamadas repetidas a isAdmin())
+  isAdminFlag = false;
+
   mensajeExito = '';
   mensajeError = '';
 
-  constructor(private usuariosService: UsuariosService) {}
+  constructor(
+    private usuariosService: UsuariosService,
+    private authService: AuthService,
+  ) {}
 
   async ngOnInit() {
+    // Asegurar formulario limpio al entrar
+    this.limpiarFormulario();
     await this.cargarRoles();
+    // Cachear si el usuario es admin para el template
+    this.isAdminFlag = this.authService.isAdmin();
   }
 
   async cargarRoles() {
     try {
       this.cargandoRoles = true;
-      console.log('🔄 Cargando catálogo de roles...');
       this.roles = await this.usuariosService.obtenerRoles();
-      console.log('✅ Roles cargados:', this.roles);
     } catch (error) {
-      console.error('❌ Error al cargar roles:', error);
       this.mensajeError =
         'Error al cargar el catálogo de roles. Por favor, recargue la página.';
     } finally {
@@ -99,7 +107,20 @@ export class RegistrarUsuarioComponent implements OnInit {
     this.mostrarConfirmarContrasena = !this.mostrarConfirmarContrasena;
   }
 
+  // ✅ Validar que el usuario actual sea Administrador
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
   async registrarUsuario() {
+    // ✅ Validar que sea Administrador
+    if (!this.isAdmin()) {
+      this.mensajeError =
+        'Solo los administradores pueden crear nuevos usuarios.';
+      this.mensajeExito = '';
+      return;
+    }
+
     if (!this.formularioValido) {
       this.mensajeError =
         'Por favor, complete todos los campos requeridos correctamente.';
@@ -112,10 +133,9 @@ export class RegistrarUsuarioComponent implements OnInit {
       this.mensajeError = '';
       this.mensajeExito = '';
 
-      console.log('📝 Preparando datos para registro...');
-
       // Construir el DTO para crear usuario
       const nuevoUsuario: CrearUsuarioDTO = {
+        idUsuarioCrea: this.authService.currentUserValue?.idUsuario, // Enviar ID del usuario que crea
         nombre: this.usuario.nombres,
         app: this.usuario.primerApellido,
         apm: this.usuario.segundoApellido || undefined,
@@ -126,12 +146,8 @@ export class RegistrarUsuarioComponent implements OnInit {
         idRol: parseInt(this.usuario.rol),
       };
 
-      console.log('🚀 Registrando usuario:', nuevoUsuario.usuario);
-
       // Llamar al servicio para crear el usuario
       await this.usuariosService.crearUsuario(nuevoUsuario);
-
-      console.log('✅ Usuario registrado exitosamente');
 
       // Mostrar mensaje de éxito
       this.mensajeExito = `Usuario "${nuevoUsuario.usuario}" registrado correctamente.`;
@@ -142,7 +158,6 @@ export class RegistrarUsuarioComponent implements OnInit {
         this.limpiarFormulario();
       }, 2000);
     } catch (error) {
-      console.error('❌ Error al registrar usuario:', error);
       this.mensajeError =
         error instanceof Error
           ? `Error: ${error.message}`
@@ -166,10 +181,5 @@ export class RegistrarUsuarioComponent implements OnInit {
     };
     this.mensajeExito = '';
     this.mensajeError = '';
-  }
-
-  verTutorial(): void {
-    console.log('Ver tutorial de registro de usuarios');
-    // Aquí iría la lógica para mostrar el tutorial
   }
 }

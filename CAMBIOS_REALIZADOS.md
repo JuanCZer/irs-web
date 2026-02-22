@@ -23,15 +23,13 @@ ngAfterViewInit(): void {
 
 // Ahora: Con logging y exposición de debug
 ngAfterViewInit(): void {
-  console.log('🔧 ngAfterViewInit() ejecutado');
 
   // Exponer datos para debugging
   (window as any).fichasDebug = { ... };
 
   this.initMap();
   setTimeout(() => {
-    console.log('⏱️ Ejecutando cargarFichas() después de 500ms...');
-    this.cargarFichas();
+     this.cargarFichas();
   }, 500);
 }
 ```

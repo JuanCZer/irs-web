@@ -1,148 +1,157 @@
 <div class="estadisticas-container">
-  <!-- Encabezado -->
-  <div class="header-section">
-    <div class="header-content">
-      <div class="header-text">
-        <h1 class="page-title">
+  <!-- Indicador de carga -->
+  <div *ngIf="cargando" class="loading-indicator">
+    <div class="spinner"></div>
+    <p>Cargando estadísticas...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="mensajeError" class="alert alert-error">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ mensajeError }}
+  </div>
+
+  <!-- Contenido principal (oculto mientras carga) -->
+  <div *ngIf="!cargando && !mensajeError" class="stats-content">
+    <!-- Encabezado -->
+    <div class="header-section">
+      <div class="header-content">
+        <div class="header-text">
+          <h1 class="page-title">
+            <i class="fas fa-chart-line"></i>
+            Estadísticas y Reportes
+          </h1>
+          <p class="page-subtitle">
+            Análisis de datos y métricas del sistema IRS
+          </p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-action btn-excel" (click)="exportarExcel()">
+            Excel
+          </button>
+          <button class="btn-action btn-pdf" (click)="exportarPDF()">
+            PDF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjetas de Resumen -->
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div
+          class="stat-icon"
+          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+        >
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Total Fichas</p>
+          <h3 class="stat-value">{{ estadisticasResumen.totalFichas }}</h3>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div
+          class="stat-icon"
+          style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)"
+        >
+          <i class="fas fa-calendar-day"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Fichas Hoy</p>
+          <h3 class="stat-value">{{ estadisticasResumen.fichasHoy }}</h3>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div
+          class="stat-icon"
+          style="background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%)"
+        >
+          <i class="fas fa-calendar-week"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Esta Semana</p>
+          <h3 class="stat-value">{{ estadisticasResumen.fichasSemana }}</h3>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div
+          class="stat-icon"
+          style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%)"
+        >
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Este Mes</p>
+          <h3 class="stat-value">{{ estadisticasResumen.fichasMes }}</h3>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div
+          class="stat-icon"
+          style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%)"
+        >
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Promedio Mensual</p>
+          <h3 class="stat-value">{{ estadisticasResumen.promedioMensual }}</h3>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div
+          class="stat-icon"
+          style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)"
+        >
+          <i class="fas fa-arrow-up"></i>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Crecimiento</p>
+          <h3 class="stat-value">
+            +{{ estadisticasResumen.crecimientoMensual }}%
+          </h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid de Gráficas -->
+    <div class="charts-grid">
+      <!-- Fichas por Estado -->
+      <div class="chart-card large">
+        <div class="chart-header">
+          <i class="fas fa-map-marked-alt"></i>
+          <h3>Fichas por Estado</h3>
+        </div>
+        <div class="chart-body">
+          <canvas #fichasPorEstadoChart></canvas>
+        </div>
+      </div>
+
+      <!-- Fichas por Mes -->
+      <div class="chart-card large">
+        <div class="chart-header">
+          <i class="fas fa-calendar-check"></i>
+          <h3>Evolución Mensual</h3>
+        </div>
+        <div class="chart-body">
+          <canvas #fichasPorMesChart></canvas>
+        </div>
+      </div>
+
+      <!-- Tendencia Mensual -->
+      <div class="chart-card large">
+        <div class="chart-header">
           <i class="fas fa-chart-line"></i>
-          Estadísticas y Reportes
-        </h1>
-        <p class="page-subtitle">
-          Análisis de datos y métricas del sistema IRS
-        </p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-action btn-refresh" (click)="actualizarDatos()">
-          <i class="fas fa-sync-alt"></i>
-          Actualizar
-        </button>
-        <button class="btn-action btn-excel" (click)="exportarExcel()">
-          <i class="fas fa-file-excel"></i>
-          Excel
-        </button>
-        <button class="btn-action btn-pdf" (click)="exportarPDF()">
-          <i class="fas fa-file-pdf"></i>
-          PDF
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tarjetas de Resumen -->
-  <div class="stats-cards">
-    <div class="stat-card">
-      <div
-        class="stat-icon"
-        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-      >
-        <i class="fas fa-file-alt"></i>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Total Fichas</p>
-        <h3 class="stat-value">{{ estadisticasResumen.totalFichas }}</h3>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div
-        class="stat-icon"
-        style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)"
-      >
-        <i class="fas fa-calendar-day"></i>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Fichas Hoy</p>
-        <h3 class="stat-value">{{ estadisticasResumen.fichasHoy }}</h3>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div
-        class="stat-icon"
-        style="background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%)"
-      >
-        <i class="fas fa-calendar-week"></i>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Esta Semana</p>
-        <h3 class="stat-value">{{ estadisticasResumen.fichasSemana }}</h3>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div
-        class="stat-icon"
-        style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%)"
-      >
-        <i class="fas fa-calendar-alt"></i>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Este Mes</p>
-        <h3 class="stat-value">{{ estadisticasResumen.fichasMes }}</h3>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div
-        class="stat-icon"
-        style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%)"
-      >
-        <i class="fas fa-chart-bar"></i>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Promedio Mensual</p>
-        <h3 class="stat-value">{{ estadisticasResumen.promedioMensual }}</h3>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div
-        class="stat-icon"
-        style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)"
-      >
-        <i class="fas fa-arrow-up"></i>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Crecimiento</p>
-        <h3 class="stat-value">
-          +{{ estadisticasResumen.crecimientoMensual }}%
-        </h3>
-      </div>
-    </div>
-  </div>
-
-  <!-- Grid de Gráficas -->
-  <div class="charts-grid">
-    <!-- Fichas por Estado -->
-    <div class="chart-card large">
-      <div class="chart-header">
-        <i class="fas fa-map-marked-alt"></i>
-        <h3>Fichas por Estado</h3>
-      </div>
-      <div class="chart-body">
-        <canvas #fichasPorEstadoChart></canvas>
-      </div>
-    </div>
-
-    <!-- Fichas por Mes -->
-    <div class="chart-card large">
-      <div class="chart-header">
-        <i class="fas fa-calendar-check"></i>
-        <h3>Evolución Mensual</h3>
-      </div>
-      <div class="chart-body">
-        <canvas #fichasPorMesChart></canvas>
-      </div>
-    </div>
-
-    <!-- Tendencia Mensual -->
-    <div class="chart-card large">
-      <div class="chart-header">
-        <i class="fas fa-chart-line"></i>
-        <h3>Comparativa Anual</h3>
-      </div>
-      <div class="chart-body">
-        <canvas #tendenciaMensualChart></canvas>
+          <h3>Comparativa Anual</h3>
+        </div>
+        <div class="chart-body">
+          <canvas #tendenciaMensualChart></canvas>
+        </div>
       </div>
     </div>
   </div>

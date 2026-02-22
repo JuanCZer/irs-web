@@ -113,6 +113,8 @@
     }
   }
 
+@import "../../../styles/responsive.less";
+
   // Sección de filtros (fechas y búsqueda)
   .filters-section {
     background: linear-gradient(
@@ -849,6 +851,38 @@
           padding: 8px 6px;
         }
       }
+    }
+  }
+
+  /* Mobile: stack headers/filters and make tables card-like */
+  @media (max-width: 768px) {
+    .consultar-todas-fichas-container {
+      padding: 12px;
+    }
+
+    .header-section {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .filters-section {
+      padding: 12px;
+    }
+
+    .search-wrapper {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .table-container {
+      margin: 0 -12px;
+      border-radius: 8px;
+    }
+
+    .fichas-table {
+      .responsive-table();
+      .stacked-table-mobile();
     }
   }
 }
