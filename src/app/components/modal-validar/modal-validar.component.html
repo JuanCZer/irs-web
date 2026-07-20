@@ -2,7 +2,7 @@
   <div class="modal-content">
     <div class="modal-header">
       <h2>
-        <i class="fas fa-file-upload"></i>
+        <i class="fi fi-rr-file-upload"></i>
         Validar Ficha
       </h2>
       <button class="btn-close" (click)="onCerrar()">×</button>
@@ -41,7 +41,7 @@
       <!-- Sección de Subir Evidencia -->
       <div class="upload-section">
         <h3>
-          <i class="fas fa-cloud-upload-alt"></i>
+          <i class="fi fi-rr-cloud-upload-alt"></i>
           Subir Evidencia (PNG)
         </h3>
 
@@ -53,7 +53,7 @@
           (drop)="onDrop($event)"
           (click)="fileInput.click()"
         >
-          <i class="fas fa-cloud-upload-alt"></i>
+          <i class="fi fi-rr-cloud-upload-alt"></i>
           <p>Arrastra archivos PNG aquí o haz clic para seleccionar</p>
           <small>Solo se permiten archivos PNG</small>
         </div>
@@ -74,7 +74,7 @@
             class="archivo-item"
             *ngFor="let item of archivosSeleccionados; let i = index"
           >
-            <i class="fas fa-file-image"></i>
+            <i class="fi fi-rr-file-image"></i>
             <div class="archivo-info">
               <span class="archivo-nombre">{{ item.archivo.name }}</span>
               <span class="archivo-size">{{
@@ -82,7 +82,7 @@
               }}</span>
             </div>
             <button class="btn-eliminar-archivo" (click)="eliminarArchivo(i)">
-              <i class="fas fa-times"></i>
+              <i class="fi fi-rr-cross-small"></i>
             </button>
           </div>
         </div>
@@ -91,7 +91,7 @@
 
     <div class="modal-footer">
       <button class="btn-cancelar" (click)="onCerrar()">
-        <i class="fas fa-times"></i>
+        <i class="fi fi-rr-cross-small"></i>
         Cancelar
       </button>
       <button
@@ -99,7 +99,7 @@
         (click)="onValidar()"
         [disabled]="archivosSeleccionados.length === 0"
       >
-        <i class="fas fa-check"></i>
+        <i class="fi fi-rr-check"></i>
         Validar Ficha
       </button>
     </div>

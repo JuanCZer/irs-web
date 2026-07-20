@@ -1,32 +1,158 @@
-<div class="container">
-  <div class="welcome-card">
-    <h1>Bienvenido al Sistema IRS</h1>
-    <p>Sistema de gestión de fichas y control de información</p>
-  </div>
-
-  <div class="dashboard-grid">
-    <div class="dashboard-card">
-      <i class="fas fa-file-alt"></i>
-      <h3>Fichas Registradas</h3>
-      <p class="count">0</p>
+<div class="home-page">
+  <header class="dashboard-header">
+    <div>
+      <p class="eyebrow">Centro de información</p>
+      <h1>Resumen operativo</h1>
+      <p class="welcome-copy">
+        {{ greeting }}, {{ nombreUsuario }}. Selecciona un módulo para
+        continuar.
+      </p>
     </div>
 
-    <div class="dashboard-card">
-      <i class="fas fa-users"></i>
-      <h3>Personal Activo</h3>
-      <p class="count">0</p>
+    <div class="date-context">
+      <span>Fecha operativa</span>
+      <strong>{{ currentDate }}</strong>
+    </div>
+  </header>
+
+  <section class="status-panel" aria-label="Estado del espacio de trabajo">
+    <div class="status-item status-main">
+      <span class="status-icon" aria-hidden="true">
+        <i class="fi fi-rr-shield-check"></i>
+      </span>
+      <div>
+        <small>Espacio de trabajo</small>
+        <strong>Seguimiento de información</strong>
+      </div>
     </div>
 
-    <div class="dashboard-card">
-      <i class="fas fa-map-marker-alt"></i>
-      <h3>Rutas Asignadas</h3>
-      <p class="count">0</p>
+    <div class="status-item">
+      <div>
+        <small>Acceso</small>
+        <strong class="online-status">
+          <span aria-hidden="true"></span>
+          Sesión activa
+        </strong>
+      </div>
     </div>
 
-    <div class="dashboard-card">
-      <i class="fas fa-building"></i>
-      <h3>Clientes</h3>
-      <p class="count">0</p>
+    <div class="status-item">
+      <div>
+        <small>Perfil autorizado</small>
+        <strong>{{ nombreRol }}</strong>
+      </div>
     </div>
+  </section>
+
+  <div class="workspace-grid">
+    <section class="quick-access" aria-labelledby="quick-access-title">
+      <div class="section-heading">
+        <div>
+          <p class="section-index">01 / Operación</p>
+          <h2 id="quick-access-title">Accesos operativos</h2>
+        </div>
+        <p>Funciones frecuentes del sistema</p>
+      </div>
+
+      <div class="quick-grid">
+        <a routerLink="/fichas/registrar" class="quick-card">
+          <div class="card-top">
+            <span class="card-number">01</span>
+            <i class="fi fi-rr-document-signed" aria-hidden="true"></i>
+          </div>
+          <h3>Registrar ficha</h3>
+          <p>Captura y valida nueva información operativa.</p>
+          <span class="card-action">
+            Abrir módulo
+            <i class="fi fi-rr-arrow-small-right" aria-hidden="true"></i>
+          </span>
+        </a>
+
+        <a routerLink="/consultar-fichas/dia" class="quick-card">
+          <div class="card-top">
+            <span class="card-number">02</span>
+            <i class="fi fi-rr-search" aria-hidden="true"></i>
+          </div>
+          <h3>Consultar el día</h3>
+          <p>Revisa las fichas generadas durante la jornada.</p>
+          <span class="card-action">
+            Abrir módulo
+            <i class="fi fi-rr-arrow-small-right" aria-hidden="true"></i>
+          </span>
+        </a>
+
+        <a routerLink="/mapa-fichas" class="quick-card">
+          <div class="card-top">
+            <span class="card-number">03</span>
+            <i class="fi fi-rr-map" aria-hidden="true"></i>
+          </div>
+          <h3>Mapa de fichas</h3>
+          <p>Consulta la distribución geográfica de los registros.</p>
+          <span class="card-action">
+            Abrir módulo
+            <i class="fi fi-rr-arrow-small-right" aria-hidden="true"></i>
+          </span>
+        </a>
+
+        <a routerLink="/estadisticas" class="quick-card">
+          <div class="card-top">
+            <span class="card-number">04</span>
+            <i class="fi fi-rr-chart-histogram" aria-hidden="true"></i>
+          </div>
+          <h3>Estadísticas</h3>
+          <p>Analiza tendencias y métricas consolidadas.</p>
+          <span class="card-action">
+            Abrir módulo
+            <i class="fi fi-rr-arrow-small-right" aria-hidden="true"></i>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <aside class="protocol-panel" aria-labelledby="protocol-title">
+      <div class="protocol-header">
+        <span class="protocol-icon" aria-hidden="true">
+          <i class="fi fi-rr-badge-check"></i>
+        </span>
+        <div>
+          <p class="section-index">02 / Control</p>
+          <h2 id="protocol-title">Uso responsable</h2>
+        </div>
+      </div>
+
+      <p class="protocol-intro">
+        Conserva la integridad y confidencialidad de la información durante
+        toda la sesión.
+      </p>
+
+      <ul class="protocol-list">
+        <li>
+          <span>01</span>
+          <div>
+            <strong>Verifica la información</strong>
+            <p>Confirma los datos antes de registrar o validar una ficha.</p>
+          </div>
+        </li>
+        <li>
+          <span>02</span>
+          <div>
+            <strong>Protege tu acceso</strong>
+            <p>No compartas credenciales ni dejes una sesión sin supervisión.</p>
+          </div>
+        </li>
+        <li>
+          <span>03</span>
+          <div>
+            <strong>Resguarda los datos</strong>
+            <p>Utiliza la información únicamente para fines autorizados.</p>
+          </div>
+        </li>
+      </ul>
+
+      <div class="restricted-banner">
+        <i class="fi fi-rr-lock" aria-hidden="true"></i>
+        <span>Entorno de acceso restringido</span>
+      </div>
+    </aside>
   </div>
 </div>

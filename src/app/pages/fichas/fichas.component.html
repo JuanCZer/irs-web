@@ -1,18 +1,18 @@
 ﻿<div class="fichas-container">
   <div class="header">
-    <h2>FICHAS INFORMATIVAS</h2>
+    <h2>Registrar ficha informativa</h2>
     <div class="header-actions">
       <button type="button" class="btn-borrador" (click)="guardarBorrador()">
-        <i class="fa fa-save"></i> Guardar como borrador
+        <i class="fi fi-rr-disk"></i> Guardar como borrador
       </button>
       <button type="button" class="btn-validar" (click)="guardarYValidar()">
-        <i class="fa fa-check"></i> Guardar y validar ficha
+        <i class="fi fi-rr-check"></i> Guardar y validar ficha
       </button>
     </div>
   </div>
 
   <div class="estado-badge">
-    <h3>ESTADO <span class="badge-nuevo">NUEVO</span></h3>
+    <h3>Estado del registro <span class="badge-nuevo">Nuevo</span></h3>
   </div>
 
   <form class="ficha-form">
@@ -95,7 +95,7 @@
       <div class="mapa-container">
         <div id="map" class="mapa"></div>
         <small class="mapa-instruccion">
-          <i class="fa fa-info-circle"></i>
+          <i class="fi fi-rr-info"></i>
           Haga clic en el mapa o arrastre el marcador para seleccionar la
           ubicación
         </small>
@@ -331,16 +331,16 @@
     <!-- Botón Salir -->
     <div class="form-actions">
       <button type="button" class="btn-salir" (click)="salir()">
-        <i class="fa fa-sign-out"></i> Salir
+        <i class="fi fi-rr-sign-out-alt"></i> Salir
       </button>
     </div>
 
     <!-- Mensajes -->
     <div class="message success" *ngIf="mensajeExito">
-      <i class="fa fa-check-circle"></i> {{ mensajeExito }}
+      <i class="fi fi-rr-check-circle"></i> {{ mensajeExito }}
     </div>
     <div class="message error" *ngIf="mensajeError">
-      <i class="fa fa-exclamation-circle"></i> {{ mensajeError }}
+      <i class="fi fi-rr-circle-exclamation-check"></i> {{ mensajeError }}
     </div>
   </form>
 </div>

@@ -303,7 +303,7 @@ export class MapaFichasComponent implements OnInit, AfterViewInit, OnDestroy {
         !isNaN(ficha.longitud)
       ) {
         // Color por defecto (azul púrpura)
-        const color = '#667eea';
+        const color = '#466b7b';
 
         try {
           const marker = new mapboxgl.Marker({

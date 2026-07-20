@@ -90,7 +90,7 @@
             (click)="toggleMostrarContrasena()"
           >
             <i
-              [class]="mostrarContrasena ? 'fa fa-eye-slash' : 'fa fa-eye'"
+              [class]="mostrarContrasena ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'"
             ></i>
           </button>
         </div>
@@ -99,8 +99,8 @@
             <i
               [class]="
                 validacionPassword.longitudMinima
-                  ? 'fa fa-check'
-                  : 'fa fa-times'
+                  ? 'fi fi-rr-check'
+                  : 'fi fi-rr-cross-small'
               "
             ></i>
             Mínimo 8 caracteres
@@ -109,8 +109,8 @@
             <i
               [class]="
                 validacionPassword.tieneMayuscula
-                  ? 'fa fa-check'
-                  : 'fa fa-times'
+                  ? 'fi fi-rr-check'
+                  : 'fi fi-rr-cross-small'
               "
             ></i>
             Una mayúscula
@@ -119,8 +119,8 @@
             <i
               [class]="
                 validacionPassword.tieneMinuscula
-                  ? 'fa fa-check'
-                  : 'fa fa-times'
+                  ? 'fi fi-rr-check'
+                  : 'fi fi-rr-cross-small'
               "
             ></i>
             Una minúscula
@@ -128,7 +128,7 @@
           <small [class.valid]="validacionPassword.tieneNumero">
             <i
               [class]="
-                validacionPassword.tieneNumero ? 'fa fa-check' : 'fa fa-times'
+                validacionPassword.tieneNumero ? 'fi fi-rr-check' : 'fi fi-rr-cross-small'
               "
             ></i>
             Un número
@@ -136,7 +136,7 @@
           <small [class.valid]="validacionPassword.tieneEspecial">
             <i
               [class]="
-                validacionPassword.tieneEspecial ? 'fa fa-check' : 'fa fa-times'
+                validacionPassword.tieneEspecial ? 'fi fi-rr-check' : 'fi fi-rr-cross-small'
               "
             ></i>
             Un carácter especial
@@ -163,7 +163,7 @@
           >
             <i
               [class]="
-                mostrarConfirmarContrasena ? 'fa fa-eye-slash' : 'fa fa-eye'
+                mostrarConfirmarContrasena ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
               "
             ></i>
           </button>
@@ -173,7 +173,7 @@
             [class.valid]="passwordsCoinciden"
             [class.invalid]="!passwordsCoinciden"
           >
-            <i [class]="passwordsCoinciden ? 'fa fa-check' : 'fa fa-times'"></i>
+            <i [class]="passwordsCoinciden ? 'fi fi-rr-check' : 'fi fi-rr-cross-small'"></i>
             {{
               passwordsCoinciden
                 ? "Las contraseñas coinciden"
@@ -214,10 +214,10 @@
     </div>
 
     <div class="message success" *ngIf="mensajeExito">
-      <i class="fa fa-check-circle"></i> {{ mensajeExito }}
+      <i class="fi fi-rr-check-circle"></i> {{ mensajeExito }}
     </div>
     <div class="message error" *ngIf="mensajeError">
-      <i class="fa fa-exclamation-circle"></i> {{ mensajeError }}
+      <i class="fi fi-rr-circle-exclamation-check"></i> {{ mensajeError }}
     </div>
   </form>
 </div>

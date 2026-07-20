@@ -1,14 +1,14 @@
 <div class="consultar-todas-fichas-container">
   <!-- Encabezado con título y botones de acción -->
   <div class="header-section">
-    <h1 class="page-title">TODAS LAS FICHAS INFORMATIVAS GENERADAS</h1>
+    <h1 class="page-title">Consulta histórica de fichas</h1>
     <div class="header-actions">
       <button class="btn-action btn-export" (click)="exportarExcel()">
-        <i class="fas fa-file-excel"></i>
+        <i class="fi fi-rr-file-excel"></i>
         Exportar Excel
       </button>
       <button class="btn-action btn-export" (click)="exportarPDF()">
-        <i class="fas fa-file-pdf"></i>
+        <i class="fi fi-rr-file-pdf"></i>
         Exportar PDF
       </button>
     </div>
@@ -20,7 +20,7 @@
     <div class="date-filters">
       <div class="date-group">
         <label class="date-label">
-          <i class="fas fa-calendar-alt"></i>
+          <i class="fi fi-rr-calendar"></i>
           Fecha Inicio:
         </label>
         <input
@@ -33,7 +33,7 @@
 
       <div class="date-group">
         <label class="date-label">
-          <i class="fas fa-calendar-alt"></i>
+          <i class="fi fi-rr-calendar"></i>
           Fecha Fin:
         </label>
         <input
@@ -47,7 +47,7 @@
       <!-- Botones de acceso rápido -->
       <div class="quick-filters">
         <button class="btn-quick" (click)="establecerHoy()" title="Hoy">
-          <i class="fas fa-calendar-day"></i>
+          <i class="fi fi-rr-calendar-day"></i>
           Hoy
         </button>
         <button
@@ -55,7 +55,7 @@
           (click)="establecerUltimaSemana()"
           title="Última semana"
         >
-          <i class="fas fa-calendar-week"></i>
+          <i class="fi fi-rr-calendar-week"></i>
           7 días
         </button>
         <button
@@ -63,7 +63,7 @@
           (click)="establecerUltimoMes()"
           title="Último mes"
         >
-          <i class="fas fa-calendar"></i>
+          <i class="fi fi-rr-calendar"></i>
           30 días
         </button>
         <button
@@ -71,7 +71,7 @@
           (click)="limpiarFiltros()"
           title="Limpiar filtros"
         >
-          <i class="fas fa-times-circle"></i>
+          <i class="fi fi-rr-circle-xmark"></i>
           Limpiar
         </button>
       </div>
@@ -80,7 +80,7 @@
     <!-- Barra de búsqueda -->
     <div class="search-wrapper">
       <label class="search-label">
-        <i class="fas fa-search"></i>
+        <i class="fi fi-rr-search"></i>
         Buscar:
       </label>
       <input
@@ -96,7 +96,7 @@
   <!-- Información de resultados -->
   <div class="info-section">
     <div class="info-text">
-      <i class="fas fa-info-circle"></i>
+      <i class="fi fi-rr-info"></i>
       <span
         >Mostrando {{ (paginaActual - 1) * fichasPorPagina + 1 }} a
         {{ Math.min(paginaActual * fichasPorPagina, fichasFiltradas.length) }}
@@ -133,7 +133,7 @@
           <tr *ngFor="let ficha of fichasPaginadas" class="data-row">
             <td class="action-cell" data-label="Ver Ficha">
               <button class="btn-ver-ficha" (click)="verFicha(ficha.id)">
-                <i class="fas fa-eye"></i>
+                <i class="fi fi-rr-eye"></i>
                 Ver
               </button>
             </td>
@@ -182,7 +182,7 @@
         (click)="anterior()"
         [disabled]="paginaActual === 1"
       >
-        <i class="fas fa-chevron-left"></i>
+        <i class="fi fi-rr-angle-small-left"></i>
         Anterior
       </button>
 
@@ -227,7 +227,7 @@
         [disabled]="paginaActual === totalPaginas"
       >
         Siguiente
-        <i class="fas fa-chevron-right"></i>
+        <i class="fi fi-rr-angle-small-right"></i>
       </button>
     </div>
   </div>

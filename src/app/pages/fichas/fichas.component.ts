@@ -250,7 +250,7 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
       // Crear marcador draggable con popup
       this.marker = new mapboxgl.Marker({
         draggable: true,
-        color: '#667eea',
+        color: '#466b7b',
         scale: 1.2,
       })
         .setLngLat([centerLng, centerLat])

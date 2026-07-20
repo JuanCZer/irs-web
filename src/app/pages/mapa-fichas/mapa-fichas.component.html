@@ -8,7 +8,7 @@
   <div class="fichas-section">
     <!-- Encabezado -->
     <div class="fichas-header">
-      <h2>FICHAS DEL MES</h2>
+      <h2>Fichas del periodo</h2>
       <div class="header-info">
         <span class="fichas-count">{{ fichasVisible.length }} ficha(s)</span>
         <span class="fichas-ubicadas" title="Fichas con coordenadas válidas">
@@ -88,24 +88,24 @@
       </div>
 
       <button class="btn-limpiar-filtros" (click)="limpiarFiltros()">
-        <i class="fa fa-times"></i> Limpiar
+        <i class="fi fi-rr-cross-small"></i> Limpiar
       </button>
     </div>
 
     <!-- Lista de Fichas -->
     <div class="fichas-list-container">
       <div *ngIf="cargando" class="cargando-message">
-        <i class="fa fa-spinner fa-spin"></i>
+        <i class="fi fi-rr-spinner fa-spin"></i>
         <p>Cargando fichas...</p>
       </div>
 
       <div *ngIf="mensajeError" class="error-message">
-        <i class="fa fa-exclamation-circle"></i>
+        <i class="fi fi-rr-circle-exclamation-check"></i>
         <p>{{ mensajeError }}</p>
       </div>
 
       <div *ngIf="!cargando && fichasVisible.length === 0" class="sin-fichas">
-        <i class="fa fa-inbox"></i>
+        <i class="fi fi-rr-inbox"></i>
         <p>No hay fichas disponibles para los filtros seleccionados</p>
       </div>
 
@@ -162,7 +162,7 @@
 
         <!-- Flecha para indicar interacción -->
         <div class="card-arrow">
-          <i class="fa fa-chevron-right"></i>
+          <i class="fi fi-rr-angle-small-right"></i>
         </div>
       </div>
     </div>

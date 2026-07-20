@@ -1,83 +1,143 @@
-<div class="login-container">
-  <div class="login-card">
-    <div class="login-header">
-      <div class="logo">
-        <i class="fas fa-shield-alt"></i>
+<main class="login-shell">
+  <section class="identity-panel" aria-label="Identidad del sistema">
+    <div class="identity-content">
+      <div class="brand-lockup">
+        <span class="brand-symbol" aria-hidden="true">IRS</span>
+        <span class="brand-copy">
+          <strong>Sistema IRS</strong>
+          <small>Información estratégica</small>
+        </span>
       </div>
-      <h1>Sistema IRS</h1>
-      <p>Inicia sesión para continuar</p>
+
+      <div class="identity-message">
+        <p class="eyebrow">Entorno institucional</p>
+        <h1>Información segura.<br />Decisiones con contexto.</h1>
+        <p>
+          Plataforma para el registro, consulta y seguimiento responsable de
+          información operativa.
+        </p>
+      </div>
+
+      <div class="classification-notice">
+        <span class="notice-mark" aria-hidden="true"></span>
+        <p>
+          La información disponible en este sistema es de carácter reservado y
+          debe utilizarse conforme a las políticas institucionales aplicables.
+        </p>
+      </div>
     </div>
 
-    <form class="login-form" (ngSubmit)="onSubmit()">
-      <div *ngIf="errorMessage" class="error-message">
-        <i class="fas fa-exclamation-circle"></i>
-        {{ errorMessage }}
+    <footer>
+      <span>IRS / Control de acceso</span>
+      <span>Uso institucional</span>
+    </footer>
+  </section>
+
+  <section class="auth-panel">
+    <div class="auth-card">
+      <div class="mobile-brand" aria-hidden="true">
+        <span>IRS</span>
+        <strong>Sistema de información estratégica</strong>
       </div>
 
-      <div class="form-group">
-        <label for="usuario">
-          <i class="fas fa-user"></i>
-          Usuario
-        </label>
-        <input
-          type="text"
-          id="usuario"
-          name="usuario"
-          [(ngModel)]="credentials.usuario"
-          class="form-control"
-          placeholder="Ingrese su usuario"
-          [disabled]="loading"
-          required
-        />
+      <div class="login-header">
+        <p class="access-label">Acceso restringido</p>
+        <h2>Iniciar sesión</h2>
+        <p>Ingresa tus credenciales institucionales para continuar.</p>
       </div>
 
-      <div class="form-group">
-        <label for="password">
-          <i class="fas fa-lock"></i>
-          Contraseña
-        </label>
-        <div class="password-input-wrapper">
-          <input
-            [type]="mostrarPassword ? 'text' : 'password'"
-            id="password"
-            name="password"
-            [(ngModel)]="credentials.password"
-            class="form-control"
-            placeholder="Ingrese su contraseña"
-            [disabled]="loading"
-            required
-          />
-          <button
-            type="button"
-            class="toggle-password"
-            (click)="toggleMostrarPassword()"
-            [disabled]="loading"
-          >
-            <i
-              [class]="mostrarPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
-            ></i>
-          </button>
+      <form class="login-form" (ngSubmit)="onSubmit()">
+        <div
+          *ngIf="errorMessage"
+          class="error-message"
+          role="alert"
+          aria-live="polite"
+        >
+          <i class="fi fi-rr-triangle-warning" aria-hidden="true"></i>
+          <span>{{ errorMessage }}</span>
         </div>
+
+        <div class="form-group">
+          <label for="usuario">Usuario</label>
+          <div class="input-control">
+            <i class="fi fi-rr-user field-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              id="usuario"
+              name="usuario"
+              [(ngModel)]="credentials.usuario"
+              class="form-control"
+              placeholder="Usuario institucional"
+              autocomplete="username"
+              autocapitalize="none"
+              [disabled]="loading"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <div class="input-control password-input-wrapper">
+            <i class="fi fi-rr-lock field-icon" aria-hidden="true"></i>
+            <input
+              [type]="mostrarPassword ? 'text' : 'password'"
+              id="password"
+              name="password"
+              [(ngModel)]="credentials.password"
+              class="form-control"
+              placeholder="Contraseña"
+              autocomplete="current-password"
+              [disabled]="loading"
+              required
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="toggleMostrarPassword()"
+              [disabled]="loading"
+              [attr.aria-label]="
+                mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+              "
+            >
+              <i
+                class="fi"
+                [class.fi-rr-eye]="!mostrarPassword"
+                [class.fi-rr-eye-crossed]="mostrarPassword"
+                aria-hidden="true"
+              ></i>
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn-login"
+          [disabled]="loading || !credentials.usuario || !credentials.password"
+        >
+          <span *ngIf="!loading">
+            Ingresar al sistema
+            <i class="fi fi-rr-arrow-small-right" aria-hidden="true"></i>
+          </span>
+          <span *ngIf="loading">
+            <i class="button-spinner" aria-hidden="true"></i>
+            Verificando credenciales
+          </span>
+        </button>
+      </form>
+
+      <div class="access-notice">
+        <i class="fi fi-rr-shield-check" aria-hidden="true"></i>
+        <p>
+          El acceso y las acciones realizadas dentro de la plataforma pueden
+          ser registrados para fines de seguridad.
+        </p>
       </div>
-
-      <button
-        type="submit"
-        class="btn-login"
-        [disabled]="loading || !credentials.usuario || !credentials.password"
-      >
-        <span *ngIf="!loading">
-          <i class="fas fa-sign-in-alt"></i>
-          Iniciar Sesión
-        </span>
-        <span *ngIf="loading">
-          <i class="fas fa-spinner fa-spin"></i>
-          Iniciando sesión...
-        </span>
-      </button>
-    </form>
-
-    <div class="login-footer">
-      <p>&copy; 2025 Sistema IRS - Todos los derechos reservados</p>
     </div>
-  </div>
-</div>
+
+    <footer class="login-footer">
+      <span>© {{ currentYear }} Sistema IRS</span>
+      <span>Uso institucional</span>
+    </footer>
+  </section>
+</main>

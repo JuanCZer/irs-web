@@ -1,28 +1,96 @@
-/* You can add global styles to this file, and also import other style files */
-
-// Importar estilos de Mapbox GL globalmente
 @import "mapbox-gl/dist/mapbox-gl.css";
-@import "@flaticon/flaticon-uicons/css/all/all.css";
+@import "@flaticon/flaticon-uicons/css/regular/rounded.css";
 
-* {
+:root {
+  color-scheme: light;
+  --irs-navy-950: #101a22;
+  --irs-navy-900: #15232d;
+  --irs-navy-800: #203642;
+  --irs-steel-700: #365a6a;
+  --irs-steel-600: #466b7b;
+  --irs-brass-500: #8a7448;
+  --irs-surface: #ffffff;
+  --irs-surface-muted: #f7f8f8;
+  --irs-canvas: #eef1f2;
+  --irs-border: #d8dee1;
+  --irs-border-strong: #c4ccd0;
+  --irs-text: #1b2831;
+  --irs-text-muted: #64717a;
+  --irs-success: #356a4e;
+  --irs-warning: #875f1e;
+  --irs-danger: #8b3e43;
+  --irs-info: #3e6476;
+  --irs-radius: 7px;
+  --irs-shadow: 0 1px 2px rgba(16, 26, 34, 0.07);
+  --irs-shadow-raised: 0 8px 24px rgba(16, 26, 34, 0.1);
+  --irs-focus: 0 0 0 3px rgba(70, 107, 123, 0.16);
+}
+
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #f5f5f5;
-  color: #333;
-}
-
 html,
 body {
-  height: 100%;
+  min-height: 100%;
+}
+
+html {
+  background: var(--irs-canvas);
   overflow-x: hidden;
 }
 
+body {
+  min-width: 320px;
+  background: var(--irs-canvas);
+  color: var(--irs-text);
+  font-family:
+    Inter, "Segoe UI Variable", "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+}
+
+button,
 a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fi {
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.fa-spin {
+  animation: irs-spin 850ms linear infinite;
+}
+
+@keyframes irs-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+button {
+  border: 0;
+}
+
+a {
+  color: inherit;
   text-decoration: none;
 }
 
@@ -30,36 +98,283 @@ ul {
   list-style: none;
 }
 
-// Estilos comunes para todas las páginas
+::selection {
+  background: rgba(70, 107, 123, 0.2);
+}
+
+:focus-visible {
+  outline: 2px solid var(--irs-steel-600);
+  outline-offset: 2px;
+}
+
 .page-container {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 20px;
+}
+
+.page-header,
+.page-content {
+  background: var(--irs-surface);
+  border: 1px solid var(--irs-border);
+  border-radius: var(--irs-radius);
+  box-shadow: var(--irs-shadow);
 }
 
 .page-header {
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  padding: 22px 24px;
 
   h1 {
-    color: #2c3e50;
-    margin-bottom: 5px;
-    font-size: 1.8rem;
+    margin: 0 0 4px;
+    color: var(--irs-text);
+    font-size: clamp(1.35rem, 2vw, 1.65rem);
+    font-weight: 650;
+    letter-spacing: -0.025em;
   }
 
   p {
-    color: #7f8c8d;
     margin: 0;
+    color: var(--irs-text-muted);
   }
 }
 
 .page-content {
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   min-height: 400px;
+  padding: 24px;
+}
+
+// Capa de normalización para los módulos heredados.
+.main-content {
+  :where(
+      app-inicio,
+      app-fichas,
+      app-fichas-borradores,
+      app-borradores-fichas,
+      app-consultar-fichas,
+      app-consultar-todas-fichas,
+      app-mapa-fichas,
+      app-estadisticas,
+      app-despacho,
+      app-registrar-usuario,
+      app-editar-usuario,
+      app-perfil
+    ) {
+    display: block;
+    width: 100%;
+  }
+
+  :where(input, select, textarea, .form-control, .search-input, .date-input) {
+    border-color: var(--irs-border-strong) !important;
+    border-width: 1px !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+
+    &:focus {
+      border-color: var(--irs-steel-600) !important;
+      box-shadow: var(--irs-focus) !important;
+      outline: none;
+    }
+  }
+
+  :where(
+      .seccion-card,
+      .info-card,
+      .password-card,
+      .stat-card,
+      .chart-card,
+      .table-container,
+      .search-section,
+      .filters-section,
+      .info-section
+    ) {
+    border-color: var(--irs-border) !important;
+    border-radius: var(--irs-radius) !important;
+    box-shadow: var(--irs-shadow) !important;
+  }
+
+  :where(table) {
+    color: var(--irs-text);
+
+    thead {
+      background: #edf1f3 !important;
+      background-image: none !important;
+    }
+
+    th {
+      color: #33434d !important;
+      font-size: 0.75rem !important;
+      font-weight: 650 !important;
+      letter-spacing: 0.035em;
+      text-transform: uppercase;
+    }
+
+    td,
+    th {
+      border-color: var(--irs-border) !important;
+    }
+
+    tbody tr {
+      transition: background-color 150ms ease !important;
+
+      &:hover {
+        background: #f5f7f7 !important;
+        transform: none !important;
+      }
+    }
+  }
+
+  :where(button, a, [class*="card"]) {
+    transition-duration: 160ms !important;
+  }
+
+  :where(button, a, [class*="card"]):hover {
+    transform: none !important;
+  }
+
+  :where(
+      .fichas-container > .header,
+      .borradores-container > .header-section,
+      .consultar-fichas-container > .header-section,
+      .consultar-todas-fichas-container > .header-section,
+      .estadisticas-container .stats-content > .header-section,
+      .perfil-container > .header-section,
+      .despacho-container > .page-header,
+      app-registrar-usuario > .header-section,
+      app-editar-usuario > .header-section
+    ) {
+    padding: 20px 22px !important;
+    background: var(--irs-surface) !important;
+    background-image: none !important;
+    color: var(--irs-text) !important;
+    border: 1px solid var(--irs-border) !important;
+    border-left: 3px solid var(--irs-brass-500) !important;
+    border-radius: var(--irs-radius) !important;
+    box-shadow: var(--irs-shadow) !important;
+
+    :where(h1, h2, .page-title) {
+      color: var(--irs-text) !important;
+      font-size: clamp(1.2rem, 2vw, 1.45rem) !important;
+      font-weight: 650 !important;
+      letter-spacing: -0.02em !important;
+      text-transform: none !important;
+    }
+
+    :where(.subtitle, .page-subtitle) {
+      color: var(--irs-text-muted) !important;
+      opacity: 1 !important;
+    }
+
+    > i,
+    .header-content > i,
+    .page-title > i {
+      color: var(--irs-steel-700) !important;
+    }
+  }
+
+  :where(
+      .btn-action,
+      .btn-export,
+      .btn-search,
+      .btn-primary,
+      .btn-ver,
+      .btn-ver-ficha,
+      .btn-icon,
+      .btn-page.active,
+      .btn-page-number.active
+    ) {
+    background: var(--irs-steel-700) !important;
+    background-image: none !important;
+    color: #fff !important;
+    border-color: var(--irs-steel-700) !important;
+    border-radius: 5px !important;
+    box-shadow: none !important;
+  }
+
+  :where(
+      .btn-borrador,
+      .btn-quick,
+      .btn-pagination,
+      .btn-clear,
+      .btn-secondary
+    ) {
+    background: var(--irs-surface) !important;
+    background-image: none !important;
+    color: #41535d !important;
+    border: 1px solid var(--irs-border-strong) !important;
+    border-radius: 5px !important;
+    box-shadow: none !important;
+  }
+
+  :where(.btn-validar, .btn-success) {
+    background: var(--irs-success) !important;
+    background-image: none !important;
+    color: #fff !important;
+    box-shadow: none !important;
+  }
+
+  :where(
+      .btn-salir,
+      .btn-eliminar,
+      .btn-danger,
+      .btn-delete
+    ) {
+    background: var(--irs-danger) !important;
+    background-image: none !important;
+    color: #fff !important;
+    box-shadow: none !important;
+  }
+}
+
+:where(.modal-overlay) {
+  background: rgba(10, 17, 22, 0.56) !important;
+  backdrop-filter: none !important;
+}
+
+:where(.modal-content) {
+  border: 1px solid var(--irs-border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--irs-shadow-raised) !important;
+}
+
+:where(.modal-content) > .modal-header {
+  background: var(--irs-surface) !important;
+  background-image: none !important;
+  color: var(--irs-text) !important;
+  border-bottom: 1px solid var(--irs-border) !important;
+
+  :where(h2, h3, i) {
+    color: var(--irs-text) !important;
+  }
+}
+
+// Estados semánticos de bajo contraste.
+:where(.success, .estado-activo, .prioridad-baja) {
+  --status-color: var(--irs-success);
+}
+
+:where(.warning, .prioridad-media) {
+  --status-color: var(--irs-warning);
+}
+
+:where(.error, .estado-inactivo, .prioridad-alta) {
+  --status-color: var(--irs-danger);
+}
+
+@media (max-width: 768px) {
+  .page-header,
+  .page-content {
+    padding: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

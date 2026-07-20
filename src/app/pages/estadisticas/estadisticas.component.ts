@@ -119,22 +119,22 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
             label: 'Fichas por Estado',
             data: this.fichasPorEstado.data,
             backgroundColor: [
-              'rgba(102, 126, 234, 0.8)',
-              'rgba(118, 75, 162, 0.8)',
-              'rgba(39, 174, 96, 0.8)',
-              'rgba(243, 156, 18, 0.8)',
-              'rgba(231, 76, 60, 0.8)',
-              'rgba(52, 152, 219, 0.8)',
+              'rgba(54, 90, 106, 0.82)',
+              'rgba(70, 107, 123, 0.78)',
+              'rgba(90, 126, 140, 0.74)',
+              'rgba(117, 145, 156, 0.7)',
+              'rgba(138, 158, 166, 0.66)',
+              'rgba(32, 54, 66, 0.78)',
             ],
             borderColor: [
-              'rgba(102, 126, 234, 1)',
-              'rgba(118, 75, 162, 1)',
-              'rgba(39, 174, 96, 1)',
-              'rgba(243, 156, 18, 1)',
-              'rgba(231, 76, 60, 1)',
-              'rgba(52, 152, 219, 1)',
+              'rgba(54, 90, 106, 1)',
+              'rgba(70, 107, 123, 1)',
+              'rgba(90, 126, 140, 1)',
+              'rgba(117, 145, 156, 1)',
+              'rgba(138, 158, 166, 1)',
+              'rgba(32, 54, 66, 1)',
             ],
-            borderWidth: 2,
+            borderWidth: 1,
           },
         ],
       },
@@ -181,8 +181,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
           {
             label: 'Fichas Generadas',
             data: this.fichasPorMes.data,
-            borderColor: 'rgba(102, 126, 234, 1)',
-            backgroundColor: 'rgba(102, 126, 234, 0.2)',
+            borderColor: 'rgba(70, 107, 123, 1)',
+            backgroundColor: 'rgba(70, 107, 123, 0.2)',
             borderWidth: 3,
             fill: true,
             tension: 0.4,
@@ -234,8 +234,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
           {
             label: this.tendenciaMensual.datasets[1].label,
             data: this.tendenciaMensual.datasets[1].data,
-            borderColor: 'rgba(102, 126, 234, 1)',
-            backgroundColor: 'rgba(102, 126, 234, 0.2)',
+            borderColor: 'rgba(70, 107, 123, 1)',
+            backgroundColor: 'rgba(70, 107, 123, 0.2)',
             borderWidth: 2,
             tension: 0.4,
           },
@@ -366,7 +366,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
         startY: yPosition,
         theme: 'grid',
         styles: { fontSize: 9 },
-        headStyles: { fillColor: [102, 126, 234], textColor: [255, 255, 255] },
+        headStyles: { fillColor: [54, 90, 106], textColor: [255, 255, 255] },
       });
 
       yPosition = (doc as any).lastAutoTable.finalY + 10;
@@ -396,7 +396,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
         startY: yPosition,
         theme: 'grid',
         styles: { fontSize: 9 },
-        headStyles: { fillColor: [102, 126, 234], textColor: [255, 255, 255] },
+        headStyles: { fillColor: [54, 90, 106], textColor: [255, 255, 255] },
       });
 
       // Agregar nueva página para gráficas

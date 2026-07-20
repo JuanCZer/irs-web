@@ -1,7 +1,7 @@
 <div class="despacho-container">
   <div class="page-header">
     <h1>
-      <i class="fas fa-briefcase"></i>
+      <i class="fi fi-rr-briefcase"></i>
       Despacho - Fichas Confluidas
     </h1>
     <p class="subtitle">
@@ -11,13 +11,13 @@
 
   <!-- Mensaje de error -->
   <div *ngIf="error" class="error-message">
-    <i class="fas fa-exclamation-circle"></i>
+    <i class="fi fi-rr-circle-exclamation-check"></i>
     {{ error }}
   </div>
 
   <!-- Mensaje de cargando -->
   <div *ngIf="cargando" class="loading-message">
-    <i class="fas fa-spinner fa-spin"></i>
+    <i class="fi fi-rr-spinner fa-spin"></i>
     Cargando fichas...
   </div>
 
@@ -53,7 +53,7 @@
                 (click)="abrirModalVerFicha(ficha)"
                 title="Ver detalles de la ficha"
               >
-                <i class="fas fa-eye"></i>
+                <i class="fi fi-rr-eye"></i>
               </button>
               <strong>{{ ficha.folio }}</strong>
             </div>
@@ -79,7 +79,7 @@
                 (click)="abrirModalMedidas(ficha)"
                 title="Aplicar medidas de seguridad"
               >
-                <i class="fas fa-shield-alt"></i>
+                <i class="fi fi-rr-shield"></i>
                 Medidas
               </button>
               <button
@@ -87,7 +87,7 @@
                 (click)="abrirModalValidar(ficha)"
                 title="Validar ficha"
               >
-                <i class="fas fa-check-circle"></i>
+                <i class="fi fi-rr-check-circle"></i>
                 Validar
               </button>
             </div>
@@ -99,7 +99,7 @@
 
   <!-- Mensaje cuando no hay fichas -->
   <div *ngIf="!cargando && !error && fichas.length === 0" class="empty-message">
-    <i class="fas fa-inbox"></i>
+    <i class="fi fi-rr-inbox"></i>
     <p>No hay fichas en estado confluido</p>
   </div>
 
@@ -114,7 +114,7 @@
         (click)="cambiarPagina(paginaActual - 1)"
         [disabled]="paginaActual === 1"
       >
-        <i class="fas fa-chevron-left"></i>
+        <i class="fi fi-rr-angle-small-left"></i>
         Anterior
       </button>
 
@@ -159,7 +159,7 @@
         [disabled]="paginaActual === totalPaginas || totalPaginas === 0"
       >
         Siguiente
-        <i class="fas fa-chevron-right"></i>
+        <i class="fi fi-rr-angle-small-right"></i>
       </button>
     </div>
   </div>
@@ -183,11 +183,11 @@
   <div class="modal-content modal-detalle" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>
-        <i class="fas fa-file-alt"></i>
+        <i class="fi fi-rr-document"></i>
         Detalles de la Ficha
       </h2>
       <button class="btn-close" (click)="cerrarModal()">
-        <i class="fas fa-times"></i>
+        <i class="fi fi-rr-cross-small"></i>
       </button>
     </div>
 
@@ -244,7 +244,7 @@
 
     <div class="modal-footer">
       <button class="btn-cancelar" (click)="cerrarModal()">
-        <i class="fas fa-times"></i>
+        <i class="fi fi-rr-cross-small"></i>
         Cerrar
       </button>
     </div>

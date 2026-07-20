@@ -1,6 +1,6 @@
 // Variables
-@primary-color: #667eea;
-@secondary-color: #764ba2;
+@primary-color: #466b7b;
+@secondary-color: #203642;
 @white: #ffffff;
 @text-dark: #2c3e50;
 @text-muted: #6c757d;
@@ -14,7 +14,7 @@
   .fullwidth-on-mobile();
   // Encabezado
   .header-section {
-    background: #3a415f;
+    background: #203642;
     border-radius: 12px;
     padding: 30px;
     margin-bottom: 30px;
@@ -129,15 +129,36 @@
       }
 
       .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
+        width: 46px;
+        height: 46px;
+        border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: @white;
-        font-size: 28px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        font-size: 19px;
+        box-shadow: none;
+
+        &--primary,
+        &--neutral {
+          background: #466b7b;
+        }
+
+        &--success {
+          background: #356a4e;
+        }
+
+        &--warning {
+          background: #875f1e;
+        }
+
+        &--info {
+          background: #3e6476;
+        }
+
+        &--danger {
+          background: #8b3e43;
+        }
       }
 
       .stat-content {
@@ -168,9 +189,9 @@
         padding: 15px;
 
         .stat-icon {
-          width: 50px;
-          height: 50px;
-          font-size: 24px;
+          width: 42px;
+          height: 42px;
+          font-size: 18px;
         }
 
         .stat-content {
@@ -210,8 +231,8 @@
       .chart-header {
         background: linear-gradient(
           135deg,
-          rgba(102, 126, 234, 0.1) 0%,
-          rgba(118, 75, 162, 0.1) 100%
+          rgba(70, 107, 123, 0.1) 0%,
+          rgba(32, 54, 66, 0.1) 100%
         );
         padding: 20px;
         border-bottom: 2px solid @border-color;

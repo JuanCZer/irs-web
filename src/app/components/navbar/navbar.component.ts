@@ -1,8 +1,9 @@
-import { Component, HostListener } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, HostListener, OnDestroy } from '@angular/core';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NavbarService } from '../../services/navbar.service';
 import { AuthService } from '../../services/auth.service';
+import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -10,11 +11,12 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.less',
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnDestroy {
   sidebarActive = true; // Empezar con sidebar abierto
   sidebarCollapsed = false; // Nueva propiedad para colapsar
   submenuOpen: { [key: string]: boolean } = {};
   isMobile = false;
+  private routerSubscription = new Subscription();
 
   constructor(
     private router: Router,
@@ -25,6 +27,13 @@ export class NavbarComponent {
     if (this.isMobile) {
       this.sidebarActive = false;
     }
+
+    this.syncActiveSection();
+    this.routerSubscription.add(
+      this.router.events
+        .pipe(filter((event) => event instanceof NavigationEnd))
+        .subscribe(() => this.syncActiveSection()),
+    );
   }
 
   get esRolDespacho(): boolean {
@@ -39,7 +48,12 @@ export class NavbarComponent {
 
   checkScreenSize() {
     this.isMobile = window.innerWidth < 768;
-    // En desktop, el sidebar siempre está visible
+
+    if (this.isMobile && this.sidebarCollapsed) {
+      this.sidebarCollapsed = false;
+      this.navbarService.setSidebarCollapsed(false);
+    }
+
     if (!this.isMobile) {
       this.sidebarActive = true;
     }
@@ -107,9 +121,8 @@ export class NavbarComponent {
   closeSidebarOnMobile() {
     if (this.isMobile) {
       this.sidebarActive = false;
+      this.closeAllSubmenus();
     }
-    // Cerrar todos los submenús cuando se navega a cualquier enlace
-    this.closeAllSubmenus();
   }
 
   closeAllSubmenus() {
@@ -120,6 +133,26 @@ export class NavbarComponent {
 
   isActiveRoute(route: string): boolean {
     return this.router.url === route;
+  }
+
+  isActiveSection(route: string): boolean {
+    return this.router.url.startsWith(route);
+  }
+
+  ngOnDestroy(): void {
+    this.routerSubscription.unsubscribe();
+  }
+
+  private syncActiveSection(): void {
+    this.submenuOpen = {};
+
+    if (this.router.url.startsWith('/fichas')) {
+      this.submenuOpen['fichas'] = true;
+    } else if (this.router.url.startsWith('/consultar-fichas')) {
+      this.submenuOpen['consultar-fichas'] = true;
+    } else if (this.router.url.startsWith('/admin-usuarios')) {
+      this.submenuOpen['admin-usuarios'] = true;
+    }
   }
 
   cerrarSesion() {

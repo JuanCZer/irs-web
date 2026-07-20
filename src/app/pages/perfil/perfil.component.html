@@ -2,9 +2,9 @@
   <!-- Encabezado -->
   <div class="header-section">
     <div class="header-content">
-      <i class="fas fa-user-circle user-icon"></i>
+      <i class="fi fi-rr-circle-user user-icon"></i>
       <div class="header-text">
-        <h1 class="page-title">Mi Perfil</h1>
+        <h1 class="page-title">Mi perfil</h1>
         <p class="page-subtitle">Administra tu información y seguridad</p>
       </div>
     </div>
@@ -14,28 +14,28 @@
     <!-- Columna izquierda: Información del usuario -->
     <div class="info-card">
       <div class="card-header">
-        <i class="fas fa-id-card"></i>
-        <h2>Información Personal</h2>
+        <i class="fi fi-rr-id-card-clip-alt"></i>
+        <h2>Información personal</h2>
       </div>
       <div class="card-body">
         <div class="info-item">
-          <label><i class="fas fa-user"></i> Nombre Completo:</label>
+          <label><i class="fi fi-rr-user"></i> Nombre Completo:</label>
           <span>{{ nombreCompleto }}</span>
         </div>
         <div class="info-item">
-          <label><i class="fas fa-tag"></i> Usuario:</label>
+          <label><i class="fi fi-rr-tags"></i> Usuario:</label>
           <span>{{ usuario?.usuario || "N/A" }}</span>
         </div>
         <div class="info-item">
-          <label><i class="fas fa-user-shield"></i> Rol:</label>
+          <label><i class="fi fi-rr-user-shield"></i> Rol:</label>
           <span>{{ usuario?.nombreRol || "Sin rol" }}</span>
         </div>
         <div class="info-item">
-          <label><i class="fas fa-hashtag"></i> ID Usuario:</label>
+          <label><i class="fi fi-rr-hastag"></i> ID Usuario:</label>
           <span>{{ usuario?.idUsuario || "N/A" }}</span>
         </div>
         <div class="info-item">
-          <label><i class="fas fa-clock"></i> Último Acceso:</label>
+          <label><i class="fi fi-rr-clock-three"></i> Último Acceso:</label>
           <span>{{ ultimoAccesoFormateado }}</span>
         </div>
       </div>
@@ -44,17 +44,17 @@
     <!-- Columna derecha: Cambio de contraseña -->
     <div class="password-card">
       <div class="card-header">
-        <i class="fas fa-key"></i>
-        <h2>Cambiar Contraseña</h2>
+        <i class="fi fi-rr-key"></i>
+        <h2>Cambiar contraseña</h2>
       </div>
       <div class="card-body">
         <!-- Mensajes -->
         <div *ngIf="mensajeError" class="alert alert-error">
-          <i class="fas fa-exclamation-circle"></i>
+          <i class="fi fi-rr-circle-exclamation-check"></i>
           {{ mensajeError }}
         </div>
         <div *ngIf="mensajeExito" class="alert alert-success">
-          <i class="fas fa-check-circle"></i>
+          <i class="fi fi-rr-check-circle"></i>
           {{ mensajeExito }}
         </div>
 
@@ -63,7 +63,7 @@
           <!-- Contraseña actual -->
           <div class="form-group">
             <label for="passwordActual">
-              <i class="fas fa-lock"></i>
+              <i class="fi fi-rr-lock"></i>
               Contraseña Actual
             </label>
             <div class="input-wrapper">
@@ -83,7 +83,7 @@
               >
                 <i
                   [class]="
-                    mostrarPasswordActual ? 'fas fa-eye-slash' : 'fas fa-eye'
+                    mostrarPasswordActual ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
                   "
                 ></i>
               </button>
@@ -93,7 +93,7 @@
           <!-- Nueva contraseña -->
           <div class="form-group">
             <label for="passwordNueva">
-              <i class="fas fa-key"></i>
+              <i class="fi fi-rr-key"></i>
               Nueva Contraseña
             </label>
             <div class="input-wrapper">
@@ -113,7 +113,7 @@
               >
                 <i
                   [class]="
-                    mostrarPasswordNueva ? 'fas fa-eye-slash' : 'fas fa-eye'
+                    mostrarPasswordNueva ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
                   "
                 ></i>
               </button>
@@ -130,8 +130,8 @@
                   <i
                     [class]="
                       validacionPassword.longitudMinima
-                        ? 'fas fa-check-circle'
-                        : 'fas fa-times-circle'
+                        ? 'fi fi-rr-check-circle'
+                        : 'fi fi-rr-circle-xmark'
                     "
                   ></i>
                   Mínimo 8 caracteres
@@ -140,8 +140,8 @@
                   <i
                     [class]="
                       validacionPassword.tieneMayuscula
-                        ? 'fas fa-check-circle'
-                        : 'fas fa-times-circle'
+                        ? 'fi fi-rr-check-circle'
+                        : 'fi fi-rr-circle-xmark'
                     "
                   ></i>
                   Al menos una mayúscula
@@ -150,8 +150,8 @@
                   <i
                     [class]="
                       validacionPassword.tieneMinuscula
-                        ? 'fas fa-check-circle'
-                        : 'fas fa-times-circle'
+                        ? 'fi fi-rr-check-circle'
+                        : 'fi fi-rr-circle-xmark'
                     "
                   ></i>
                   Al menos una minúscula
@@ -160,8 +160,8 @@
                   <i
                     [class]="
                       validacionPassword.tieneNumero
-                        ? 'fas fa-check-circle'
-                        : 'fas fa-times-circle'
+                        ? 'fi fi-rr-check-circle'
+                        : 'fi fi-rr-circle-xmark'
                     "
                   ></i>
                   Al menos un número
@@ -170,8 +170,8 @@
                   <i
                     [class]="
                       validacionPassword.tieneCaracterEspecial
-                        ? 'fas fa-check-circle'
-                        : 'fas fa-times-circle'
+                        ? 'fi fi-rr-check-circle'
+                        : 'fi fi-rr-circle-xmark'
                     "
                   ></i>
                   Al menos un carácter especial (!&#64;#$%^&amp;*)
@@ -183,7 +183,7 @@
           <!-- Confirmar contraseña -->
           <div class="form-group">
             <label for="passwordConfirmar">
-              <i class="fas fa-check-double"></i>
+              <i class="fi fi-rr-check-double"></i>
               Confirmar Nueva Contraseña
             </label>
             <div class="input-wrapper">
@@ -203,7 +203,7 @@
               >
                 <i
                   [class]="
-                    mostrarPasswordConfirmar ? 'fas fa-eye-slash' : 'fas fa-eye'
+                    mostrarPasswordConfirmar ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
                   "
                 ></i>
               </button>
@@ -212,11 +212,11 @@
               *ngIf="cambioPassword.passwordConfirmar && !passwordsCoinciden"
               class="error-hint"
             >
-              <i class="fas fa-exclamation-triangle"></i>
+              <i class="fi fi-rr-triangle-warning"></i>
               Las contraseñas no coinciden
             </div>
             <div *ngIf="passwordsCoinciden" class="success-hint">
-              <i class="fas fa-check-circle"></i>
+              <i class="fi fi-rr-check-circle"></i>
               Las contraseñas coinciden
             </div>
           </div>
@@ -229,7 +229,7 @@
               (click)="cancelar()"
               [disabled]="cargando"
             >
-              <i class="fas fa-times"></i>
+              <i class="fi fi-rr-cross-small"></i>
               Cancelar
             </button>
             <button
@@ -238,7 +238,7 @@
               [disabled]="!passwordValida || !passwordsCoinciden || cargando"
             >
               <i
-                [class]="cargando ? 'fas fa-spinner fa-spin' : 'fas fa-save'"
+                [class]="cargando ? 'fi fi-rr-spinner fa-spin' : 'fi fi-rr-disk'"
               ></i>
               {{ cargando ? "Guardando..." : "Cambiar Contraseña" }}
             </button>

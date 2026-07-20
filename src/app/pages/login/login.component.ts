@@ -12,6 +12,8 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './login.component.less',
 })
 export class LoginComponent {
+  currentYear = new Date().getFullYear();
+
   credentials = {
     usuario: '',
     password: '',
