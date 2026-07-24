@@ -308,25 +308,6 @@
     }
   }
 
-  // Información de resultados
-  .info-section {
-    margin-bottom: 20px;
-
-    .info-text {
-      color: @text-muted;
-      font-size: 14px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      i {
-        color: @primary-color;
-        font-size: 16px;
-      }
-    }
-  }
-
   // Sección de información y búsqueda (deprecada - mantener por compatibilidad)
   .info-search-section {
     display: flex;
@@ -600,109 +581,6 @@
       &.prioridad-baja {
         background: #95a5a6;
         color: @white;
-      }
-    }
-  }
-
-  // Paginación avanzada
-  .pagination-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 20px;
-    flex-wrap: wrap;
-    gap: 15px;
-
-    .pagination-info {
-      color: @text-muted;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .pagination-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-
-      .btn-pagination {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        background: @white;
-        color: @text-dark;
-        border: 1px solid @border-color;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-        &:hover:not(:disabled) {
-          background: linear-gradient(
-            135deg,
-            rgba(70, 107, 123, 0.1) 0%,
-            rgba(32, 54, 66, 0.1) 100%
-          );
-          border-color: @primary-color;
-          color: @primary-color;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(70, 107, 123, 0.15);
-        }
-
-        &:active:not(:disabled) {
-          transform: translateY(0);
-        }
-
-        &.btn-page {
-          min-width: 40px;
-          justify-content: center;
-          padding: 8px 12px;
-
-          &.active {
-            background: linear-gradient(
-              135deg,
-              @primary-color 0%,
-              @secondary-color 100%
-            );
-            color: @white;
-            border-color: @primary-color;
-            font-weight: 700;
-
-            &:hover {
-              transform: none;
-            }
-          }
-        }
-
-        &:disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-          transform: none;
-
-          &:hover {
-            background: @white;
-            border-color: @border-color;
-            color: @text-dark;
-            box-shadow: none;
-          }
-        }
-      }
-
-      .pagination-ellipsis {
-        color: @text-muted;
-        padding: 0 4px;
-        font-weight: 600;
-      }
-    }
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      align-items: center;
-
-      .pagination-controls {
-        justify-content: center;
       }
     }
   }

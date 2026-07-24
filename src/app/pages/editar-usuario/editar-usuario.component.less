@@ -24,7 +24,6 @@
     .stacked-table-mobile();
   }
 
-  .pagination-section { flex-direction: column; gap: 8px; }
 }
 
 .header-section {
@@ -126,6 +125,10 @@
 }
 
 .action-cell {
+  vertical-align: middle;
+}
+
+.action-buttons {
   display: flex;
   gap: 8px;
 }
@@ -165,32 +168,6 @@
 
 .estado-inactivo {
   background: #999;
-  color: white;
-}
-
-.pagination-section {
-  display: flex;
-  justify-content: space-between;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-}
-
-.pagination-controls {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-pagination {
-  padding: 10px 16px;
-  border: 2px solid #e0e0e0;
-  background: white;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.btn-page.active {
-  background: #466b7b;
   color: white;
 }
 

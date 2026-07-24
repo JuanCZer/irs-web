@@ -7,16 +7,21 @@ import {
   ActualizarUsuarioDTO,
 } from '../../services/usuarios.service';
 import { ModalEditarUsuarioComponent } from '../../components/modal-editar-usuario/modal-editar-usuario.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-editar-usuario',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalEditarUsuarioComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ModalEditarUsuarioComponent,
+    PaginationComponent,
+  ],
   templateUrl: './editar-usuario.component.html',
   styleUrls: ['./editar-usuario.component.less'],
 })
 export class EditarUsuarioComponent implements OnInit {
-  Math = Math;
   usuarios: UsuarioDTO[] = [];
   usuariosFiltrados: UsuarioDTO[] = [];
   cargando = false;
@@ -61,6 +66,10 @@ export class EditarUsuarioComponent implements OnInit {
     this.totalPaginas = Math.ceil(
       this.usuariosFiltrados.length / this.usuariosPorPagina
     );
+    this.paginaActual = Math.min(
+      Math.max(1, this.paginaActual),
+      Math.max(1, this.totalPaginas)
+    );
   }
 
   get usuariosPaginados() {
@@ -71,12 +80,10 @@ export class EditarUsuarioComponent implements OnInit {
     );
   }
 
-  anterior() {
-    if (this.paginaActual > 1) this.paginaActual--;
-  }
-
-  siguiente() {
-    if (this.paginaActual < this.totalPaginas) this.paginaActual++;
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+    }
   }
 
   async abrirModalEditar(id: number) {
@@ -122,16 +129,4 @@ export class EditarUsuarioComponent implements OnInit {
     }
   }
 
-  get paginasVisibles(): number[] {
-    const paginas: number[] = [];
-    const rango = 2;
-    let inicio = Math.max(1, this.paginaActual - rango);
-    let fin = Math.min(this.totalPaginas, this.paginaActual + rango);
-
-    for (let i = inicio; i <= fin; i++) {
-      paginas.push(i);
-    }
-
-    return paginas;
-  }
 }

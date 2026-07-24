@@ -93,18 +93,6 @@
     </div>
   </div>
 
-  <!-- Información de resultados -->
-  <div class="info-section">
-    <div class="info-text">
-      <i class="fi fi-rr-info"></i>
-      <span
-        >Mostrando {{ (paginaActual - 1) * fichasPorPagina + 1 }} a
-        {{ Math.min(paginaActual * fichasPorPagina, fichasFiltradas.length) }}
-        de {{ fichasFiltradas.length }} fichas</span
-      >
-    </div>
-  </div>
-
   <!-- Tabla de fichas -->
   <div class="table-container">
     <div class="table-responsive">
@@ -171,66 +159,15 @@
     </div>
   </div>
 
-  <!-- Paginación avanzada -->
-  <div class="pagination-section">
-    <div class="pagination-info">
-      Página {{ paginaActual }} de {{ totalPaginas }}
-    </div>
-    <div class="pagination-controls">
-      <button
-        class="btn-pagination"
-        (click)="anterior()"
-        [disabled]="paginaActual === 1"
-      >
-        <i class="fi fi-rr-angle-small-left"></i>
-        Anterior
-      </button>
-
-      <button
-        *ngIf="paginasVisibles[0] > 1"
-        class="btn-pagination btn-page"
-        (click)="irAPagina(1)"
-      >
-        1
-      </button>
-
-      <span *ngIf="paginasVisibles[0] > 2" class="pagination-ellipsis"
-        >...</span
-      >
-
-      <button
-        *ngFor="let pagina of paginasVisibles"
-        class="btn-pagination btn-page"
-        [class.active]="pagina === paginaActual"
-        (click)="irAPagina(pagina)"
-      >
-        {{ pagina }}
-      </button>
-
-      <span
-        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas - 1"
-        class="pagination-ellipsis"
-        >...</span
-      >
-
-      <button
-        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas"
-        class="btn-pagination btn-page"
-        (click)="irAPagina(totalPaginas)"
-      >
-        {{ totalPaginas }}
-      </button>
-
-      <button
-        class="btn-pagination"
-        (click)="siguiente()"
-        [disabled]="paginaActual === totalPaginas"
-      >
-        Siguiente
-        <i class="fi fi-rr-angle-small-right"></i>
-      </button>
-    </div>
-  </div>
+  <app-pagination
+    *ngIf="!cargando"
+    [currentPage]="paginaActual"
+    [pageSize]="fichasPorPagina"
+    [totalItems]="fichasFiltradas.length"
+    itemLabel="fichas"
+    singularItemLabel="ficha"
+    (pageChange)="irAPagina($event)"
+  ></app-pagination>
 </div>
 
 <!-- Modal para ver la ficha completa en modo solo lectura -->

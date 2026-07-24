@@ -95,49 +95,15 @@
     </table>
   </div>
 
-  <!-- Paginación -->
-  <div
-    class="pagination"
-    *ngIf="!cargando && borradoresFiltrados.length > registrosPorPagina"
-  >
-    <button
-      class="btn-page"
-      (click)="paginaAnterior()"
-      [disabled]="paginaActual === 1"
-    >
-      ◀ Anterior
-    </button>
-
-    <button
-      *ngFor="let pagina of paginasArray"
-      class="btn-page-number"
-      [class.active]="pagina === paginaActual"
-      (click)="irAPagina(pagina)"
-    >
-      {{ pagina }}
-    </button>
-
-    <button
-      class="btn-page"
-      (click)="paginaSiguiente()"
-      [disabled]="paginaActual === totalPaginas"
-    >
-      Siguiente ▶
-    </button>
-  </div>
-
-  <div class="stats" *ngIf="!cargando && borradoresFiltrados.length > 0">
-    <p>
-      Mostrando {{ (paginaActual - 1) * registrosPorPagina + 1 }} -
-      {{
-        Math.min(paginaActual * registrosPorPagina, borradoresFiltrados.length)
-      }}
-      de <strong>{{ borradoresFiltrados.length }}</strong> borradores
-      <span *ngIf="buscarTexto">
-        (filtrados de {{ borradores.length }} totales)</span
-      >
-    </p>
-  </div>
+  <app-pagination
+    *ngIf="!cargando"
+    [currentPage]="paginaActual"
+    [pageSize]="registrosPorPagina"
+    [totalItems]="borradoresFiltrados.length"
+    itemLabel="borradores"
+    singularItemLabel="borrador"
+    (pageChange)="irAPagina($event)"
+  ></app-pagination>
 </div>
 
 <!-- Modal para ver/editar ficha -->

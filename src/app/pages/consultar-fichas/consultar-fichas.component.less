@@ -211,62 +211,6 @@
     }
   }
 
-  // Paginación
-  .pagination-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 20px;
-
-    .btn-pagination {
-      padding: 10px 24px;
-      background: @white;
-      color: @text-dark;
-      border: 1px solid @border-color;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-      &:hover {
-        background: linear-gradient(
-          135deg,
-          rgba(70, 107, 123, 0.1) 0%,
-          rgba(32, 54, 66, 0.1) 100%
-        );
-        border-color: @primary-color;
-        color: @primary-color;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(70, 107, 123, 0.15);
-      }
-
-      &:active {
-        transform: translateY(0);
-      }
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-
-        &:hover {
-          background: @white;
-          border-color: @border-color;
-          color: @text-dark;
-          box-shadow: none;
-        }
-      }
-    }
-
-    @media (max-width: 480px) {
-      .btn-pagination {
-        padding: 8px 16px;
-        font-size: 13px;
-      }
-    }
-  }
-
   // Responsive
   @media (max-width: 768px) {
     padding: 20px 15px;

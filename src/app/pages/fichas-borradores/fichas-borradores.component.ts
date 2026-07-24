@@ -8,10 +8,16 @@ import {
   FichaInformativa,
 } from '../../services/fichas.service';
 import { ModalFichasConsultaComponent } from '../../components/modal-fichas-consulta/modal-fichas-consulta.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-fichas-borradores',
-  imports: [CommonModule, FormsModule, ModalFichasConsultaComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ModalFichasConsultaComponent,
+    PaginationComponent,
+  ],
   templateUrl: './fichas-borradores.component.html',
   styleUrl: './fichas-borradores.component.less',
 })
@@ -33,9 +39,6 @@ export class FichasBorradoresComponent implements OnInit {
   paginaActual: number = 1;
   registrosPorPagina: number = 10;
   totalPaginas: number = 0;
-
-  // Para usar Math en el template
-  Math = Math;
 
   constructor(
     private fichasService: FichasService,
@@ -97,6 +100,10 @@ export class FichasBorradoresComponent implements OnInit {
     this.totalPaginas = Math.ceil(
       this.borradoresFiltrados.length / this.registrosPorPagina
     );
+    this.paginaActual = Math.min(
+      Math.max(1, this.paginaActual),
+      Math.max(1, this.totalPaginas)
+    );
   }
 
   get borradoresPaginados(): FichasBorradorDTO[] {
@@ -105,25 +112,9 @@ export class FichasBorradoresComponent implements OnInit {
     return this.borradoresFiltrados.slice(inicio, fin);
   }
 
-  get paginasArray(): number[] {
-    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
-  }
-
   irAPagina(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginas) {
       this.paginaActual = pagina;
-    }
-  }
-
-  paginaAnterior(): void {
-    if (this.paginaActual > 1) {
-      this.paginaActual--;
-    }
-  }
-
-  paginaSiguiente(): void {
-    if (this.paginaActual < this.totalPaginas) {
-      this.paginaActual++;
     }
   }
 

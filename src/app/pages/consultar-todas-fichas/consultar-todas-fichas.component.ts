@@ -7,15 +7,20 @@ import {
   FichaInformativa,
 } from '../../services/fichas.service';
 import { ModalFichasConsultaComponent } from '../../components/modal-fichas-consulta/modal-fichas-consulta.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-consultar-todas-fichas',
-  imports: [CommonModule, FormsModule, ModalFichasConsultaComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ModalFichasConsultaComponent,
+    PaginationComponent,
+  ],
   templateUrl: './consultar-todas-fichas.component.html',
   styleUrl: './consultar-todas-fichas.component.less',
 })
 export class ConsultarTodasFichasComponent implements OnInit {
-  Math = Math; // Para usar Math.min en el template
   buscarTexto: string = '';
 
   // Modal
@@ -234,6 +239,10 @@ export class ConsultarTodasFichasComponent implements OnInit {
     this.totalPaginas = Math.ceil(
       this.fichasFiltradas.length / this.fichasPorPagina,
     );
+    this.paginaActual = Math.min(
+      Math.max(1, this.paginaActual),
+      Math.max(1, this.totalPaginas),
+    );
   }
 
   get fichasPaginadas(): FichasTodosDTO[] {
@@ -242,36 +251,10 @@ export class ConsultarTodasFichasComponent implements OnInit {
     return this.fichasFiltradas.slice(inicio, fin);
   }
 
-  anterior(): void {
-    if (this.paginaActual > 1) {
-      this.paginaActual--;
-    }
-  }
-
-  siguiente(): void {
-    if (this.paginaActual < this.totalPaginas) {
-      this.paginaActual++;
-    }
-  }
-
   irAPagina(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginas) {
       this.paginaActual = pagina;
     }
-  }
-
-  get paginasVisibles(): number[] {
-    const paginas: number[] = [];
-    const rango = 2; // Número de páginas a mostrar antes y después de la actual
-
-    let inicio = Math.max(1, this.paginaActual - rango);
-    let fin = Math.min(this.totalPaginas, this.paginaActual + rango);
-
-    for (let i = inicio; i <= fin; i++) {
-      paginas.push(i);
-    }
-
-    return paginas;
   }
 
   exportarExcel(): void {

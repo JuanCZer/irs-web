@@ -1,0 +1,63 @@
+<nav
+  *ngIf="safeTotalItems > 0"
+  class="pagination"
+  [attr.aria-label]="'Paginación de ' + resolvedItemLabel"
+>
+  <div *ngIf="totalPages > 1" class="pagination__controls">
+    <button
+      type="button"
+      class="pagination__button pagination__button--navigation"
+      [disabled]="activePage === 1"
+      (click)="previousPage()"
+      aria-label="Ir a la página anterior"
+    >
+      <span aria-hidden="true">◀</span>
+      <span class="pagination__navigation-label">Anterior</span>
+    </button>
+
+    <ng-container
+      *ngFor="
+        let item of paginationItems;
+        trackBy: trackPaginationItem;
+        let itemIndex = index
+      "
+    >
+      <span
+        *ngIf="item.page === null; else pageButton"
+        class="pagination__ellipsis"
+        aria-hidden="true"
+      >
+        …
+      </span>
+
+      <ng-template #pageButton>
+        <button
+          type="button"
+          class="pagination__button pagination__button--page"
+          [class.pagination__button--active]="item.page === activePage"
+          [attr.aria-current]="item.page === activePage ? 'page' : null"
+          [attr.aria-label]="'Ir a la página ' + item.page"
+          (click)="selectPage(item.page)"
+        >
+          {{ item.page }}
+        </button>
+      </ng-template>
+    </ng-container>
+
+    <button
+      type="button"
+      class="pagination__button pagination__button--navigation"
+      [disabled]="activePage === totalPages"
+      (click)="nextPage()"
+      aria-label="Ir a la página siguiente"
+    >
+      <span class="pagination__navigation-label">Siguiente</span>
+      <span aria-hidden="true">▶</span>
+    </button>
+  </div>
+
+  <p class="pagination__summary" aria-live="polite">
+    Mostrando {{ firstVisibleItem }} - {{ lastVisibleItem }} de
+    <strong>{{ safeTotalItems }}</strong> {{ resolvedItemLabel }}
+  </p>
+</nav>

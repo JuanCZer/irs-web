@@ -16,6 +16,7 @@ import {
   ModalValidarComponent,
   ValidarEvent,
 } from '../../components/modal-validar/modal-validar.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 interface FichaDespacho {
   idFicha: number;
@@ -37,6 +38,7 @@ interface FichaDespacho {
     FormsModule,
     ModalMedidasComponent,
     ModalValidarComponent,
+    PaginationComponent,
   ],
   templateUrl: './despacho.component.html',
   styleUrl: './despacho.component.less',
@@ -104,6 +106,10 @@ export class DespachoComponent implements OnInit {
         sector: dto.sector,
         asunto: dto.asunto,
       }));
+      this.paginaActual = Math.min(
+        Math.max(1, this.paginaActual),
+        Math.max(1, this.totalPaginas)
+      );
     } catch (error) {
       this.error =
         'Error al cargar las fichas. Verifique que el backend esté corriendo.';
@@ -120,26 +126,6 @@ export class DespachoComponent implements OnInit {
 
   get totalPaginas(): number {
     return Math.ceil(this.fichas.length / this.fichasPorPagina);
-  }
-
-  get paginasVisibles(): number[] {
-    const paginas: number[] = [];
-    const maxPaginasVisibles = 3;
-    let inicio = Math.max(
-      1,
-      this.paginaActual - Math.floor(maxPaginasVisibles / 2)
-    );
-    let fin = Math.min(this.totalPaginas, inicio + maxPaginasVisibles - 1);
-
-    if (fin - inicio < maxPaginasVisibles - 1) {
-      inicio = Math.max(1, fin - maxPaginasVisibles + 1);
-    }
-
-    for (let i = inicio; i <= fin; i++) {
-      paginas.push(i);
-    }
-
-    return paginas;
   }
 
   cambiarPagina(pagina: number): void {

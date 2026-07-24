@@ -41,9 +41,6 @@
     .stacked-table-mobile();
   }
 
-  .pagination {
-    gap: 6px;
-  }
 }
 
 .header-section {
@@ -278,57 +275,6 @@
   }
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin: 30px 0;
-  flex-wrap: wrap;
-}
-
-.btn-page,
-.btn-page-number {
-  padding: 10px 16px;
-  border: 2px solid #e0e0e0;
-  background: white;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  color: #2c3e50;
-
-  &:hover:not(:disabled) {
-    background: #365a6a;
-    color: white;
-    border-color: #466b7b;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(70, 107, 123, 0.3);
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    background-color: #f5f5f5;
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-}
-
-.btn-page-number {
-  min-width: 45px;
-
-  &.active {
-    background: #365a6a;
-    color: white;
-    border-color: #466b7b;
-    box-shadow: 0 4px 12px rgba(70, 107, 123, 0.3);
-  }
-}
-
 // Responsive para tablets
 @media (max-width: 1024px) {
   .fichas-table {
@@ -374,14 +320,4 @@
     font-size: 0.85rem;
   }
 
-  .pagination {
-    gap: 4px;
-  }
-
-  .btn-page,
-  .btn-page-number {
-    padding: 8px 12px;
-    font-size: 0.85rem;
-    min-width: 38px;
-  }
 }

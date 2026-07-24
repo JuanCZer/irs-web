@@ -19,33 +19,6 @@
       />
     </div>
 
-    <!-- Paginación superior -->
-    <div class="pagination-controls">
-      <button
-        class="btn-pagination"
-        (click)="cambiarPagina(paginaActual - 1)"
-        [disabled]="paginaActual === 1"
-      >
-        Anterior
-      </button>
-
-      <button
-        *ngFor="let pagina of paginasArray"
-        class="btn-page"
-        [class.active]="pagina === paginaActual"
-        (click)="cambiarPagina(pagina)"
-      >
-        {{ pagina }}
-      </button>
-
-      <button
-        class="btn-pagination"
-        (click)="cambiarPagina(paginaActual + 1)"
-        [disabled]="paginaActual === totalPaginas"
-      >
-        Siguiente
-      </button>
-    </div>
   </div>
 
   <!-- Tabla de borradores -->
@@ -111,14 +84,12 @@
     </table>
   </div>
 
-  <!-- Paginación inferior -->
-  <div class="pagination-footer">
-    <p class="pagination-info">
-      Mostrando {{ (paginaActual - 1) * elementosPorPagina + 1 }} -
-      {{
-        Math.min(paginaActual * elementosPorPagina, borradoresFiltrados.length)
-      }}
-      de {{ borradoresFiltrados.length }} borradores
-    </p>
-  </div>
+  <app-pagination
+    [currentPage]="paginaActual"
+    [pageSize]="elementosPorPagina"
+    [totalItems]="borradoresFiltrados.length"
+    itemLabel="borradores"
+    singularItemLabel="borrador"
+    (pageChange)="cambiarPagina($event)"
+  ></app-pagination>
 </div>

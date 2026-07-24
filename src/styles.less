@@ -331,6 +331,25 @@ ul {
   backdrop-filter: none !important;
 }
 
+// Los modales cubren todo el viewport, pero su contenido se centra dentro del
+// área de trabajo disponible según el estado actual del menú lateral.
+app-main-layout .content-wrapper :where(.modal-overlay) {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px 24px 24px
+    calc(var(--irs-modal-sidebar-offset, 0px) + 24px) !important;
+  overflow: auto;
+  overscroll-behavior: contain;
+  transition: padding-left 180ms ease;
+}
+
 :where(.modal-content) {
   border: 1px solid var(--irs-border) !important;
   border-radius: 8px !important;
@@ -362,6 +381,10 @@ ul {
 }
 
 @media (max-width: 768px) {
+  app-main-layout .content-wrapper :where(.modal-overlay) {
+    padding: 16px !important;
+  }
+
   .page-header,
   .page-content {
     padding: 18px;

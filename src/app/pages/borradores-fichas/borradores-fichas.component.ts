@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 interface FichaBorrador {
   id: string;
@@ -22,7 +23,7 @@ interface FichaBorrador {
 @Component({
   selector: 'app-borradores-fichas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginationComponent],
   templateUrl: './borradores-fichas.component.html',
   styleUrl: './borradores-fichas.component.less',
 })
@@ -32,7 +33,6 @@ export class BorradoresFichasComponent implements OnInit {
   busqueda: string = '';
   paginaActual: number = 1;
   elementosPorPagina: number = 10;
-  Math = Math;
 
   constructor(private router: Router) {}
 
@@ -299,10 +299,6 @@ export class BorradoresFichasComponent implements OnInit {
     if (pagina >= 1 && pagina <= this.totalPaginas) {
       this.paginaActual = pagina;
     }
-  }
-
-  get paginasArray(): number[] {
-    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
   }
 
   editarBorrador(borrador: FichaBorrador): void {

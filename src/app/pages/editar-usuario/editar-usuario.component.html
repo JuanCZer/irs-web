@@ -41,20 +41,6 @@
     {{ error }}
   </div>
 
-  <!-- Información de resultados -->
-  <div class="info-section">
-    <div class="info-text">
-      <i class="fi fi-rr-info"></i>
-      <span>
-        Mostrando {{ (paginaActual - 1) * usuariosPorPagina + 1 }} a
-        {{
-          Math.min(paginaActual * usuariosPorPagina, usuariosFiltrados.length)
-        }}
-        de {{ usuariosFiltrados.length }} usuarios
-      </span>
-    </div>
-  </div>
-
   <!-- Tabla de usuarios -->
   <div class="table-container">
     <div class="table-responsive">
@@ -84,20 +70,22 @@
           </tr>
           <tr *ngFor="let usuario of usuariosPaginados" class="data-row">
             <td class="action-cell">
-              <button
-                class="btn-action-table btn-editar"
-                (click)="abrirModalEditar(usuario.idUsuario)"
-                title="Editar usuario"
-              >
-                <i class="fi fi-rr-pencil"></i>
-              </button>
-              <button
-                class="btn-action-table btn-eliminar"
-                (click)="eliminarUsuario(usuario.idUsuario, usuario.usuario)"
-                title="Eliminar usuario"
-              >
-                <i class="fi fi-rr-trash"></i>
-              </button>
+              <div class="action-buttons">
+                <button
+                  class="btn-action-table btn-editar"
+                  (click)="abrirModalEditar(usuario.idUsuario)"
+                  title="Editar usuario"
+                >
+                  <i class="fi fi-rr-pencil"></i>
+                </button>
+                <button
+                  class="btn-action-table btn-eliminar"
+                  (click)="eliminarUsuario(usuario.idUsuario, usuario.usuario)"
+                  title="Eliminar usuario"
+                >
+                  <i class="fi fi-rr-trash"></i>
+                </button>
+              </div>
             </td>
             <td data-label="Usuario">{{ usuario.usuario }}</td>
             <td data-label="Nombre Completo">
@@ -122,66 +110,15 @@
     </div>
   </div>
 
-  <!-- Paginación -->
-  <div class="pagination-section">
-    <div class="pagination-info">
-      Página {{ paginaActual }} de {{ totalPaginas || 1 }}
-    </div>
-    <div class="pagination-controls">
-      <button
-        class="btn-pagination"
-        (click)="anterior()"
-        [disabled]="paginaActual === 1"
-      >
-        <i class="fi fi-rr-angle-small-left"></i>
-        Anterior
-      </button>
-
-      <button
-        *ngIf="paginasVisibles[0] > 1"
-        class="btn-pagination btn-page"
-        (click)="paginaActual = 1"
-      >
-        1
-      </button>
-
-      <span *ngIf="paginasVisibles[0] > 2" class="pagination-ellipsis"
-        >...</span
-      >
-
-      <button
-        *ngFor="let pagina of paginasVisibles"
-        class="btn-pagination btn-page"
-        [class.active]="pagina === paginaActual"
-        (click)="paginaActual = pagina"
-      >
-        {{ pagina }}
-      </button>
-
-      <span
-        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas - 1"
-        class="pagination-ellipsis"
-        >...</span
-      >
-
-      <button
-        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas"
-        class="btn-pagination btn-page"
-        (click)="paginaActual = totalPaginas"
-      >
-        {{ totalPaginas }}
-      </button>
-
-      <button
-        class="btn-pagination"
-        (click)="siguiente()"
-        [disabled]="paginaActual === totalPaginas || totalPaginas === 0"
-      >
-        Siguiente
-        <i class="fi fi-rr-angle-small-right"></i>
-      </button>
-    </div>
-  </div>
+  <app-pagination
+    *ngIf="!cargando"
+    [currentPage]="paginaActual"
+    [pageSize]="usuariosPorPagina"
+    [totalItems]="usuariosFiltrados.length"
+    itemLabel="usuarios"
+    singularItemLabel="usuario"
+    (pageChange)="cambiarPagina($event)"
+  ></app-pagination>
 </div>
 
 <!-- Modal para editar usuario -->

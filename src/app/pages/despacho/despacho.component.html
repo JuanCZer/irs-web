@@ -24,7 +24,7 @@
   <!-- Información de fichas -->
   <div *ngIf="!cargando && !error" class="info-section">
     <p>
-      Total de fichas confluidas: <strong>{{ fichas.length }}</strong>
+      Total de fichas concluidas: <strong>{{ fichas.length }}</strong>
     </p>
   </div>
 
@@ -103,66 +103,15 @@
     <p>No hay fichas en estado confluido</p>
   </div>
 
-  <!-- Paginación -->
-  <div *ngIf="!cargando && fichas.length > 0" class="pagination-section">
-    <div class="pagination-info">
-      Página {{ paginaActual }} de {{ totalPaginas || 1 }}
-    </div>
-    <div class="pagination-controls">
-      <button
-        class="btn-pagination"
-        (click)="cambiarPagina(paginaActual - 1)"
-        [disabled]="paginaActual === 1"
-      >
-        <i class="fi fi-rr-angle-small-left"></i>
-        Anterior
-      </button>
-
-      <button
-        *ngIf="paginasVisibles[0] > 1"
-        class="btn-pagination btn-page"
-        (click)="cambiarPagina(1)"
-      >
-        1
-      </button>
-
-      <span *ngIf="paginasVisibles[0] > 2" class="pagination-ellipsis"
-        >...</span
-      >
-
-      <button
-        *ngFor="let pagina of paginasVisibles"
-        class="btn-pagination btn-page"
-        [class.active]="pagina === paginaActual"
-        (click)="cambiarPagina(pagina)"
-      >
-        {{ pagina }}
-      </button>
-
-      <span
-        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas - 1"
-        class="pagination-ellipsis"
-        >...</span
-      >
-
-      <button
-        *ngIf="paginasVisibles[paginasVisibles.length - 1] < totalPaginas"
-        class="btn-pagination btn-page"
-        (click)="cambiarPagina(totalPaginas)"
-      >
-        {{ totalPaginas }}
-      </button>
-
-      <button
-        class="btn-pagination"
-        (click)="cambiarPagina(paginaActual + 1)"
-        [disabled]="paginaActual === totalPaginas || totalPaginas === 0"
-      >
-        Siguiente
-        <i class="fi fi-rr-angle-small-right"></i>
-      </button>
-    </div>
-  </div>
+  <app-pagination
+    *ngIf="!cargando"
+    [currentPage]="paginaActual"
+    [pageSize]="fichasPorPagina"
+    [totalItems]="fichas.length"
+    itemLabel="fichas"
+    singularItemLabel="ficha"
+    (pageChange)="cambiarPagina($event)"
+  ></app-pagination>
 </div>
 
 <!-- Modal de medidas de seguridad -->

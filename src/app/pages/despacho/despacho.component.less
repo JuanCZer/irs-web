@@ -24,7 +24,6 @@
 
   .acciones-container { flex-direction: column; gap: 6px; align-items: flex-start; }
 
-  .pagination-section { flex-direction: column; gap: 8px; }
 }
 
 /* Tablet responsive */
@@ -262,68 +261,6 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
   }
-}
-
-.pagination-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.pagination-info {
-  color: #666;
-  font-weight: 500;
-}
-
-.pagination-controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.btn-pagination {
-  padding: 10px 16px;
-  border: 2px solid #e0e0e0;
-  background: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  color: #333;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  &:hover:not(:disabled) {
-    background: #466b7b;
-    color: white;
-    border-color: #466b7b;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-.btn-page {
-  min-width: 40px;
-  justify-content: center;
-
-  &.active {
-    background: #466b7b;
-    color: white;
-    border-color: #466b7b;
-  }
-}
-
-.pagination-ellipsis {
-  color: #999;
-  padding: 0 8px;
 }
 
 // Modal
@@ -641,10 +578,6 @@
     grid-template-columns: 1fr;
   }
 
-  .pagination-section {
-    flex-direction: column;
-    gap: 15px;
-  }
 }
 
 // Modal para ver detalles de ficha
