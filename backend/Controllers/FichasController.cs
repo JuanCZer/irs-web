@@ -3,6 +3,7 @@ using IRS.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Backend.DTOs;
 using IRS.API.Interfaces;
+using System.Security.Claims;
 
 namespace IRS.API.Controllers;
 
@@ -48,7 +49,14 @@ public class FichasController : ControllerBase
     {
         try
         {
-            var fichaCreada = await _fichaService.CrearAsync(ficha, "UsuarioDemo");
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var idUsuario))
+                return Unauthorized();
+
+            ficha.IdUsuario = idUsuario;
+            var fichaCreada = await _fichaService.CrearAsync(
+                ficha,
+                User.FindFirstValue(ClaimTypes.Name) ?? "Usuario");
+            HttpContext.Items["AuditoriaEntidadId"] = fichaCreada.Id;
             return CreatedAtAction(nameof(ObtenerPorId), new { id = fichaCreada.Id }, fichaCreada);
         }
         catch (Exception ex)

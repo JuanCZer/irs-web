@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
 
 // DTO para listar fichas en tabla (11 campos)
 export interface FichasTodosDTO {
@@ -114,11 +115,11 @@ export interface FichaInformativaDTO {
 export class FichasService {
   private apiUrl = 'https://localhost:5001/api/fichas';
 
-  constructor() {}
+  constructor(private api: ApiService) {}
 
   async obtenerTodasLasFichas(): Promise<FichasTodosDTO[]> {
     try {
-      const response = await fetch(this.apiUrl);
+      const response = await this.api.fetch(this.apiUrl);
 
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -133,7 +134,7 @@ export class FichasService {
 
   async obtenerFichasPorEstado(estado: string): Promise<FichasTodosDTO[]> {
     try {
-      const response = await fetch(`${this.apiUrl}/concluidas`);
+      const response = await this.api.fetch(`${this.apiUrl}/concluidas`);
 
       if (!response.ok) {
         throw new Error('Error al obtener fichas concluidas');
@@ -148,7 +149,7 @@ export class FichasService {
 
   async obtenerFichaPorId(id: number): Promise<FichaInformativa> {
     try {
-      const response = await fetch(`${this.apiUrl}/${id}`);
+      const response = await this.api.fetch(`${this.apiUrl}/${id}`);
       if (!response.ok) {
         throw new Error('Error al cargar la ficha');
       }
@@ -161,7 +162,7 @@ export class FichasService {
 
   async crearFicha(ficha: FichaInformativa): Promise<FichaInformativa> {
     try {
-      const response = await fetch(this.apiUrl, {
+      const response = await this.api.fetch(this.apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -185,7 +186,7 @@ export class FichasService {
     ficha: FichaInformativa,
   ): Promise<FichaInformativa> {
     try {
-      const response = await fetch(`${this.apiUrl}/${id}`, {
+      const response = await this.api.fetch(`${this.apiUrl}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -206,7 +207,7 @@ export class FichasService {
 
   async eliminarFicha(id: number): Promise<boolean> {
     try {
-      const response = await fetch(`${this.apiUrl}/${id}`, {
+      const response = await this.api.fetch(`${this.apiUrl}/${id}`, {
         method: 'DELETE',
       });
 
@@ -221,7 +222,7 @@ export class FichasService {
 
   async buscarFichas(criterio: string): Promise<FichasTodosDTO[]> {
     try {
-      const response = await fetch(
+      const response = await this.api.fetch(
         `${this.apiUrl}/buscar?criterio=${encodeURIComponent(criterio)}`,
       );
       if (!response.ok) {
@@ -250,7 +251,7 @@ export class FichasService {
 
       const url = `${this.apiUrl}/rango-fechas?fechaInicio=${fechaInicioEncoded}&fechaFin=${fechaFinEncoded}`;
 
-      const response = await fetch(url);
+      const response = await this.api.fetch(url);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -277,7 +278,7 @@ export class FichasService {
     try {
       const url = `${this.apiUrl}/dia-actual`;
 
-      const response = await fetch(url);
+      const response = await this.api.fetch(url);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -295,7 +296,7 @@ export class FichasService {
     try {
       const url = `${this.apiUrl}/borradores`;
 
-      const response = await fetch(url);
+      const response = await this.api.fetch(url);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -315,7 +316,7 @@ export class FichasService {
         this.apiUrl
       }/borradores/buscar?criterio=${encodeURIComponent(criterio)}`;
 
-      const response = await fetch(url);
+      const response = await this.api.fetch(url);
 
       if (!response.ok) {
         const errorText = await response.text();

@@ -1,0 +1,177 @@
+<div class="auditoria-container">
+  <header class="header-section">
+    <h1 class="page-title">Bitácora de actividad</h1>
+    <div class="header-actions">
+      <button
+        type="button"
+        class="btn-action"
+        (click)="cargarEventos()"
+      >
+        <i class="fi fi-rr-refresh"></i>
+        Actualizar
+      </button>
+    </div>
+  </header>
+
+  <section class="summary-grid" aria-label="Resumen de actividad">
+    <article class="summary-card">
+      <i class="fi fi-rr-list-check"></i>
+      <div><span>Total de eventos</span><strong>{{ resumen.totalEventos }}</strong></div>
+    </article>
+    <article class="summary-card success">
+      <i class="fi fi-rr-check-circle"></i>
+      <div><span>Exitosos</span><strong>{{ resumen.eventosExitosos }}</strong></div>
+    </article>
+    <article class="summary-card danger">
+      <i class="fi fi-rr-triangle-warning"></i>
+      <div><span>Con error</span><strong>{{ resumen.eventosConError }}</strong></div>
+    </article>
+    <article class="summary-card info">
+      <i class="fi fi-rr-users"></i>
+      <div><span>Usuarios distintos</span><strong>{{ resumen.usuariosDistintos }}</strong></div>
+    </article>
+  </section>
+
+  <form class="filters-card" (ngSubmit)="aplicarFiltros()">
+    <div class="field search-field">
+      <label for="busqueda">Buscar</label>
+      <input
+        id="busqueda"
+        name="busqueda"
+        type="search"
+        [(ngModel)]="filtros.busqueda"
+        placeholder="Usuario, acción o descripción"
+      />
+    </div>
+    <div class="field">
+      <label for="usuario">Usuario</label>
+      <select id="usuario" name="usuario" [(ngModel)]="filtros.idUsuario">
+        <option [ngValue]="undefined">Todos</option>
+        <option *ngFor="let usuario of usuarios" [ngValue]="usuario.idUsuario">
+          {{ usuario.usuario }}
+        </option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="modulo">Módulo</label>
+      <select id="modulo" name="modulo" [(ngModel)]="filtros.modulo">
+        <option value="">Todos</option>
+        <option *ngFor="let modulo of modulos" [value]="modulo">
+          {{ formatearCodigo(modulo) }}
+        </option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="accion">Acción</label>
+      <select id="accion" name="accion" [(ngModel)]="filtros.accion">
+        <option value="">Todas</option>
+        <option *ngFor="let accion of acciones" [value]="accion">
+          {{ formatearCodigo(accion) }}
+        </option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="resultado">Resultado</label>
+      <select
+        id="resultado"
+        name="resultado"
+        [ngModel]="filtros.exitoso === undefined ? '' : filtros.exitoso.toString()"
+        (ngModelChange)="cambiarResultado($event)"
+      >
+        <option value="">Todos</option>
+        <option value="true">Exitoso</option>
+        <option value="false">Con error</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="fechaInicio">Desde</label>
+      <input id="fechaInicio" name="fechaInicio" type="date" [(ngModel)]="filtros.fechaInicio" />
+    </div>
+    <div class="field">
+      <label for="fechaFin">Hasta</label>
+      <input id="fechaFin" name="fechaFin" type="date" [(ngModel)]="filtros.fechaFin" />
+    </div>
+    <div class="filter-actions">
+      <button type="submit" class="primary-button">
+        <i class="fi fi-rr-filter"></i> Aplicar
+      </button>
+      <button type="button" class="secondary-button" (click)="limpiarFiltros()">
+        Limpiar
+      </button>
+    </div>
+  </form>
+
+  <div *ngIf="error" class="alert-error" role="alert">
+    <i class="fi fi-rr-circle-exclamation-check"></i> {{ error }}
+  </div>
+
+  <section class="table-container" aria-live="polite">
+    <div *ngIf="cargando" class="state-message">
+      <i class="fi fi-rr-spinner fa-spin"></i> Cargando actividad…
+    </div>
+    <div *ngIf="!cargando && eventos.length === 0" class="state-message">
+      No hay eventos que coincidan con los filtros seleccionados.
+    </div>
+
+    <div class="table-responsive" *ngIf="!cargando && eventos.length > 0">
+      <table class="auditoria-table">
+        <thead>
+          <tr>
+            <th>Fecha y hora</th>
+            <th>Usuario</th>
+            <th>Módulo</th>
+            <th>Acción</th>
+            <th>Descripción</th>
+            <th>Resultado</th>
+            <th>Origen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let evento of eventos; trackBy: trackByEvento"
+            class="data-row"
+          >
+            <td class="date-cell" data-label="Fecha y hora">
+              {{ evento.fechaHora | date: "dd/MM/yyyy HH:mm:ss" }}
+            </td>
+            <td data-label="Usuario">
+              <div class="cell-content user-cell">
+                <strong>{{ evento.usuario }}</strong>
+                <small>{{ evento.nombreCompleto || "Sin nombre" }}</small>
+                <span class="role-badge">{{ evento.rol || "Sin rol" }}</span>
+              </div>
+            </td>
+            <td data-label="Módulo">
+              <span class="module-badge">
+                {{ formatearCodigo(evento.modulo) }}
+              </span>
+            </td>
+            <td data-label="Acción">{{ formatearCodigo(evento.accion) }}</td>
+            <td class="description-cell" data-label="Descripción">
+              <div class="cell-content">
+                {{ evento.descripcion }}
+              </div>
+            </td>
+            <td data-label="Resultado">
+              <span class="status-badge" [class.error]="!evento.exitoso">
+                {{ evento.exitoso ? "Exitoso" : "Error" }} · {{ evento.codigoEstado }}
+              </span>
+            </td>
+            <td data-label="Origen">
+              {{ evento.direccionIp || "No disponible" }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <app-pagination
+    [currentPage]="filtros.pagina"
+    [pageSize]="filtros.tamanoPagina"
+    [totalItems]="resumen.totalEventos"
+    itemLabel="eventos"
+    singularItemLabel="evento"
+    (pageChange)="cambiarPagina($event)"
+  />
+</div>

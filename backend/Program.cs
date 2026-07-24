@@ -4,6 +4,13 @@ using IRS.API.Hubs;
 using Backend.Services;
 using Microsoft.EntityFrameworkCore;
 using IRS.API.Interfaces;
+using Backend.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +18,68 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("La llave JWT no está configurada");
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1),
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = ClaimTypes.Role
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var cookieName = builder.Configuration["Jwt:CookieName"] ?? "irs_access_token";
+                if (context.Request.Cookies.TryGetValue(cookieName, out var token))
+                    context.Token = token;
+
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = async context =>
+            {
+                var idTexto = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                var idSesionTexto = context.Principal?.FindFirstValue("sid");
+                var jti = context.Principal?.FindFirstValue(JwtRegisteredClaimNames.Jti);
+                var rol = context.Principal?.FindFirstValue(ClaimTypes.Role);
+
+                if (!int.TryParse(idTexto, out var idUsuario) ||
+                    !Guid.TryParse(idSesionTexto, out var idSesion) ||
+                    string.IsNullOrWhiteSpace(jti) ||
+                    string.IsNullOrWhiteSpace(rol))
+                {
+                    context.Fail("El token no contiene una sesión válida");
+                    return;
+                }
+
+                var sesiones = context.HttpContext.RequestServices
+                    .GetRequiredService<ISesionService>();
+                if (!await sesiones.ValidarSesionAsync(idSesion, jti, idUsuario, rol))
+                    context.Fail("La sesión fue revocada o expiró");
+            }
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 // Configurar SignalR
 builder.Services.AddSignalR();
@@ -46,6 +115,8 @@ builder.Services.AddScoped<IUsuariosService, UsuariosService>();
 builder.Services.AddScoped<ICatRolService, CatRolService>();
 builder.Services.AddScoped<ICatalogosService, CatalogosService>();
 builder.Services.AddScoped<IDespachoService, DespachoService>();
+builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
+builder.Services.AddScoped<ISesionService, SesionService>();
 
 var app = builder.Build();
 
@@ -60,6 +131,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAngularApp");
 
+app.UseMiddleware<AuditoriaMiddleware>();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

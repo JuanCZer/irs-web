@@ -2,11 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, UsuarioAutenticado } from '../../services/auth.service';
-import {
-  UsuariosService,
-  CambiarContrasenaDTO,
-  RespuestaCambioContrasenaDTO,
-} from '../../services/usuarios.service';
+import { UsuariosService } from '../../services/usuarios.service';
 
 @Component({
   selector: 'app-perfil',
@@ -50,13 +46,11 @@ export class PerfilComponent implements OnInit {
 
   // Formulario de cambio de contraseña
   cambioPassword = {
-    passwordActual: '',
     passwordNueva: '',
     passwordConfirmar: '',
   };
 
   // Estados del formulario
-  mostrarPasswordActual = false;
   mostrarPasswordNueva = false;
   mostrarPasswordConfirmar = false;
   mensajeError = '';
@@ -96,11 +90,8 @@ export class PerfilComponent implements OnInit {
     );
   }
 
-  toggleMostrarPassword(campo: string): void {
+  toggleMostrarPassword(campo: 'nueva' | 'confirmar'): void {
     switch (campo) {
-      case 'actual':
-        this.mostrarPasswordActual = !this.mostrarPasswordActual;
-        break;
       case 'nueva':
         this.mostrarPasswordNueva = !this.mostrarPasswordNueva;
         break;
@@ -111,17 +102,13 @@ export class PerfilComponent implements OnInit {
   }
 
   private validateCambioPassword(): string | null {
-    const actual = (this.cambioPassword.passwordActual || '').trim();
     const nueva = (this.cambioPassword.passwordNueva || '').trim();
     const confirmar = (this.cambioPassword.passwordConfirmar || '').trim();
 
-    if (!actual) return 'Debes ingresar tu contraseña actual';
     if (!nueva) return 'Debes ingresar una nueva contraseña';
     if (!this.passwordValida)
       return 'La nueva contraseña no cumple con todos los requisitos de seguridad';
     if (nueva !== confirmar) return 'Las contraseñas no coinciden';
-    if (actual === nueva)
-      return 'La nueva contraseña debe ser diferente a la actual';
 
     return null;
   }
@@ -141,8 +128,6 @@ export class PerfilComponent implements OnInit {
     this.cargando = true;
 
     const datoCambio = {
-      idUsuario: this.usuario?.idUsuario || 0,
-      contraseñaActual: (this.cambioPassword.passwordActual || '').trim(),
       contraseñaNueva: (this.cambioPassword.passwordNueva || '').trim(),
       confirmarContraseña: (this.cambioPassword.passwordConfirmar || '').trim(),
     };
@@ -156,7 +141,6 @@ export class PerfilComponent implements OnInit {
 
           // Limpiar el formulario
           this.cambioPassword = {
-            passwordActual: '',
             passwordNueva: '',
             passwordConfirmar: '',
           };
@@ -181,7 +165,6 @@ export class PerfilComponent implements OnInit {
 
   cancelar(): void {
     this.cambioPassword = {
-      passwordActual: '',
       passwordNueva: '',
       passwordConfirmar: '',
     };

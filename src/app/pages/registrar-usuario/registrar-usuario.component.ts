@@ -135,7 +135,6 @@ export class RegistrarUsuarioComponent implements OnInit {
 
       // Construir el DTO para crear usuario
       const nuevoUsuario: CrearUsuarioDTO = {
-        idUsuarioCrea: this.authService.currentUserValue?.idUsuario, // Enviar ID del usuario que crea
         nombre: this.usuario.nombres,
         app: this.usuario.primerApellido,
         apm: this.usuario.segundoApellido || undefined,

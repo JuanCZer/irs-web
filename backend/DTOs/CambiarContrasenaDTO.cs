@@ -4,13 +4,6 @@ namespace Backend.DTOs
 {
     public class CambiarContrasenaDTO
     {
-        [Required(ErrorMessage = "El ID del usuario es requerido")]
-        public int IdUsuario { get; set; }
-
-        [Required(ErrorMessage = "La contraseña actual es requerida")]
-        [StringLength(255, MinimumLength = 1, ErrorMessage = "La contraseña actual debe tener entre 1 y 255 caracteres")]
-        public string ContraseñaActual { get; set; } = string.Empty;
-
         [Required(ErrorMessage = "La nueva contraseña es requerida")]
         [StringLength(255, MinimumLength = 8, ErrorMessage = "La nueva contraseña debe tener al menos 8 caracteres")]
         public string ContraseñaNueva { get; set; } = string.Empty;

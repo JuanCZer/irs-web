@@ -2,11 +2,14 @@ using Backend.DTOs;
 using Backend.Services;
 using IRS.API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "ADMIN")]
     public class UsuariosController : ControllerBase
     {
         private readonly IUsuariosService _usuariosService;
@@ -58,6 +61,8 @@ namespace Backend.Controllers
         {
             try
             {
+                usuarioDto.IdUsuarioCrea = int.Parse(
+                    User.FindFirstValue(ClaimTypes.NameIdentifier)!);
                 
                 if (string.IsNullOrWhiteSpace(usuarioDto.Usuario))
                 {
@@ -70,6 +75,7 @@ namespace Backend.Controllers
                 }
 
                 var usuario = await _usuariosService.CrearUsuarioAsync(usuarioDto);
+                HttpContext.Items["AuditoriaEntidadId"] = usuario.IdUsuario;
                 return CreatedAtAction(nameof(ObtenerUsuarioPorId), new { id = usuario.IdUsuario }, usuario);
             }
             catch (InvalidOperationException ex)

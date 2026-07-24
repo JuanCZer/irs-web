@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using IRS.API.Models;
 using IRS.API.DTOs;
 using IRS.API.Interfaces;
+using System.Security.Claims;
 
 namespace IRS.API.Controllers;
 
@@ -23,6 +24,12 @@ public class DespachoController : ControllerBase
     {
         try
         {
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var idUsuario))
+                return Unauthorized();
+
+            dto.IdUsuario = idUsuario;
+            HttpContext.Items["AuditoriaEntidadId"] = dto.IdFicha;
+
             if (dto.IdsMedidasSeguridad == null || dto.IdsMedidasSeguridad.Count == 0)
             {
                 return BadRequest(new { message = "Debe seleccionar al menos una medida de seguridad" });

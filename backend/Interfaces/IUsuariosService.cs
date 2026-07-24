@@ -10,6 +10,6 @@ namespace IRS.API.Interfaces
     Task<bool> ActualizarUsuarioAsync(int id, ActualizarUsuarioDTO usuarioDto);
     Task<bool> EliminarUsuarioAsync(int id);
     Task<UsuarioDTO?> ValidarCredencialesAsync(string usuario, string password);
-    Task<RespuestaCambioContrasenaDTO> CambiarContrasenaAsync(CambiarContrasenaDTO cambioContraseñaDto);
+    Task<RespuestaCambioContrasenaDTO> CambiarContrasenaAsync(int idUsuario, CambiarContrasenaDTO cambioContraseñaDto);
   }
 }

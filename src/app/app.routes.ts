@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -107,6 +108,7 @@ export const routes: Routes = [
       },
       {
         path: 'admin-usuarios/registrar',
+        canActivate: [adminGuard],
         loadComponent: () =>
           import('./pages/registrar-usuario/registrar-usuario.component').then(
             (m) => m.RegistrarUsuarioComponent
@@ -114,9 +116,18 @@ export const routes: Routes = [
       },
       {
         path: 'admin-usuarios/editar',
+        canActivate: [adminGuard],
         loadComponent: () =>
           import('./pages/editar-usuario/editar-usuario.component').then(
             (m) => m.EditarUsuarioComponent
+          ),
+      },
+      {
+        path: 'auditoria',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/auditoria/auditoria.component').then(
+            (m) => m.AuditoriaComponent
           ),
       },
       {

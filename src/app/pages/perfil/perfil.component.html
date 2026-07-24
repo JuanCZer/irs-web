@@ -60,36 +60,6 @@
 
         <!-- Formulario -->
         <form (ngSubmit)="cambiarPassword()" class="password-form">
-          <!-- Contraseña actual -->
-          <div class="form-group">
-            <label for="passwordActual">
-              <i class="fi fi-rr-lock"></i>
-              Contraseña Actual
-            </label>
-            <div class="input-wrapper">
-              <input
-                [type]="mostrarPasswordActual ? 'text' : 'password'"
-                id="passwordActual"
-                class="form-control"
-                [(ngModel)]="cambioPassword.passwordActual"
-                name="passwordActual"
-                placeholder="Ingresa tu contraseña actual"
-                required
-              />
-              <button
-                type="button"
-                class="toggle-password"
-                (click)="toggleMostrarPassword('actual')"
-              >
-                <i
-                  [class]="
-                    mostrarPasswordActual ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
-                  "
-                ></i>
-              </button>
-            </div>
-          </div>
-
           <!-- Nueva contraseña -->
           <div class="form-group">
             <label for="passwordNueva">
@@ -110,6 +80,12 @@
                 type="button"
                 class="toggle-password"
                 (click)="toggleMostrarPassword('nueva')"
+                [attr.aria-label]="
+                  mostrarPasswordNueva
+                    ? 'Ocultar nueva contraseña'
+                    : 'Mostrar nueva contraseña'
+                "
+                [attr.aria-pressed]="mostrarPasswordNueva"
               >
                 <i
                   [class]="
@@ -200,6 +176,12 @@
                 type="button"
                 class="toggle-password"
                 (click)="toggleMostrarPassword('confirmar')"
+                [attr.aria-label]="
+                  mostrarPasswordConfirmar
+                    ? 'Ocultar confirmación de contraseña'
+                    : 'Mostrar confirmación de contraseña'
+                "
+                [attr.aria-pressed]="mostrarPasswordConfirmar"
               >
                 <i
                   [class]="

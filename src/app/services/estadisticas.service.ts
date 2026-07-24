@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
 
 export interface EstadisticasResumen {
   totalFichas: number;
@@ -42,11 +43,11 @@ export interface FichasEstadisticas {
 export class EstadisticasService {
   private apiUrl = 'https://localhost:5001/api/fichas/estadisticas';
 
-  constructor() {}
+  constructor(private api: ApiService) {}
 
   async obtenerEstadisticas(): Promise<FichasEstadisticas> {
     try {
-      const response = await fetch(this.apiUrl, {
+      const response = await this.api.fetch(this.apiUrl, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

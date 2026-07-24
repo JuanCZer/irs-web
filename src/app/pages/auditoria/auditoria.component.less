@@ -1,0 +1,316 @@
+@primary: #203642;
+@accent: #466b7b;
+@border: #dfe5e8;
+@muted: #64727a;
+@success: #2f7652;
+@danger: #a34148;
+@white: #ffffff;
+
+@import "../../../styles/responsive.less";
+
+.auditoria-container {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 25px 28px;
+  margin-bottom: 30px;
+  background: @white;
+  border: 1px solid #d5dde1;
+  border-left: 3px solid #9d8244;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(32, 54, 66, 0.08);
+  flex-wrap: wrap;
+
+  .page-title {
+    margin: 0;
+    color: #0c1b24;
+    font-size: 30px;
+    font-weight: 700;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 15px;
+  }
+
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 50px;
+    padding: 12px 26px;
+    border: none;
+    border-radius: 6px;
+    background: #365f70;
+    color: @white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+
+    i {
+      font-size: 18px;
+    }
+  }
+}
+
+.primary-button,
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 0;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.primary-button { background: @accent; color: white; }
+.secondary-button { background: white; color: @primary; border: 1px solid @border; }
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 18px;
+  background: white;
+  border: 1px solid @border;
+  border-radius: 12px;
+
+  > i { font-size: 24px; color: @accent; }
+  span { display: block; color: @muted; font-size: 12px; text-transform: uppercase; }
+  strong { display: block; margin-top: 3px; font-size: 25px; color: @primary; }
+  &.success > i { color: @success; }
+  &.danger > i { color: @danger; }
+}
+
+.filters-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(150px, 1fr));
+  gap: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background: white;
+  border: 1px solid @border;
+  border-radius: 12px;
+}
+
+.field {
+  label { display: block; margin-bottom: 6px; color: @primary; font-size: 12px; font-weight: 700; }
+  input,
+  select {
+    box-sizing: border-box;
+    width: 100%;
+    height: 42px;
+    padding: 8px 11px;
+    border: 1px solid @border;
+    border-radius: 8px;
+    background: white;
+    color: @primary;
+    font: inherit;
+  }
+}
+
+.filter-actions { display: flex; align-items: end; gap: 8px; }
+
+.alert-error {
+  display: flex;
+  gap: 9px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  color: @danger;
+  background: #fff1f2;
+  border: 1px solid #f0c7ca;
+  border-radius: 9px;
+}
+
+.table-container {
+  overflow: hidden;
+  margin-bottom: 20px;
+  background: @white;
+  border: 1px solid @border;
+  border-radius: 8px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, @accent 0%, @primary 100%);
+    border-radius: 4px;
+  }
+}
+
+.auditoria-table {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+  background: @white;
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(
+      135deg,
+      rgba(70, 107, 123, 0.1) 0%,
+      rgba(32, 54, 66, 0.1) 100%
+    );
+
+    th {
+      padding: 15px 12px;
+      border-bottom: 2px solid @border;
+      color: #2c3e50;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: left;
+      white-space: nowrap;
+    }
+  }
+
+  tbody {
+    tr.data-row {
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background: rgba(70, 107, 123, 0.05);
+      }
+
+      &:nth-child(even) {
+        background: #fafbfc;
+
+        &:hover {
+          background: rgba(70, 107, 123, 0.05);
+        }
+      }
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid @border;
+      color: #2c3e50;
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+  }
+
+  small {
+    display: block;
+    margin: 3px 0 6px;
+    color: @muted;
+  }
+}
+
+.date-cell { white-space: nowrap; }
+.description-cell { min-width: 260px; }
+.cell-content { min-width: 0; overflow-wrap: anywhere; }
+.user-cell { min-width: 150px; }
+.role-badge,
+.module-badge,
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.role-badge { color: @primary; background: #e8eef0; }
+.module-badge { color: #355d70; background: #edf4f7; }
+.status-badge { color: @success; background: #e9f5ee; }
+.status-badge.error { color: @danger; background: #fbecee; }
+
+.state-message { padding: 44px 20px; text-align: center; color: @muted; }
+
+app-pagination { display: block; margin-top: 18px; }
+
+@media (max-width: 1100px) {
+  .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filters-card { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .header-section {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px;
+
+    .page-title {
+      font-size: 24px;
+    }
+
+    .header-actions,
+    .btn-action {
+      width: 100%;
+    }
+  }
+
+  .summary-grid,
+  .filters-card { grid-template-columns: 1fr; }
+  .filter-actions { align-items: stretch; flex-direction: column; }
+}
+
+@media (max-width: 768px) {
+  .table-container {
+    margin-right: -8px;
+    margin-left: -8px;
+    border-radius: 8px;
+  }
+
+  .auditoria-table {
+    .responsive-table();
+    .stacked-table-mobile();
+
+    tbody td {
+      align-items: flex-start;
+      gap: 12px;
+      text-align: right;
+    }
+
+    tbody td::before {
+      flex: 0 0 42%;
+      width: auto;
+      text-align: left;
+    }
+
+    .description-cell {
+      min-width: 0;
+    }
+
+    .cell-content {
+      flex: 1;
+      text-align: right;
+    }
+
+  }
+}

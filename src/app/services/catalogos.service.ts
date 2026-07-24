@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
 
 export interface CatSector {
   idCatSector: number;
@@ -51,11 +52,11 @@ export interface CatMedidaSeguridad {
 export class CatalogosService {
   private apiUrl = 'https://localhost:5001/api/catalogos';
 
-  constructor() {}
+  constructor(private api: ApiService) {}
 
   async obtenerSectores(): Promise<CatSector[]> {
     try {
-      const response = await fetch(`${this.apiUrl}/sectores`);
+      const response = await this.api.fetch(`${this.apiUrl}/sectores`);
       if (!response.ok) {
         throw new Error(`Error al obtener sectores: ${response.statusText}`);
       }
@@ -67,7 +68,7 @@ export class CatalogosService {
 
   async obtenerSubsectores(): Promise<CatSubsector[]> {
     try {
-      const response = await fetch(`${this.apiUrl}/subsectores`);
+      const response = await this.api.fetch(`${this.apiUrl}/subsectores`);
       if (!response.ok) {
         throw new Error(`Error al obtener subsectores: ${response.statusText}`);
       }
@@ -79,7 +80,7 @@ export class CatalogosService {
 
   async obtenerSubsectoresPorSector(idSector: number): Promise<CatSubsector[]> {
     try {
-      const response = await fetch(
+      const response = await this.api.fetch(
         `${this.apiUrl}/subsectores/sector/${idSector}`,
       );
       if (!response.ok) {
@@ -93,7 +94,7 @@ export class CatalogosService {
 
   async obtenerPrioridades(): Promise<CatPrioridad[]> {
     try {
-      const response = await fetch(`${this.apiUrl}/prioridades`);
+      const response = await this.api.fetch(`${this.apiUrl}/prioridades`);
       if (!response.ok) {
         throw new Error(`Error al obtener prioridades: ${response.statusText}`);
       }
@@ -105,7 +106,7 @@ export class CatalogosService {
 
   async obtenerCondiciones(): Promise<CatCondicion[]> {
     try {
-      const response = await fetch(`${this.apiUrl}/condiciones`);
+      const response = await this.api.fetch(`${this.apiUrl}/condiciones`);
       if (!response.ok) {
         throw new Error(`Error al obtener condiciones: ${response.statusText}`);
       }
@@ -117,7 +118,7 @@ export class CatalogosService {
 
   async obtenerInformaciones(): Promise<CatInformacion[]> {
     try {
-      const response = await fetch(`${this.apiUrl}/informaciones`);
+      const response = await this.api.fetch(`${this.apiUrl}/informaciones`);
       if (!response.ok) {
         throw new Error(
           `Error al obtener informaciones: ${response.statusText}`,
@@ -131,7 +132,7 @@ export class CatalogosService {
 
   async obtenerMunicipios(): Promise<CatMunicipio[]> {
     try {
-      const response = await fetch(`${this.apiUrl}/municipios`);
+      const response = await this.api.fetch(`${this.apiUrl}/municipios`);
       if (!response.ok) {
         throw new Error(`Error al obtener municipios: ${response.statusText}`);
       }
@@ -143,7 +144,7 @@ export class CatalogosService {
 
   async obtenerDelegaciones(): Promise<CatDelegacion[]> {
     try {
-      const response = await fetch(`${this.apiUrl}/delegaciones`);
+      const response = await this.api.fetch(`${this.apiUrl}/delegaciones`);
       if (!response.ok) {
         throw new Error(
           `Error al obtener delegaciones: ${response.statusText}`,
@@ -157,7 +158,7 @@ export class CatalogosService {
 
   async obtenerMedidasSeguridad(): Promise<CatMedidaSeguridad[]> {
     try {
-      const response = await fetch(`${this.apiUrl}/medidas-seguridad`);
+      const response = await this.api.fetch(`${this.apiUrl}/medidas-seguridad`);
 
       if (!response.ok) {
         const errorText = await response.text();

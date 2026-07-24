@@ -5,6 +5,7 @@ import { filter, Subscription } from 'rxjs';
 import { NavbarComponent } from '../components/navbar/navbar.component';
 import { AuthService } from '../services/auth.service';
 import { NavbarService } from '../services/navbar.service';
+import { AuditoriaService } from '../services/auditoria.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -33,6 +34,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     ['/despacho', 'Despacho'],
     ['/admin-usuarios/registrar', 'Registrar usuario'],
     ['/admin-usuarios/editar', 'Administración de usuarios'],
+    ['/auditoria', 'Bitácora de actividad'],
     ['/perfil', 'Seguridad de la cuenta'],
     ['/inicio', 'Resumen operativo'],
   ];
@@ -41,6 +43,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     private navbarService: NavbarService,
     public authService: AuthService,
     private router: Router,
+    private auditoriaService: AuditoriaService,
   ) {}
 
   ngOnInit(): void {
@@ -64,7 +67,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       this.router.events
         .pipe(filter((event) => event instanceof NavigationEnd))
         .subscribe((event) => {
-          this.updatePageTitle((event as NavigationEnd).urlAfterRedirects);
+          const url = (event as NavigationEnd).urlAfterRedirects;
+          this.updatePageTitle(url);
+          void this.auditoriaService.registrarNavegacion(url);
         }),
     );
   }

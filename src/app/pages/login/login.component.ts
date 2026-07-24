@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.less',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   currentYear = new Date().getFullYear();
 
   credentials = {
@@ -26,10 +26,14 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
-  ) {
-    // Si ya está autenticado, redirigir al inicio
-    if (this.authService.isAuthenticated) {
-      this.router.navigate(['/inicio']);
+  ) {}
+
+  async ngOnInit(): Promise<void> {
+    if (
+      this.authService.currentUserValue &&
+      (await this.authService.validarSesion())
+    ) {
+      await this.router.navigate(['/inicio']);
     }
   }
 

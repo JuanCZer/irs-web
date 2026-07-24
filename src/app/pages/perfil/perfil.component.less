@@ -171,12 +171,13 @@
         position: relative;
 
         .form-control {
+          box-sizing: border-box;
           width: 100%;
           padding: 12px 45px 12px 15px;
           border: 1px solid @border-color;
           border-radius: 8px;
           font-size: 14px;
-          transition: all 0.3s ease;
+          transition: none;
           font-family: inherit;
 
           &:focus {
@@ -192,22 +193,40 @@
 
         .toggle-password {
           position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 44px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           background: none;
           border: none;
           color: @text-muted;
           cursor: pointer;
-          padding: 8px;
-          transition: all 0.3s ease;
+          padding: 0;
+          line-height: 1;
+          transform: none;
+          transition: none;
 
           &:hover {
             color: @primary-color;
           }
 
           i {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             font-size: 16px;
+            line-height: 1;
+            transition: none;
+
+            &::before {
+              display: block;
+              line-height: 1;
+            }
           }
         }
       }

@@ -263,16 +263,11 @@ namespace Backend.Services
             };
         }
 
-        public async Task<RespuestaCambioContrasenaDTO> CambiarContrasenaAsync(CambiarContrasenaDTO cambioContraseñaDto)
+        public async Task<RespuestaCambioContrasenaDTO> CambiarContrasenaAsync(int idUsuario, CambiarContrasenaDTO cambioContraseñaDto)
         {
             try
             {
                 var errores = new List<string>();
-
-                if (string.IsNullOrWhiteSpace(cambioContraseñaDto.ContraseñaActual))
-                {
-                    errores.Add("La contraseña actual es requerida");
-                }
 
                 if (string.IsNullOrWhiteSpace(cambioContraseñaDto.ContraseñaNueva))
                 {
@@ -300,7 +295,7 @@ namespace Backend.Services
                 }
 
                 // Obtener el usuario
-                var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == cambioContraseñaDto.IdUsuario);
+                var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
 
                 if (usuario == null)
                 {
@@ -309,19 +304,6 @@ namespace Backend.Services
                         Exitoso = false,
                         Mensaje = "Usuario no encontrado",
                         Errores = new List<string> { "El usuario especificado no existe" }
-                    };
-                }
-
-                // Verificar que la contraseña actual es correcta
-                bool contraseñaActualValida = BCrypt.Net.BCrypt.Verify(cambioContraseñaDto.ContraseñaActual, usuario.Password);
-
-                if (!contraseñaActualValida)
-                {
-                    return new RespuestaCambioContrasenaDTO
-                    {
-                        Exitoso = false,
-                        Mensaje = "La contraseña actual es incorrecta",
-                        Errores = new List<string> { "La contraseña actual no coincide" }
                     };
                 }
 

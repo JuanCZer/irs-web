@@ -13,6 +13,8 @@ public class IRSDbContext : DbContext
     public DbSet<FichaInformativa> Fichas { get; set; }
     public DbSet<Usuario> Usuarios { get; set; }
     public DbSet<CatRol> CatRoles { get; set; }
+    public DbSet<AuditoriaEvento> AuditoriaEventos { get; set; }
+    public DbSet<SesionUsuario> SesionesUsuario { get; set; }
     
     // Catálogos
     public DbSet<CatSector> CatSectores { get; set; }
@@ -37,6 +39,22 @@ public class IRSDbContext : DbContext
             .WithMany()
             .HasForeignKey(u => u.IdRol)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<AuditoriaEvento>()
+            .HasOne(a => a.UsuarioRelacionado)
+            .WithMany()
+            .HasForeignKey(a => a.IdUsuario)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<AuditoriaEvento>()
+            .Property(a => a.Detalles)
+            .HasColumnType("jsonb");
+
+        modelBuilder.Entity<SesionUsuario>()
+            .HasOne(s => s.Usuario)
+            .WithMany()
+            .HasForeignKey(s => s.IdUsuario)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Configuración de FichaInformativa - mapear a la tabla "ficha"
         modelBuilder.Entity<FichaInformativa>(entity =>

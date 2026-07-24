@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
 
 export interface ValidarFichaDespachoRequest {
   idFicha: number;
@@ -24,12 +25,14 @@ export interface FichaDespachoResponse {
   providedIn: 'root',
 })
 export class DespachoService {
-  private apiUrl = 'http://localhost:5000/api/despacho';
+  private apiUrl = 'https://localhost:5001/api/despacho';
+
+  constructor(private api: ApiService) {}
 
   async validarFicha(
     request: ValidarFichaDespachoRequest
   ): Promise<FichaDespachoResponse[]> {
-    const response = await fetch(`${this.apiUrl}/validar`, {
+    const response = await this.api.fetch(`${this.apiUrl}/validar`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -48,7 +51,7 @@ export class DespachoService {
   async obtenerFichasDespacho(
     idFicha: number
   ): Promise<FichaDespachoResponse[]> {
-    const response = await fetch(`${this.apiUrl}/ficha/${idFicha}`);
+    const response = await this.api.fetch(`${this.apiUrl}/ficha/${idFicha}`);
 
     if (!response.ok) {
       const errorData = await response.json();

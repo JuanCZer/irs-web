@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
 
 export interface UsuarioDTO {
   idUsuario: number;
@@ -18,7 +19,6 @@ export interface UsuarioDTO {
 }
 
 export interface CrearUsuarioDTO {
-  idUsuarioCrea?: number; // ID del usuario que crea (debe ser Admin)
   nombre?: string;
   app?: string;
   apm?: string;
@@ -46,8 +46,6 @@ export interface CatRol {
 }
 
 export interface CambiarContrasenaDTO {
-  idUsuario: number;
-  contraseñaActual: string;
   contraseñaNueva: string;
   confirmarContraseña: string;
 }
@@ -65,12 +63,12 @@ export class UsuariosService {
   private apiUrl = 'https://localhost:5001/api/usuarios';
   private rolesApiUrl = 'https://localhost:5001/api/roles';
 
-  constructor() {}
+  constructor(private api: ApiService) {}
 
   async obtenerRoles(): Promise<CatRol[]> {
     try {
 
-      const response = await fetch(this.rolesApiUrl, {
+      const response = await this.api.fetch(this.rolesApiUrl, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -102,7 +100,7 @@ export class UsuariosService {
 
   async obtenerTodosLosUsuarios(): Promise<UsuarioDTO[]> {
     try {
-      const response = await fetch(this.apiUrl);
+      const response = await this.api.fetch(this.apiUrl);
 
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
@@ -117,7 +115,7 @@ export class UsuariosService {
 
   async obtenerUsuarioPorId(id: number): Promise<UsuarioDTO> {
     try {
-      const response = await fetch(`${this.apiUrl}/${id}`);
+      const response = await this.api.fetch(`${this.apiUrl}/${id}`);
 
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
@@ -132,7 +130,7 @@ export class UsuariosService {
 
   async crearUsuario(usuario: CrearUsuarioDTO): Promise<UsuarioDTO> {
     try {
-      const response = await fetch(this.apiUrl, {
+      const response = await this.api.fetch(this.apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,7 +155,7 @@ export class UsuariosService {
     usuario: ActualizarUsuarioDTO,
   ): Promise<void> {
     try {
-      const response = await fetch(`${this.apiUrl}/${id}`, {
+      const response = await this.api.fetch(`${this.apiUrl}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -176,7 +174,7 @@ export class UsuariosService {
 
   async eliminarUsuario(id: number): Promise<void> {
     try {
-      const response = await fetch(`${this.apiUrl}/${id}`, {
+      const response = await this.api.fetch(`${this.apiUrl}/${id}`, {
         method: 'DELETE',
       });
 
@@ -193,7 +191,7 @@ export class UsuariosService {
     cambioContraseña: CambiarContrasenaDTO,
   ): Promise<RespuestaCambioContrasenaDTO> {
     try {
-      const response = await fetch(
+      const response = await this.api.fetch(
         'https://localhost:5001/api/auth/cambiar-contrasena',
         {
           method: 'POST',
