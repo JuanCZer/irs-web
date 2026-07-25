@@ -123,8 +123,11 @@
   [lugar]="fichaSeleccionada?.lugar || ''"
   [prioridad]="fichaSeleccionada?.prioridad || ''"
   [medidasSeguridad]="medidasSeguridad"
+  [medidasSeleccionadas]="medidasSeleccionadasIds"
+  [comentarioInicial]="comentarioTemporal"
   (cerrar)="cerrarModal()"
   (aplicar)="onAplicarMedidas($event)"
+  (borradorChange)="onBorradorMedidasChange($event)"
 ></app-modal-medidas>
 
 <!-- Modal para ver detalles de ficha -->

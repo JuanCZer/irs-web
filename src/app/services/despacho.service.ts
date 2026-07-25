@@ -21,13 +21,46 @@ export interface FichaDespachoResponse {
   nombreUsuario?: string;
 }
 
+export interface BorradorMedidasDespacho {
+  medidas: number[];
+  comentario: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class DespachoService {
   private apiUrl = 'https://localhost:5001/api/despacho';
+  private borradoresMedidas = new Map<number, BorradorMedidasDespacho>();
 
   constructor(private api: ApiService) {}
+
+  guardarBorradorMedidas(
+    idFicha: number,
+    borrador: BorradorMedidasDespacho
+  ): void {
+    this.borradoresMedidas.set(idFicha, {
+      medidas: [...borrador.medidas],
+      comentario: borrador.comentario,
+    });
+  }
+
+  obtenerBorradorMedidas(
+    idFicha: number
+  ): BorradorMedidasDespacho | undefined {
+    const borrador = this.borradoresMedidas.get(idFicha);
+
+    return borrador
+      ? {
+          medidas: [...borrador.medidas],
+          comentario: borrador.comentario,
+        }
+      : undefined;
+  }
+
+  eliminarBorradorMedidas(idFicha: number): void {
+    this.borradoresMedidas.delete(idFicha);
+  }
 
   async validarFicha(
     request: ValidarFichaDespachoRequest

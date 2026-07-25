@@ -136,12 +136,13 @@ export class DespachoComponent implements OnInit {
 
   abrirModalMedidas(ficha: FichaDespacho): void {
     this.fichaSeleccionada = ficha;
-    this.medidasSeleccionadasIds = [];
-    this.comentarioTemporal = '';
+    this.cargarBorradorMedidas(ficha.idFicha);
     this.mostrarModalMedidas = true;
   }
 
   abrirModalValidar(ficha: FichaDespacho): void {
+    this.cargarBorradorMedidas(ficha.idFicha);
+
     if (this.medidasSeleccionadasIds.length === 0) {
       alert(
         'Primero debe seleccionar las medidas de seguridad usando el botón "Medidas"'
@@ -180,11 +181,21 @@ export class DespachoComponent implements OnInit {
     this.fichaDetalleCompleta = null;
   }
 
+  onBorradorMedidasChange(event: AplicarMedidasEvent): void {
+    if (!this.fichaSeleccionada) return;
+
+    this.medidasSeleccionadasIds = [...event.medidas];
+    this.comentarioTemporal = event.comentario;
+    this.despachoService.guardarBorradorMedidas(
+      this.fichaSeleccionada.idFicha,
+      event
+    );
+  }
+
   async onAplicarMedidas(event: AplicarMedidasEvent): Promise<void> {
     if (!this.fichaSeleccionada) return;
 
-    this.medidasSeleccionadasIds = event.medidas;
-    this.comentarioTemporal = event.comentario;
+    this.onBorradorMedidasChange(event);
 
     alert(
       `Se han seleccionado ${event.medidas.length} medidas. Ahora use el botón "Validar" para subir la evidencia.`
@@ -197,11 +208,11 @@ export class DespachoComponent implements OnInit {
     if (!this.fichaSeleccionada) return;
 
     try {
-
+      const idFicha = this.fichaSeleccionada.idFicha;
       const usuario = this.authService.currentUserValue;
 
       await this.despachoService.validarFicha({
-        idFicha: this.fichaSeleccionada.idFicha,
+        idFicha,
         idsMedidasSeguridad: this.medidasSeleccionadasIds,
         comentario: this.comentarioTemporal,
         evidencia: event.evidencias,
@@ -209,6 +220,7 @@ export class DespachoComponent implements OnInit {
       });
 
       alert('Ficha validada correctamente con evidencia');
+      this.despachoService.eliminarBorradorMedidas(idFicha);
       this.cerrarModal();
 
       // Limpiar datos temporales
@@ -217,6 +229,12 @@ export class DespachoComponent implements OnInit {
     } catch (error) {
       alert('Error al validar la ficha. Intente nuevamente.');
     }
+  }
+
+  private cargarBorradorMedidas(idFicha: number): void {
+    const borrador = this.despachoService.obtenerBorradorMedidas(idFicha);
+    this.medidasSeleccionadasIds = borrador?.medidas ?? [];
+    this.comentarioTemporal = borrador?.comentario ?? '';
   }
 
   getPrioridadClass(prioridad: string): string {

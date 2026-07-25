@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CatMedidaSeguridad } from '../../services/catalogos.service';
@@ -15,7 +22,7 @@ export interface AplicarMedidasEvent {
   templateUrl: './modal-medidas.component.html',
   styleUrl: './modal-medidas.component.less',
 })
-export class ModalMedidasComponent {
+export class ModalMedidasComponent implements OnChanges {
   @Input() visible = false;
   @Input() folioFicha = '';
   @Input() delegacion = '';
@@ -23,12 +30,29 @@ export class ModalMedidasComponent {
   @Input() lugar = '';
   @Input() prioridad = '';
   @Input() medidasSeguridad: CatMedidaSeguridad[] = [];
+  @Input() medidasSeleccionadas: number[] = [];
+  @Input() comentarioInicial = '';
 
   @Output() cerrar = new EventEmitter<void>();
   @Output() aplicar = new EventEmitter<AplicarMedidasEvent>();
+  @Output() borradorChange = new EventEmitter<AplicarMedidasEvent>();
 
   comentario = '';
   medidasSeleccionadasMap: { [key: number]: boolean } = {};
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      this.visible &&
+      (changes['visible'] ||
+        changes['medidasSeleccionadas'] ||
+        changes['comentarioInicial'])
+    ) {
+      this.comentario = this.comentarioInicial;
+      this.medidasSeleccionadasMap = Object.fromEntries(
+        this.medidasSeleccionadas.map((id) => [id, true])
+      );
+    }
+  }
 
   get medidasSeleccionadasCount(): number {
     return Object.values(this.medidasSeleccionadasMap).filter((v) => v).length;
@@ -41,9 +65,18 @@ export class ModalMedidasComponent {
   }
 
   onCerrar(): void {
-    this.comentario = '';
-    this.medidasSeleccionadasMap = {};
+    this.emitirBorrador();
     this.cerrar.emit();
+  }
+
+  onMedidaChange(idMedida: number, seleccionada: boolean): void {
+    this.medidasSeleccionadasMap[idMedida] = seleccionada;
+    this.emitirBorrador();
+  }
+
+  onComentarioChange(comentario: string): void {
+    this.comentario = comentario;
+    this.emitirBorrador();
   }
 
   onAplicar(): void {
@@ -60,9 +93,14 @@ export class ModalMedidasComponent {
       medidas: medidasIds,
       comentario: this.comentario,
     });
+  }
 
-    this.comentario = '';
-    this.medidasSeleccionadasMap = {};
+  private emitirBorrador(): void {
+    const medidas = Object.keys(this.medidasSeleccionadasMap)
+      .filter((key) => this.medidasSeleccionadasMap[+key])
+      .map((key) => +key);
+
+    this.borradorChange.emit({ medidas, comentario: this.comentario });
   }
 
   getPrioridadClass(prioridad: string): string {

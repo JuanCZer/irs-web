@@ -60,7 +60,8 @@
           >
             <input
               type="checkbox"
-              [(ngModel)]="medidasSeleccionadasMap[medida.idCatMedida]"
+              [ngModel]="medidasSeleccionadasMap[medida.idCatMedida]"
+              (ngModelChange)="onMedidaChange(medida.idCatMedida, $event)"
             />
             <span class="checkmark"></span>
             <span class="medida-nombre">{{ medida.medida }}</span>
@@ -73,7 +74,8 @@
         <h3>Comentarios adicionales:</h3>
         <textarea
           class="comentario-textarea"
-          [(ngModel)]="comentario"
+          [ngModel]="comentario"
+          (ngModelChange)="onComentarioChange($event)"
           placeholder="Ingrese observaciones o detalles sobre las medidas a aplicar..."
           rows="4"
         ></textarea>
