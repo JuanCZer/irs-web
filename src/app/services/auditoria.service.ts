@@ -93,7 +93,7 @@ export class AuditoriaService {
 
   async logNavigation(path: string): Promise<void> {
     try {
-      await this.api.fetch(`${this.apiUrl}/events`, {
+      await this.api.fetch(`${this.apiUrl}/eventos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path }),

@@ -56,7 +56,7 @@ export class CatalogosService {
 
   async getSectors(): Promise<CatSector[]> {
     try {
-      const response = await this.api.fetch(`${this.apiUrl}/sectors`);
+      const response = await this.api.fetch(`${this.apiUrl}/sectores`);
       if (!response.ok) {
         throw new Error(`Error al get sectors: ${response.statusText}`);
       }
@@ -68,7 +68,7 @@ export class CatalogosService {
 
   async getSubsectors(): Promise<CatSubsector[]> {
     try {
-      const response = await this.api.fetch(`${this.apiUrl}/subsectors`);
+      const response = await this.api.fetch(`${this.apiUrl}/subsectores`);
       if (!response.ok) {
         throw new Error(`Error al get subsectors: ${response.statusText}`);
       }
@@ -81,7 +81,7 @@ export class CatalogosService {
   async getSubsectorsBySector(sectorId: number): Promise<CatSubsector[]> {
     try {
       const response = await this.api.fetch(
-        `${this.apiUrl}/subsectors/sector/${sectorId}`,
+        `${this.apiUrl}/subsectores/sector/${sectorId}`,
       );
       if (!response.ok) {
         throw new Error(`Error al get subsectors: ${response.statusText}`);
@@ -94,7 +94,7 @@ export class CatalogosService {
 
   async getPriorities(): Promise<CatPrioridad[]> {
     try {
-      const response = await this.api.fetch(`${this.apiUrl}/priorities`);
+      const response = await this.api.fetch(`${this.apiUrl}/prioridades`);
       if (!response.ok) {
         throw new Error(`Error al get priorities: ${response.statusText}`);
       }
@@ -106,7 +106,7 @@ export class CatalogosService {
 
   async getConditions(): Promise<CatCondicion[]> {
     try {
-      const response = await this.api.fetch(`${this.apiUrl}/conditions`);
+      const response = await this.api.fetch(`${this.apiUrl}/condiciones`);
       if (!response.ok) {
         throw new Error(`Error al get conditions: ${response.statusText}`);
       }
@@ -118,7 +118,7 @@ export class CatalogosService {
 
   async getInformationItems(): Promise<CatInformacion[]> {
     try {
-      const response = await this.api.fetch(`${this.apiUrl}/informationItems`);
+      const response = await this.api.fetch(`${this.apiUrl}/informaciones`);
       if (!response.ok) {
         throw new Error(
           `Error al get informationItems: ${response.statusText}`,
@@ -132,7 +132,7 @@ export class CatalogosService {
 
   async getMunicipalities(): Promise<CatMunicipio[]> {
     try {
-      const response = await this.api.fetch(`${this.apiUrl}/municipalities`);
+      const response = await this.api.fetch(`${this.apiUrl}/municipios`);
       if (!response.ok) {
         throw new Error(`Error al get municipalities: ${response.statusText}`);
       }
@@ -144,7 +144,7 @@ export class CatalogosService {
 
   async getDelegations(): Promise<CatDelegacion[]> {
     try {
-      const response = await this.api.fetch(`${this.apiUrl}/delegations`);
+      const response = await this.api.fetch(`${this.apiUrl}/delegaciones`);
       if (!response.ok) {
         throw new Error(
           `Error al get delegations: ${response.statusText}`,
@@ -158,7 +158,7 @@ export class CatalogosService {
 
   async getSecurityMeasures(): Promise<CatMedidaSeguridad[]> {
     try {
-      const response = await this.api.fetch(`${this.apiUrl}/measures-seguridad`);
+      const response = await this.api.fetch(`${this.apiUrl}/medidas-seguridad`);
 
       if (!response.ok) {
         const errorText = await response.text();

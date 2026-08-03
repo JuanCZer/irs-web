@@ -31,6 +31,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     ['/consultar-fichas/todas', 'Consulta histórica'],
     ['/mapa-fichas', 'Mapa de fichas'],
     ['/estadisticas', 'Estadísticas'],
+    ['/drones', 'Operación de drones'],
     ['/despacho', 'Despacho'],
     ['/admin-usuarios/registrar', 'Registrar usuario'],
     ['/admin-usuarios/editar', 'Administración de usuarios'],

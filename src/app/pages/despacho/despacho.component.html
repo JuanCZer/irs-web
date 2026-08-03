@@ -76,11 +76,19 @@
             <div class="acciones-container">
               <button
                 class="btn-medidas"
+                [class.has-selection]="getSavedMeasureCount(report.reportId) > 0"
                 (click)="openMeasuresModal(report)"
                 title="Aplicar medidas de seguridad"
               >
                 <i class="fi fi-rr-shield"></i>
                 Medidas
+                <span
+                  *ngIf="getSavedMeasureCount(report.reportId) as measureCount"
+                  class="selection-count"
+                  [attr.aria-label]="measureCount + ' medidas seleccionadas'"
+                >
+                  {{ measureCount }}
+                </span>
               </button>
               <button
                 class="btn-validar"
@@ -127,7 +135,7 @@
   [initialComment]="temporaryComment"
   (close)="closeModal()"
   (apply)="onApplyMeasures($event)"
-  (draftChange)="onMeasuresDraftChange($event)"
+  (selectionChange)="onMeasuresDraftChange($event)"
 ></app-modal-medidas>
 
 

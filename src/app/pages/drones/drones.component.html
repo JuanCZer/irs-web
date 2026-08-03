@@ -1,0 +1,262 @@
+<section class="drones-page" aria-labelledby="drones-page-title">
+  <header class="drones-header">
+    <div class="header-copy">
+      <span class="eyebrow">Despacho · operación aérea</span>
+      <h1 id="drones-page-title">
+        <i class="fi fi-rr-drone" aria-hidden="true"></i>
+        Drones
+      </h1>
+      <p>
+        Consulta las fichas asociadas a un dron y revisa su actividad de vuelo
+        organizada por día.
+      </p>
+    </div>
+
+    <div class="integration-state" role="status">
+      <span class="integration-icon">
+        <i class="fi fi-rr-cloud-disabled" aria-hidden="true"></i>
+      </span>
+      <span>
+        <strong>Skydio pendiente de conexión</strong>
+        <small>La estructura de telemetría ya está preparada</small>
+      </span>
+    </div>
+  </header>
+
+  <div class="summary-grid" aria-label="Resumen de drones">
+    <article class="summary-card">
+      <span class="summary-icon"><i class="fi fi-rr-drone"></i></span>
+      <span><strong>{{ drones.length }}</strong><small>Operaciones de dron</small></span>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon"><i class="fi fi-rr-memo-circle-check"></i></span>
+      <span><strong>{{ linkedReportCount }}</strong><small>Fichas vinculadas</small></span>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon warning"><i class="fi fi-rr-refresh"></i></span>
+      <span><strong>{{ pendingSyncCount }}</strong><small>Pendientes de sincronizar</small></span>
+    </article>
+  </div>
+
+  <section class="fleet-panel" aria-labelledby="fleet-title">
+    <div class="panel-heading">
+      <div>
+        <span class="section-kicker">Control de flota</span>
+        <h2 id="fleet-title">Drones vinculados a Despacho</h2>
+      </div>
+
+      <div class="table-actions">
+        <label class="search-control">
+          <span class="sr-only">Buscar dron o ficha</span>
+          <i class="fi fi-rr-search" aria-hidden="true"></i>
+          <input
+            type="search"
+            [(ngModel)]="searchTerm"
+            placeholder="Buscar dron, folio o ubicación"
+          />
+        </label>
+        <button type="button" class="refresh-button" (click)="loadDrones()" [disabled]="loading">
+          <i class="fi fi-rr-refresh" [class.fa-spin]="loading" aria-hidden="true"></i>
+          Actualizar
+        </button>
+      </div>
+    </div>
+
+    <div class="context-note">
+      <i class="fi fi-rr-info" aria-hidden="true"></i>
+      <span>
+        Solo aparecen fichas cuya medida seleccionada o validada en Despacho es
+        <strong>Monitoreo Policial: Despliegue de Dron</strong>.
+      </span>
+    </div>
+
+    <div *ngIf="loading" class="panel-state" role="status">
+      <i class="fi fi-rr-spinner fa-spin" aria-hidden="true"></i>
+      <strong>Cargando operación de drones…</strong>
+    </div>
+
+    <div *ngIf="!loading && errorMessage" class="panel-state error-state" role="alert">
+      <i class="fi fi-rr-triangle-warning" aria-hidden="true"></i>
+      <strong>{{ errorMessage }}</strong>
+      <span>Verifica que el backend de IRS esté disponible.</span>
+      <button type="button" (click)="loadDrones()">Intentar de nuevo</button>
+    </div>
+
+    <div *ngIf="!loading && !errorMessage && filteredDrones.length" class="table-scroll">
+      <table class="drones-table">
+        <thead>
+          <tr>
+            <th>Dron</th>
+            <th>Estado</th>
+            <th>Ficha vinculada</th>
+            <th>Última actividad</th>
+            <th>Histórico de dron</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let drone of filteredDrones; trackBy: trackDrone"
+            [class.selected-row]="selectedDrone?.id === drone.id"
+          >
+            <td data-label="Dron">
+              <div class="drone-identity">
+                <span class="drone-symbol"><i class="fi fi-rr-drone"></i></span>
+                <span><strong>{{ drone.name }}</strong><small>{{ drone.model }}</small></span>
+              </div>
+            </td>
+            <td data-label="Estado">
+              <span class="status-pill" [class]="'status-pill ' + drone.status">
+                <span></span>{{ getStatusLabel(drone.status) }}
+              </span>
+            </td>
+            <td data-label="Ficha vinculada">
+              <div class="report-cell">
+                <strong>{{ drone.linkedReport.referenceNumber }}</strong>
+                <small>{{ drone.linkedReport.municipality }} · {{ drone.linkedReport.place }}</small>
+              </div>
+            </td>
+            <td data-label="Última actividad">
+              <span class="activity-date">{{ formatDateTime(drone.lastActivity) }}</span>
+            </td>
+            <td data-label="Histórico de dron">
+              <button type="button" class="history-button" (click)="selectDrone(drone)">
+                <i class="fi fi-rr-time-past" aria-hidden="true"></i>
+                Ver histórico
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div
+      *ngIf="!loading && !errorMessage && !filteredDrones.length"
+      class="panel-state empty-state"
+    >
+      <span class="empty-illustration"><i class="fi fi-rr-drone"></i></span>
+      <strong>{{ searchTerm ? 'No hay coincidencias' : 'Todavía no hay fichas para dron' }}</strong>
+      <span *ngIf="!searchTerm">
+        En cuanto selecciones “Monitoreo Policial: Despliegue de Dron” en
+        Despacho, la ficha aparecerá aquí como pendiente de validación.
+      </span>
+      <button *ngIf="searchTerm" type="button" (click)="searchTerm = ''">Limpiar búsqueda</button>
+    </div>
+  </section>
+
+  <section
+    *ngIf="selectedDrone as drone"
+    id="drone-history"
+    class="history-panel"
+    aria-labelledby="history-title"
+  >
+    <div class="history-heading">
+      <div>
+        <span class="section-kicker">Historial operativo</span>
+        <h2 id="history-title">{{ drone.name }}</h2>
+        <p>{{ drone.model }} · ficha {{ drone.linkedReport.referenceNumber }}</p>
+      </div>
+      <button type="button" class="close-history" (click)="clearSelection()" aria-label="Cerrar histórico">
+        <i class="fi fi-rr-cross-small" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="day-search">
+      <div class="day-copy">
+        <i class="fi fi-rr-calendar-day" aria-hidden="true"></i>
+        <span><strong>Consulta obligatoria por día</strong><small>El historial muestra un día a la vez.</small></span>
+      </div>
+      <div class="date-stepper">
+        <button type="button" (click)="changeDay(-1)" aria-label="Día anterior">
+          <i class="fi fi-rr-angle-small-left" aria-hidden="true"></i>
+        </button>
+        <label>
+          <span class="sr-only">Día del historial</span>
+          <input type="date" [(ngModel)]="selectedDay" required />
+        </label>
+        <button type="button" (click)="changeDay(1)" aria-label="Día siguiente">
+          <i class="fi fi-rr-angle-small-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="day-divider">
+      <span>{{ formatDay(selectedDay) }}</span>
+      <small>{{ flightsForSelectedDay.length }} {{ flightsForSelectedDay.length === 1 ? 'registro' : 'registros' }}</small>
+    </div>
+
+    <div *ngIf="!flightsForSelectedDay.length" class="no-flights">
+      <i class="fi fi-rr-calendar-exclamation" aria-hidden="true"></i>
+      <strong>No hay actividad para este día</strong>
+      <span>Selecciona otra fecha para continuar la consulta.</span>
+    </div>
+
+    <article
+      *ngFor="let flight of flightsForSelectedDay; trackBy: trackFlight"
+      class="flight-card"
+    >
+      <div class="route-preview" [class.route-pending]="flight.route.length < 2">
+        <svg
+          *ngIf="flight.route.length > 1"
+          viewBox="0 0 360 200"
+          role="img"
+          aria-label="Ruta recorrida por el dron"
+        >
+          <defs>
+            <pattern id="route-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+              <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#dce4e7" stroke-width="1" />
+            </pattern>
+          </defs>
+          <rect width="360" height="200" fill="url(#route-grid)" />
+          <polyline
+            [attr.points]="routePolyline(flight.route)"
+            fill="none"
+            stroke="#466b7b"
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <div *ngIf="flight.route.length < 2" class="route-placeholder">
+          <span class="radar-rings"><i class="fi fi-rr-route"></i></span>
+          <strong>Ruta pendiente de sincronización</strong>
+          <small>La telemetría de Skydio se dibujará aquí.</small>
+        </div>
+
+        <span class="map-caption">
+          <i class="fi fi-rr-marker" aria-hidden="true"></i>
+          {{ flight.report.municipality }}, {{ flight.report.delegation }}
+        </span>
+      </div>
+
+      <div class="flight-content">
+        <div class="flight-title-row">
+          <div>
+            <span class="flight-status" [class]="'flight-status ' + flight.status">
+              {{ getFlightStatusLabel(flight.status) }}
+            </span>
+            <h3>{{ flight.purpose }}</h3>
+          </div>
+          <span class="flight-time">{{ formatDateTime(flight.startedAt) }}</span>
+        </div>
+
+        <p class="flight-description">
+          {{ flight.report.comment || 'Sin comentarios adicionales de Despacho.' }}
+        </p>
+
+        <dl class="flight-metrics">
+          <div><dt>Duración</dt><dd>{{ flight.durationMinutes != null ? flight.durationMinutes + ' min' : 'Pendiente' }}</dd></div>
+          <div><dt>Distancia</dt><dd>{{ flight.distanceKilometers != null ? flight.distanceKilometers + ' km' : 'Pendiente' }}</dd></div>
+          <div><dt>Altitud máxima</dt><dd>{{ flight.maximumAltitudeMeters != null ? flight.maximumAltitudeMeters + ' m' : 'Pendiente' }}</dd></div>
+          <div><dt>Coordenadas</dt><dd>{{ formatCoordinates(flight) }}</dd></div>
+        </dl>
+
+        <div class="linked-report">
+          <span class="report-badge"><i class="fi fi-rr-memo-circle-check"></i> Ficha vinculada</span>
+          <strong>{{ flight.report.referenceNumber }}</strong>
+          <span>{{ flight.report.place }} · {{ flight.report.subject }}</span>
+        </div>
+      </div>
+    </article>
+  </section>
+</section>

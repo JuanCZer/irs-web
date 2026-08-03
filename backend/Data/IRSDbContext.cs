@@ -28,6 +28,7 @@ public class IRSDbContext : DbContext
 
 
     public DbSet<DispatchReport> DispatchReports { get; set; }
+    public DbSet<DispatchMeasureDraft> DispatchMeasureDrafts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

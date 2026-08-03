@@ -73,6 +73,15 @@ export class DespachoComponent implements OnInit {
   ngOnInit(): void {
     this.loadReports();
     this.loadSecurityMeasures();
+    void this.loadSavedMeasureDrafts();
+  }
+
+  private async loadSavedMeasureDrafts(): Promise<void> {
+    try {
+      await this.dispatchService.loadMeasureDraftsFromServer();
+    } catch {
+      // Los borradores locales siguen disponibles si el backend no responde.
+    }
   }
 
   async loadSecurityMeasures(): Promise<void> {
@@ -186,10 +195,20 @@ export class DespachoComponent implements OnInit {
 
     this.selectedMeasureIds = [...event.measures];
     this.temporaryComment = event.comment;
+    const measureNames = this.securityMeasures
+      .filter((measure) => event.measures.includes(measure.measureCategoryId))
+      .map((measure) => measure.measure);
+
     this.dispatchService.saveMeasuresDraft(
       this.selectedReport.reportId,
-      event
+      {
+        ...event,
+        measureNames,
+        updatedAt: new Date().toISOString(),
+        report: { ...this.selectedReport },
+      }
     );
+    this.dispatchService.queueMeasureDraftSync(this.selectedReport.reportId);
   }
 
   async onApplyMeasures(event: AplicarMedidasEvent): Promise<void> {
@@ -235,6 +254,10 @@ export class DespachoComponent implements OnInit {
     const draft = this.dispatchService.getMeasuresDraft(reportId);
     this.selectedMeasureIds = draft?.measures ?? [];
     this.temporaryComment = draft?.comment ?? '';
+  }
+
+  getSavedMeasureCount(reportId: number): number {
+    return this.dispatchService.getMeasuresDraft(reportId)?.measures.length ?? 0;
   }
 
   getPriorityClass(priority: string): string {

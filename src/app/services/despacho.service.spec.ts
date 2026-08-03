@@ -1,10 +1,14 @@
 import { ApiService } from './api.service';
-import { DespachoService } from './despacho.service';
+import {
+  DISPATCH_DRAFT_STORAGE_KEY,
+  DespachoService,
+} from './despacho.service';
 
 describe('DespachoService', () => {
   let service: DespachoService;
 
   beforeEach(() => {
+    localStorage.removeItem(DISPATCH_DRAFT_STORAGE_KEY);
     service = new DespachoService({} as ApiService);
   });
 
@@ -34,5 +38,19 @@ describe('DespachoService', () => {
     service.deleteMeasuresDraft(10);
 
     expect(service.getMeasuresDraft(10)).toBeUndefined();
+  });
+
+  it('restaura el estado seleccionado después de recargar el servicio', () => {
+    service.saveMeasuresDraft(30, {
+      measures: [4, 6],
+      comment: 'Mantener monitoreo',
+    });
+
+    const restoredService = new DespachoService({} as ApiService);
+
+    expect(restoredService.getMeasuresDraft(30)).toEqual({
+      measures: [4, 6],
+      comment: 'Mantener monitoreo',
+    });
   });
 });

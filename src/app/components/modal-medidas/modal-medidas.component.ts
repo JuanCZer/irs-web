@@ -35,6 +35,8 @@ export class ModalMedidasComponent implements OnChanges {
 
   @Output() close = new EventEmitter<void>();
   @Output() apply = new EventEmitter<AplicarMedidasEvent>();
+  @Output() selectionChange = new EventEmitter<AplicarMedidasEvent>();
+  /** @deprecated Use selectionChange para cambios inmediatos. */
   @Output() draftChange = new EventEmitter<AplicarMedidasEvent>();
 
   comment = '';
@@ -44,8 +46,8 @@ export class ModalMedidasComponent implements OnChanges {
     if (
       this.visible &&
       (changes['visible'] ||
-        changes['medidasSeleccionadas'] ||
-        changes['comentarioInicial'])
+        changes['selectedMeasures'] ||
+        changes['initialComment'])
     ) {
       this.comment = this.initialComment;
       this.selectedMeasuresMap = Object.fromEntries(
@@ -100,7 +102,9 @@ export class ModalMedidasComponent implements OnChanges {
       .filter((key) => this.selectedMeasuresMap[+key])
       .map((key) => +key);
 
-    this.draftChange.emit({ measures, comment: this.comment });
+    const selection = { measures, comment: this.comment };
+    this.selectionChange.emit(selection);
+    this.draftChange.emit(selection);
   }
 
   getPriorityClass(priority: string): string {

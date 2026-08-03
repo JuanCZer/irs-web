@@ -223,7 +223,7 @@ export class FichasService {
   async searchReports(criteria: string): Promise<FichasTodosDTO[]> {
     try {
       const response = await this.api.fetch(
-        `${this.apiUrl}/search?criteria=${encodeURIComponent(criteria)}`,
+        `${this.apiUrl}/buscar?criteria=${encodeURIComponent(criteria)}`,
       );
       if (!response.ok) {
         throw new Error('Error al buscar fichas');
@@ -276,7 +276,7 @@ export class FichasService {
 
   async getReportsForToday(): Promise<FichasTodosDTO[]> {
     try {
-      const url = `${this.apiUrl}/day-actual`;
+      const url = `${this.apiUrl}/dia-actual`;
 
       const response = await this.api.fetch(url);
 
@@ -294,7 +294,7 @@ export class FichasService {
 
   async getDrafts(): Promise<FichasBorradorDTO[]> {
     try {
-      const url = `${this.apiUrl}/drafts`;
+      const url = `${this.apiUrl}/borradores`;
 
       const response = await this.api.fetch(url);
 
@@ -314,7 +314,7 @@ export class FichasService {
     try {
       const url = `${
         this.apiUrl
-      }/drafts/search?criteria=${encodeURIComponent(criteria)}`;
+      }/borradores/buscar?criteria=${encodeURIComponent(criteria)}`;
 
       const response = await this.api.fetch(url);
 

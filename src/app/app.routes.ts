@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { dispatchGuard } from './guards/dispatch.guard';
 
 export const routes: Routes = [
   {
@@ -146,9 +147,18 @@ export const routes: Routes = [
       },
       {
         path: 'despacho',
+        canActivate: [dispatchGuard],
         loadComponent: () =>
           import('./pages/despacho/despacho.component').then(
             (m) => m.DespachoComponent
+          ),
+      },
+      {
+        path: 'drones',
+        canActivate: [dispatchGuard],
+        loadComponent: () =>
+          import('./pages/drones/drones.component').then(
+            (m) => m.DronesComponent
           ),
       },
     ],

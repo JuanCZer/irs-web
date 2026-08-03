@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { DISPATCH_DRAFT_STORAGE_KEY } from './despacho.service';
 
 export interface LoginCredentials {
   user: string;
@@ -111,6 +112,14 @@ export class AuthService {
     return this.currentUserValue?.roleName?.toUpperCase() === 'ADMIN';
   }
 
+  isDispatch(): boolean {
+    const user = this.currentUserValue;
+    return (
+      user?.roleId === 6 ||
+      user?.roleName?.trim().toUpperCase() === 'DESPACHO'
+    );
+  }
+
   private async validateSessionInternal(): Promise<boolean> {
     try {
       const response = await this.api.fetch(`${this.apiUrl}/me`);
@@ -135,6 +144,7 @@ export class AuthService {
 
   private clearLocalSession(): void {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem(DISPATCH_DRAFT_STORAGE_KEY);
     this.currentUserSubject.next(null);
   }
 }

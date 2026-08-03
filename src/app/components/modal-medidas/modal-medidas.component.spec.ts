@@ -23,7 +23,7 @@ describe('ModalMedidasComponent', () => {
 
   it('conserva y comunica el borrador al cerrar', () => {
     const drafts: Array<{ measures: number[]; comment: string }> = [];
-    component.draftChange.subscribe((draft) =>
+    component.selectionChange.subscribe((draft) =>
       drafts.push(draft)
     );
     component.onMeasureChange(3, true);

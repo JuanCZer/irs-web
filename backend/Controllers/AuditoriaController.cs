@@ -71,6 +71,7 @@ namespace Backend.Controllers
             if (path.StartsWith("/consultar-fichas")) return "Consulta de fichas";
             if (path.StartsWith("/mapa-fichas")) return "Mapa de fichas";
             if (path.StartsWith("/despacho")) return "Despacho";
+            if (path.StartsWith("/drones")) return "Operación de drones";
             if (path.StartsWith("/estadisticas")) return "Estadísticas";
             if (path.StartsWith("/admin-usuarios")) return "Administración de usuarios";
             if (path.StartsWith("/auditoria")) return "Bitácora de actividad";

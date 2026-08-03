@@ -37,8 +37,7 @@ export class NavbarComponent implements OnDestroy {
   }
 
   get isDispatchRole(): boolean {
-    const user = this.authService.currentUserValue;
-    return user?.roleId === 6;
+    return this.authService.isDispatch();
   }
 
   @HostListener('window:resize')
