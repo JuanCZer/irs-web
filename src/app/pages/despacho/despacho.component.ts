@@ -19,15 +19,15 @@ import {
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 interface FichaDespacho {
-  idFicha: number;
-  folio: string;
-  fechaSuceso: string;
-  delegacion: string;
-  municipio: string;
-  lugar: string;
-  prioridad: string;
+  reportId: number;
+  referenceNumber: string;
+  eventDate: string;
+  delegation: string;
+  municipality: string;
+  place: string;
+  priority: string;
   sector: string;
-  asunto: string;
+  subject: string;
 }
 
 @Component({
@@ -44,201 +44,201 @@ interface FichaDespacho {
   styleUrl: './despacho.component.less',
 })
 export class DespachoComponent implements OnInit {
-  fichas: FichaDespacho[] = [];
-  cargando = false;
+  reports: FichaDespacho[] = [];
+  loading = false;
   error = '';
 
-  // Para los modales
-  mostrarModalMedidas = false;
-  mostrarModalValidar = false;
-  mostrarModalVerFicha = false;
-  fichaSeleccionada: FichaDespacho | null = null;
-  fichaDetalleCompleta: FichasTodosDTO | null = null;
 
-  medidasSeguridad: CatMedidaSeguridad[] = [];
-  medidasSeleccionadasIds: number[] = [];
-  comentarioTemporal = '';
+  showMeasuresModal = false;
+  showValidationModal = false;
+  showReportDetailsModal = false;
+  selectedReport: FichaDespacho | null = null;
+  fullReportDetails: FichasTodosDTO | null = null;
 
-  // Paginación
-  paginaActual = 1;
-  fichasPorPagina = 10;
+  securityMeasures: CatMedidaSeguridad[] = [];
+  selectedMeasureIds: number[] = [];
+  temporaryComment = '';
+
+
+  currentPage = 1;
+  reportsPerPage = 10;
 
   constructor(
-    private fichasService: FichasService,
-    private despachoService: DespachoService,
-    private catalogosService: CatalogosService,
+    private reportsService: FichasService,
+    private dispatchService: DespachoService,
+    private catalogsService: CatalogosService,
     private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    this.cargarFichas();
-    this.cargarMedidasSeguridad();
+    this.loadReports();
+    this.loadSecurityMeasures();
   }
 
-  async cargarMedidasSeguridad(): Promise<void> {
+  async loadSecurityMeasures(): Promise<void> {
     try {
-      this.medidasSeguridad =
-        await this.catalogosService.obtenerMedidasSeguridad();
+      this.securityMeasures =
+        await this.catalogsService.getSecurityMeasures();
     } catch (error) {
       this.error = 'Error al cargar las medidas de seguridad';
     }
   }
 
-  async cargarFichas(): Promise<void> {
+  async loadReports(): Promise<void> {
     try {
-      this.cargando = true;
+      this.loading = true;
       this.error = '';
 
-      // Obtener fichas con estado "Concluido" desde el backend
-      const fichasDTO = await this.fichasService.obtenerFichasPorEstado(
+
+      const reportDtos = await this.reportsService.getReportsByStatus(
         'Concluido'
       );
 
-      // Mapear FichasTodosDTO a FichaDespacho
-      this.fichas = fichasDTO.map((dto) => ({
-        idFicha: dto.id,
-        folio: dto.folio,
-        fechaSuceso: dto.fechaSuceso,
-        delegacion: dto.estado, // Estado contiene la delegación
-        municipio: dto.municipio || 'N/A',
-        lugar: dto.lugar || 'N/A',
-        prioridad: dto.prioridad,
+
+      this.reports = reportDtos.map((dto) => ({
+        reportId: dto.id,
+        referenceNumber: dto.referenceNumber,
+        eventDate: dto.eventDate,
+        delegation: dto.state,
+        municipality: dto.municipality || 'N/A',
+        place: dto.place || 'N/A',
+        priority: dto.priority,
         sector: dto.sector,
-        asunto: dto.asunto,
+        subject: dto.subject,
       }));
-      this.paginaActual = Math.min(
-        Math.max(1, this.paginaActual),
-        Math.max(1, this.totalPaginas)
+      this.currentPage = Math.min(
+        Math.max(1, this.currentPage),
+        Math.max(1, this.totalPages)
       );
     } catch (error) {
       this.error =
         'Error al cargar las fichas. Verifique que el backend esté corriendo.';
     } finally {
-      this.cargando = false;
+      this.loading = false;
     }
   }
 
-  get fichasPaginadas(): FichaDespacho[] {
-    const inicio = (this.paginaActual - 1) * this.fichasPorPagina;
-    const fin = inicio + this.fichasPorPagina;
-    return this.fichas.slice(inicio, fin);
+  get paginatedReports(): FichaDespacho[] {
+    const start = (this.currentPage - 1) * this.reportsPerPage;
+    const end = start + this.reportsPerPage;
+    return this.reports.slice(start, end);
   }
 
-  get totalPaginas(): number {
-    return Math.ceil(this.fichas.length / this.fichasPorPagina);
+  get totalPages(): number {
+    return Math.ceil(this.reports.length / this.reportsPerPage);
   }
 
-  cambiarPagina(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginas) {
-      this.paginaActual = pagina;
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
     }
   }
 
-  abrirModalMedidas(ficha: FichaDespacho): void {
-    this.fichaSeleccionada = ficha;
-    this.cargarBorradorMedidas(ficha.idFicha);
-    this.mostrarModalMedidas = true;
+  openMeasuresModal(report: FichaDespacho): void {
+    this.selectedReport = report;
+    this.loadMeasuresDraft(report.reportId);
+    this.showMeasuresModal = true;
   }
 
-  abrirModalValidar(ficha: FichaDespacho): void {
-    this.cargarBorradorMedidas(ficha.idFicha);
+  openValidationModal(report: FichaDespacho): void {
+    this.loadMeasuresDraft(report.reportId);
 
-    if (this.medidasSeleccionadasIds.length === 0) {
+    if (this.selectedMeasureIds.length === 0) {
       alert(
         'Primero debe seleccionar las medidas de seguridad usando el botón "Medidas"'
       );
       return;
     }
-    this.fichaSeleccionada = ficha;
-    this.mostrarModalValidar = true;
+    this.selectedReport = report;
+    this.showValidationModal = true;
   }
 
-  async abrirModalVerFicha(ficha: FichaDespacho): Promise<void> {
+  async openReportDetailsModal(report: FichaDespacho): Promise<void> {
     try {
-      this.fichaSeleccionada = ficha;
-      this.cargando = true;
+      this.selectedReport = report;
+      this.loading = true;
 
-      // Obtener los detalles completos de la ficha
-      const fichasDetalle = await this.fichasService.obtenerFichasPorEstado(
+
+      const reportDetails = await this.reportsService.getReportsByStatus(
         'Concluido'
       );
-      this.fichaDetalleCompleta =
-        fichasDetalle.find((f) => f.id === ficha.idFicha) || null;
+      this.fullReportDetails =
+        reportDetails.find((f) => f.id === report.reportId) || null;
 
-      this.mostrarModalVerFicha = true;
+      this.showReportDetailsModal = true;
     } catch (error) {
       alert('Error al cargar los detalles de la ficha');
     } finally {
-      this.cargando = false;
+      this.loading = false;
     }
   }
 
-  cerrarModal(): void {
-    this.mostrarModalMedidas = false;
-    this.mostrarModalValidar = false;
-    this.mostrarModalVerFicha = false;
-    this.fichaSeleccionada = null;
-    this.fichaDetalleCompleta = null;
+  closeModal(): void {
+    this.showMeasuresModal = false;
+    this.showValidationModal = false;
+    this.showReportDetailsModal = false;
+    this.selectedReport = null;
+    this.fullReportDetails = null;
   }
 
-  onBorradorMedidasChange(event: AplicarMedidasEvent): void {
-    if (!this.fichaSeleccionada) return;
+  onMeasuresDraftChange(event: AplicarMedidasEvent): void {
+    if (!this.selectedReport) return;
 
-    this.medidasSeleccionadasIds = [...event.medidas];
-    this.comentarioTemporal = event.comentario;
-    this.despachoService.guardarBorradorMedidas(
-      this.fichaSeleccionada.idFicha,
+    this.selectedMeasureIds = [...event.measures];
+    this.temporaryComment = event.comment;
+    this.dispatchService.saveMeasuresDraft(
+      this.selectedReport.reportId,
       event
     );
   }
 
-  async onAplicarMedidas(event: AplicarMedidasEvent): Promise<void> {
-    if (!this.fichaSeleccionada) return;
+  async onApplyMeasures(event: AplicarMedidasEvent): Promise<void> {
+    if (!this.selectedReport) return;
 
-    this.onBorradorMedidasChange(event);
+    this.onMeasuresDraftChange(event);
 
     alert(
-      `Se han seleccionado ${event.medidas.length} medidas. Ahora use el botón "Validar" para subir la evidencia.`
+      `Se han seleccionado ${event.measures.length} measures. Ahora use el botón "Validar" para subir la evidence.`
     );
 
-    this.cerrarModal();
+    this.closeModal();
   }
 
-  async onValidarFicha(event: ValidarEvent): Promise<void> {
-    if (!this.fichaSeleccionada) return;
+  async onValidateReport(event: ValidarEvent): Promise<void> {
+    if (!this.selectedReport) return;
 
     try {
-      const idFicha = this.fichaSeleccionada.idFicha;
-      const usuario = this.authService.currentUserValue;
+      const reportId = this.selectedReport.reportId;
+      const user = this.authService.currentUserValue;
 
-      await this.despachoService.validarFicha({
-        idFicha,
-        idsMedidasSeguridad: this.medidasSeleccionadasIds,
-        comentario: this.comentarioTemporal,
-        evidencia: event.evidencias,
-        idUsuario: usuario?.idUsuario,
+      await this.dispatchService.validateReport({
+        reportId,
+        securityMeasureIds: this.selectedMeasureIds,
+        comment: this.temporaryComment,
+        evidence: event.evidenceFiles,
+        userId: user?.userId,
       });
 
       alert('Ficha validada correctamente con evidencia');
-      this.despachoService.eliminarBorradorMedidas(idFicha);
-      this.cerrarModal();
+      this.dispatchService.deleteMeasuresDraft(reportId);
+      this.closeModal();
 
-      // Limpiar datos temporales
-      this.medidasSeleccionadasIds = [];
-      this.comentarioTemporal = '';
+
+      this.selectedMeasureIds = [];
+      this.temporaryComment = '';
     } catch (error) {
       alert('Error al validar la ficha. Intente nuevamente.');
     }
   }
 
-  private cargarBorradorMedidas(idFicha: number): void {
-    const borrador = this.despachoService.obtenerBorradorMedidas(idFicha);
-    this.medidasSeleccionadasIds = borrador?.medidas ?? [];
-    this.comentarioTemporal = borrador?.comentario ?? '';
+  private loadMeasuresDraft(reportId: number): void {
+    const draft = this.dispatchService.getMeasuresDraft(reportId);
+    this.selectedMeasureIds = draft?.measures ?? [];
+    this.temporaryComment = draft?.comment ?? '';
   }
 
-  getPrioridadClass(prioridad: string): string {
-    switch (prioridad?.toLowerCase()) {
+  getPriorityClass(priority: string): string {
+    switch (priority?.toLowerCase()) {
       case 'alta':
         return 'prioridad-alta';
       case 'media':

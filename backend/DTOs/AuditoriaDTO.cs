@@ -2,74 +2,74 @@ namespace Backend.DTOs
 {
     public class AuditoriaConsultaDTO
     {
-        public string? Busqueda { get; set; }
-        public int? IdUsuario { get; set; }
-        public string? Modulo { get; set; }
-        public string? Accion { get; set; }
-        public bool? Exitoso { get; set; }
-        public DateTimeOffset? FechaInicio { get; set; }
-        public DateTimeOffset? FechaFin { get; set; }
-        public int Pagina { get; set; } = 1;
-        public int TamanoPagina { get; set; } = 25;
+        public string? Search { get; set; }
+        public int? UserId { get; set; }
+        public string? Module { get; set; }
+        public string? Action { get; set; }
+        public bool? Successful { get; set; }
+        public DateTimeOffset? StartDate { get; set; }
+        public DateTimeOffset? EndDate { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 25;
     }
 
     public class AuditoriaEventoDTO
     {
-        public long IdAuditoria { get; set; }
-        public int? IdUsuario { get; set; }
-        public string Usuario { get; set; } = string.Empty;
-        public string? NombreCompleto { get; set; }
-        public string? Rol { get; set; }
-        public string Accion { get; set; } = string.Empty;
-        public string Modulo { get; set; } = string.Empty;
-        public string Descripcion { get; set; } = string.Empty;
-        public string? MetodoHttp { get; set; }
-        public string? Ruta { get; set; }
-        public string? Entidad { get; set; }
-        public string? IdEntidad { get; set; }
-        public string? DireccionIp { get; set; }
-        public int CodigoEstado { get; set; }
-        public bool Exitoso { get; set; }
-        public DateTimeOffset FechaHora { get; set; }
-        public string? Detalles { get; set; }
+        public long AuditId { get; set; }
+        public int? UserId { get; set; }
+        public string User { get; set; } = string.Empty;
+        public string? FullName { get; set; }
+        public string? Role { get; set; }
+        public string Action { get; set; } = string.Empty;
+        public string Module { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string? HttpMethod { get; set; }
+        public string? Path { get; set; }
+        public string? Entity { get; set; }
+        public string? EntityId { get; set; }
+        public string? IpAddress { get; set; }
+        public int StatusCode { get; set; }
+        public bool Successful { get; set; }
+        public DateTimeOffset DateTime { get; set; }
+        public string? Details { get; set; }
     }
 
     public class AuditoriaResumenDTO
     {
-        public int TotalEventos { get; set; }
-        public int EventosExitosos { get; set; }
-        public int EventosConError { get; set; }
-        public int UsuariosDistintos { get; set; }
+        public int TotalEvents { get; set; }
+        public int SuccessfulEvents { get; set; }
+        public int FailedEvents { get; set; }
+        public int DistinctUsers { get; set; }
     }
 
     public class AuditoriaPaginaDTO
     {
-        public List<AuditoriaEventoDTO> Elementos { get; set; } = new();
-        public AuditoriaResumenDTO Resumen { get; set; } = new();
-        public int Pagina { get; set; }
-        public int TamanoPagina { get; set; }
-        public int TotalPaginas { get; set; }
+        public List<AuditoriaEventoDTO> Items { get; set; } = new();
+        public AuditoriaResumenDTO Summary { get; set; } = new();
+        public int Page { get; set; }
+        public int PageSize { get; set; }
+        public int TotalPages { get; set; }
     }
 
     public class RegistrarEventoAuditoriaDTO
     {
-        public string Ruta { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
     }
 
     public class RegistroAuditoriaDTO
     {
-        public string Accion { get; set; } = string.Empty;
-        public string Modulo { get; set; } = string.Empty;
-        public string Descripcion { get; set; } = string.Empty;
-        public string? MetodoHttp { get; set; }
-        public string? Ruta { get; set; }
-        public string? Entidad { get; set; }
-        public string? IdEntidad { get; set; }
-        public string? DireccionIp { get; set; }
-        public string? AgenteUsuario { get; set; }
-        public int CodigoEstado { get; set; }
-        public bool Exitoso { get; set; }
-        public string? Detalles { get; set; }
-        public string? UsuarioAlternativo { get; set; }
+        public string Action { get; set; } = string.Empty;
+        public string Module { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string? HttpMethod { get; set; }
+        public string? Path { get; set; }
+        public string? Entity { get; set; }
+        public string? EntityId { get; set; }
+        public string? IpAddress { get; set; }
+        public string? UserAgent { get; set; }
+        public int StatusCode { get; set; }
+        public bool Successful { get; set; }
+        public string? Details { get; set; }
+        public string? FallbackUser { get; set; }
     }
 }

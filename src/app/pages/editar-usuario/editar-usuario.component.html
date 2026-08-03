@@ -15,16 +15,16 @@
         type="text"
         class="search-input"
         placeholder="Buscar por usuario, nombre, alias..."
-        [(ngModel)]="terminoBusqueda"
-        (input)="buscar()"
+        [(ngModel)]="searchTerm"
+        (input)="search()"
       />
     </div>
 
     <div class="pagination-controls-top">
       <label>Mostrar</label>
       <select
-        [(ngModel)]="usuariosPorPagina"
-        (change)="calcularTotalPaginas(); paginaActual = 1"
+        [(ngModel)]="usersPerPage"
+        (change)="calculateTotalPages(); currentPage = 1"
       >
         <option [value]="10">10</option>
         <option [value]="25">25</option>
@@ -35,13 +35,13 @@
     </div>
   </div>
 
-  <!-- Mensaje de error -->
+
   <div class="error-message" *ngIf="error">
     <i class="fi fi-rr-triangle-warning"></i>
     {{ error }}
   </div>
 
-  <!-- Tabla de usuarios -->
+
   <div class="table-container">
     <div class="table-responsive">
       <table class="usuarios-table">
@@ -57,52 +57,52 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="cargando">
+          <tr *ngIf="loading">
             <td colspan="8" class="loading-message">
               <i class="fi fi-rr-spinner fa-spin"></i>
               Cargando usuarios...
             </td>
           </tr>
-          <tr *ngIf="!cargando && usuariosFiltrados.length === 0">
+          <tr *ngIf="!loading && filteredUsers.length === 0">
             <td colspan="8" class="empty-message">
               <em>No se encontraron usuarios</em>
             </td>
           </tr>
-          <tr *ngFor="let usuario of usuariosPaginados" class="data-row">
+          <tr *ngFor="let user of paginatedUsers" class="data-row">
             <td class="action-cell">
               <div class="action-buttons">
                 <button
                   class="btn-action-table btn-editar"
-                  (click)="abrirModalEditar(usuario.idUsuario)"
+                  (click)="openEditModal(user.userId)"
                   title="Editar usuario"
                 >
                   <i class="fi fi-rr-pencil"></i>
                 </button>
                 <button
                   class="btn-action-table btn-eliminar"
-                  (click)="eliminarUsuario(usuario.idUsuario, usuario.usuario)"
+                  (click)="deleteUser(user.userId, user.user)"
                   title="Eliminar usuario"
                 >
                   <i class="fi fi-rr-trash"></i>
                 </button>
               </div>
             </td>
-            <td data-label="Usuario">{{ usuario.usuario }}</td>
+            <td data-label="Usuario">{{ user.user }}</td>
             <td data-label="Nombre Completo">
-              {{ usuario.nombre || "" }} {{ usuario.app || "" }}
-              {{ usuario.apm || "" }}
+              {{ user.name || "" }} {{ user.firstSurname || "" }}
+              {{ user.secondSurname || "" }}
             </td>
-            <td data-label="Alias">{{ usuario.alias || "N/A" }}</td>
+            <td data-label="Alias">{{ user.alias || "N/A" }}</td>
             <td data-label="Rol">
               <span class="badge-rol">{{
-                usuario.nombreRol || "Sin rol"
+                user.roleName || "Sin rol"
               }}</span>
             </td>
             <td data-label="Último Acceso">
-              {{ usuario.ultimoAcceso || "Nunca" }}
+              {{ user.lastAccess || "Nunca" }}
             </td>
             <td data-label="Fecha Creación">
-              {{ usuario.fechaHoraCreacion || "N/A" }}
+              {{ user.createdAt || "N/A" }}
             </td>
           </tr>
         </tbody>
@@ -111,21 +111,21 @@
   </div>
 
   <app-pagination
-    *ngIf="!cargando"
-    [currentPage]="paginaActual"
-    [pageSize]="usuariosPorPagina"
-    [totalItems]="usuariosFiltrados.length"
+    *ngIf="!loading"
+    [currentPage]="currentPage"
+    [pageSize]="usersPerPage"
+    [totalItems]="filteredUsers.length"
     itemLabel="usuarios"
     singularItemLabel="usuario"
-    (pageChange)="cambiarPagina($event)"
+    (pageChange)="changePage($event)"
   ></app-pagination>
 </div>
 
-<!-- Modal para editar usuario -->
+
 <app-modal-editar-usuario
-  [mostrarModal]="mostrarModal"
-  [usuarioSeleccionado]="usuarioSeleccionado"
-  [cargandoUsuario]="cargandoUsuario"
-  (cerrar)="cerrarModal()"
-  (guardar)="guardarUsuario($event)"
+  [showModal]="showModal"
+  [selectedUser]="selectedUser"
+  [userLoading]="userLoading"
+  (close)="closeModal()"
+  (save)="saveUser($event)"
 ></app-modal-editar-usuario>

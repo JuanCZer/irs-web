@@ -17,9 +17,9 @@ public class HealthController : ControllerBase
         _context = context;
     }
 
-    /// <summary>
-    /// Verificar estado de la API
-    /// </summary>
+
+
+
     [HttpGet]
     public IActionResult Get()
     {
@@ -30,18 +30,18 @@ public class HealthController : ControllerBase
         });
     }
 
-    /// <summary>
-    /// Verificar conexión a la base de datos
-    /// </summary>
+
+
+
     [HttpGet("database")]
     public async Task<IActionResult> CheckDatabase()
     {
         try
         {
-            // Obtener información de la conexión
+
             var connectionString = _context.Database.GetConnectionString();
-            
-            // Intentar conectarse
+
+
             var canConnect = await _context.Database.CanConnectAsync();
 
             if (!canConnect)
@@ -55,24 +55,24 @@ public class HealthController : ControllerBase
                 });
             }
 
-            // Intentar consultar la tabla
-            int fichasCount = 0;
-            string consultaExitosa = "No";
+
+            int reportCount = 0;
+            string querySuccessful = "No";
             try
             {
-                fichasCount = await _context.Fichas.CountAsync();
-                consultaExitosa = "Sí";
+                reportCount = await _context.Reports.CountAsync();
+                querySuccessful = "Sí";
             }
             catch (Exception ex)
             {
-                consultaExitosa = $"Error: {ex.Message}";
+                querySuccessful = $"Error: {ex.Message}";
             }
 
-            // Contar tablas
-            var tablas = new
+
+            var tableStatus = new
             {
-                fichas = fichasCount,
-                consultaExitosa = consultaExitosa
+                reports = reportCount,
+                querySuccessful = querySuccessful
             };
 
             return Ok(new
@@ -80,7 +80,7 @@ public class HealthController : ControllerBase
                 status = "success",
                 message = "Conexión exitosa a la base de datos",
                 database = connectionString?.Split(';').FirstOrDefault(x => x.Contains("Database"))?.Split('=').LastOrDefault(),
-                tablas = tablas,
+                tables = tableStatus,
                 timestamp = DateTime.Now
             });
         }
@@ -98,9 +98,9 @@ public class HealthController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Verificar estructura de tablas
-    /// </summary>
+
+
+
     [HttpGet("tables")]
     public async Task<IActionResult> CheckTables()
     {
@@ -108,21 +108,21 @@ public class HealthController : ControllerBase
         {
             var tables = new List<object>();
 
-            // Verificar tabla ficha
+
             try
             {
-                var fichasCount = await _context.Fichas.CountAsync();
-                tables.Add(new { tabla = "ficha", registros = fichasCount, existe = true });
+                var reportCount = await _context.Reports.CountAsync();
+                tables.Add(new { table = "ficha", records = reportCount, exists = true });
             }
             catch (Exception ex)
             {
-                tables.Add(new { tabla = "ficha", registros = 0, existe = false, error = ex.Message });
+                tables.Add(new { table = "ficha", records = 0, exists = false, error = ex.Message });
             }
 
             return Ok(new
             {
                 status = "success",
-                tablas = tables,
+                tables,
                 timestamp = DateTime.Now
             });
         }

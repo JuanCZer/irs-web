@@ -10,98 +10,98 @@ import { FichasService, FichasTodosDTO } from '../../services/fichas.service';
   styleUrl: './consultar-fichas.component.less',
 })
 export class ConsultarFichasComponent implements OnInit {
-  fichas: FichasTodosDTO[] = [];
-  fichasFiltradas: FichasTodosDTO[] = [];
-  cargando: boolean = false;
+  reports: FichasTodosDTO[] = [];
+  filteredReports: FichasTodosDTO[] = [];
+  loading: boolean = false;
   error: string = '';
-  buscarTexto: string = '';
+  searchText: string = '';
 
   constructor(
-    private fichasService: FichasService,
+    private reportsService: FichasService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    this.cargarFichas();
+    this.loadReports();
   }
 
-  async cargarFichas(): Promise<void> {
-    this.cargando = true;
+  async loadReports(): Promise<void> {
+    this.loading = true;
     this.error = '';
 
     try {
-      this.fichas = await this.fichasService.obtenerFichasDelDia();
-      this.fichasFiltradas = [...this.fichas];
-      this.cdr.detectChanges(); // Forzar detección de cambios
+      this.reports = await this.reportsService.getReportsForToday();
+      this.filteredReports = [...this.reports];
+      this.cdr.detectChanges();
     } catch (error) {
       this.error =
         'No se pudieron cargar las fichas del día. Verifica que el backend esté corriendo en https://localhost:5001';
     } finally {
-      this.cargando = false;
+      this.loading = false;
     }
   }
 
-  async eliminarFicha(id: number): Promise<void> {
+  async deleteReport(id: number): Promise<void> {
     if (!confirm('¿Estás seguro de eliminar esta ficha?')) {
       return;
     }
 
     try {
-      await this.fichasService.eliminarFicha(id);
-      // Recargar la lista después de eliminar
-      await this.cargarFichas();
+      await this.reportsService.deleteReport(id);
+
+      await this.loadReports();
     } catch (error) {
       alert('Error al eliminar la ficha');
     }
   }
 
-  filtrarFichas(): void {
-    if (!this.buscarTexto.trim()) {
-      this.fichasFiltradas = [...this.fichas];
+  filterReports(): void {
+    if (!this.searchText.trim()) {
+      this.filteredReports = [...this.reports];
       return;
     }
 
-    const texto = this.buscarTexto.toLowerCase();
-    this.fichasFiltradas = this.fichas.filter(
-      (ficha) =>
-        ficha.estado.toLowerCase().includes(texto) ||
-        ficha.folio.toLowerCase().includes(texto) ||
-        ficha.sector.toLowerCase().includes(texto) ||
-        ficha.prioridad.toLowerCase().includes(texto) ||
-        ficha.asunto.toLowerCase().includes(texto) ||
-        ficha.estadoActual.toLowerCase().includes(texto),
+    const text = this.searchText.toLowerCase();
+    this.filteredReports = this.reports.filter(
+      (report) =>
+        report.state.toLowerCase().includes(text) ||
+        report.referenceNumber.toLowerCase().includes(text) ||
+        report.sector.toLowerCase().includes(text) ||
+        report.priority.toLowerCase().includes(text) ||
+        report.subject.toLowerCase().includes(text) ||
+        report.currentStatus.toLowerCase().includes(text),
     );
   }
 
-  formatearFecha(fecha: string): string {
-    return new Date(fecha).toLocaleDateString('es-MX', {
+  formatDate(date: string): string {
+    return new Date(date).toLocaleDateString('es-MX', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
     });
   }
 
-  obtenerColorPrioridad(prioridad: string): string {
-    const colores: { [key: string]: string } = {
+  getPriorityColor(priority: string): string {
+    const colors: { [key: string]: string } = {
       Baja: 'prioridad-baja',
       Media: 'prioridad-media',
       Alta: 'prioridad-alta',
       Crítica: 'prioridad-critica',
     };
-    return colores[prioridad] || '';
+    return colors[priority] || '';
   }
 
-  obtenerColorEstado(estado: string): string {
-    const colores: { [key: string]: string } = {
+  getStateColor(state: string): string {
+    const colors: { [key: string]: string } = {
       Finalizado: 'estado-finalizado',
       'En proceso': 'estado-proceso',
       Pendiente: 'estado-pendiente',
       Cancelado: 'estado-cancelado',
     };
-    return colores[estado] || '';
+    return colors[state] || '';
   }
 
-  verDetalleFicha(ficha: FichasTodosDTO): void {
-    // Implementar navegación al detalle
+  viewReportDetails(report: FichasTodosDTO): void {
+
   }
 }

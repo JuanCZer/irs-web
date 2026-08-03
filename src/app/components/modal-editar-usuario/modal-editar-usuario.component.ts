@@ -15,42 +15,42 @@ import {
   styleUrls: ['./modal-editar-usuario.component.less'],
 })
 export class ModalEditarUsuarioComponent implements OnInit {
-  @Input() mostrarModal: boolean = false;
-  @Input() usuarioSeleccionado: UsuarioDTO | null = null;
-  @Input() cargandoUsuario: boolean = false;
+  @Input() showModal: boolean = false;
+  @Input() selectedUser: UsuarioDTO | null = null;
+  @Input() userLoading: boolean = false;
 
-  @Output() cerrar = new EventEmitter<void>();
-  @Output() guardar = new EventEmitter<UsuarioDTO>();
+  @Output() close = new EventEmitter<void>();
+  @Output() save = new EventEmitter<UsuarioDTO>();
 
   roles: CatRol[] = [];
-  mostrarContrasena = false;
-  passwordNueva = '';
+  showPassword = false;
+  newPassword = '';
 
-  constructor(private usuariosService: UsuariosService) {}
+  constructor(private usersService: UsuariosService) {}
 
   async ngOnInit(): Promise<void> {
-    await this.cargarRoles();
+    await this.loadRoles();
   }
 
-  async cargarRoles(): Promise<void> {
+  async loadRoles(): Promise<void> {
     try {
-      this.roles = await this.usuariosService.obtenerRoles();
-    } catch (error) {}
+      this.roles = await this.usersService.getRoles();
+    } catch {}
   }
 
-  cerrarModal(): void {
-    this.cerrar.emit();
-    this.passwordNueva = '';
-    this.mostrarContrasena = false;
+  closeModal(): void {
+    this.close.emit();
+    this.newPassword = '';
+    this.showPassword = false;
   }
 
-  onGuardar(): void {
-    if (this.usuarioSeleccionado) {
-      this.guardar.emit(this.usuarioSeleccionado);
+  onSave(): void {
+    if (this.selectedUser) {
+      this.save.emit(this.selectedUser);
     }
   }
 
-  toggleMostrarContrasena(): void {
-    this.mostrarContrasena = !this.mostrarContrasena;
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
   }
 }

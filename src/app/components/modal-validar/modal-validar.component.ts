@@ -2,12 +2,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface ArchivoSeleccionado {
-  archivo: File;
+  file: File;
   base64: string;
 }
 
 export interface ValidarEvent {
-  evidencias: string;
+  evidenceFiles: string;
 }
 
 @Component({
@@ -19,36 +19,36 @@ export interface ValidarEvent {
 })
 export class ModalValidarComponent {
   @Input() visible = false;
-  @Input() folioFicha = '';
-  @Input() delegacion = '';
-  @Input() municipio = '';
-  @Input() lugar = '';
-  @Input() prioridad = '';
+  @Input() reportReference = '';
+  @Input() delegation = '';
+  @Input() municipality = '';
+  @Input() place = '';
+  @Input() priority = '';
 
-  @Output() cerrar = new EventEmitter<void>();
-  @Output() validar = new EventEmitter<ValidarEvent>();
+  @Output() close = new EventEmitter<void>();
+  @Output() validate = new EventEmitter<ValidarEvent>();
 
-  archivosSeleccionados: ArchivoSeleccionado[] = [];
+  selectedFiles: ArchivoSeleccionado[] = [];
   isDragging = false;
 
-  onCerrar(): void {
-    this.archivosSeleccionados = [];
+  onClose(): void {
+    this.selectedFiles = [];
     this.isDragging = false;
-    this.cerrar.emit();
+    this.close.emit();
   }
 
-  onValidar(): void {
-    if (this.archivosSeleccionados.length === 0) {
+  onValidate(): void {
+    if (this.selectedFiles.length === 0) {
       alert('Debe subir al menos un archivo PNG como evidencia.');
       return;
     }
 
-    const evidencias = this.archivosSeleccionados
+    const evidenceFiles = this.selectedFiles
       .map((a) => a.base64)
       .join('|');
 
-    this.validar.emit({ evidencias });
-    this.archivosSeleccionados = [];
+    this.validate.emit({ evidenceFiles });
+    this.selectedFiles = [];
     this.isDragging = false;
   }
 
@@ -81,7 +81,7 @@ export class ModalValidarComponent {
     if (files) {
       this.handleFiles(Array.from(files));
     }
-    // Reset input value to allow selecting the same file again
+
     input.value = '';
   }
 
@@ -93,24 +93,24 @@ export class ModalValidarComponent {
     }
 
     pngFiles.forEach((file) => {
-      this.convertirArchivosABase64(file);
+      this.convertFilesToBase64(file);
     });
   }
 
-  private convertirArchivosABase64(file: File): void {
+  private convertFilesToBase64(file: File): void {
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
       const base64 = e.target?.result as string;
-      this.archivosSeleccionados.push({
-        archivo: file,
+      this.selectedFiles.push({
+        file: file,
         base64,
       });
     };
     reader.readAsDataURL(file);
   }
 
-  eliminarArchivo(index: number): void {
-    this.archivosSeleccionados.splice(index, 1);
+  removeFile(index: number): void {
+    this.selectedFiles.splice(index, 1);
   }
 
   formatFileSize(bytes: number): string {
@@ -121,9 +121,9 @@ export class ModalValidarComponent {
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
-  getPrioridadClass(): string {
-    if (this.prioridad === 'Alta') return 'prioridad-alta';
-    if (this.prioridad === 'Media') return 'prioridad-media';
+  getPriorityClass(): string {
+    if (this.priority === 'Alta') return 'prioridad-alta';
+    if (this.priority === 'Media') return 'prioridad-media';
     return 'prioridad-baja';
   }
 }

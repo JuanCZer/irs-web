@@ -2,20 +2,20 @@ namespace Backend.DTOs
 {
     public class EstadisticasResumenDto
     {
-        public int TotalFichas { get; set; }
-        public int FichasHoy { get; set; }
-        public int FichasSemana { get; set; }
-        public int FichasMes { get; set; }
-        public decimal PromedioMensual { get; set; }
-        public decimal CrecimientoMensual { get; set; }
+        public int TotalReports { get; set; }
+        public int ReportsToday { get; set; }
+        public int ReportsThisWeek { get; set; }
+        public int ReportsThisMonth { get; set; }
+        public decimal MonthlyAverage { get; set; }
+        public decimal MonthlyGrowth { get; set; }
     }
 
     public class FichasEstadisticasDto
     {
-        public EstadisticasResumenDto Resumen { get; set; } = new();
-        public FichasPorEstadoDto FichasPorEstado { get; set; } = new();
-        public FichasPorMesDto FichasPorMes { get; set; } = new();
-        public TendenciaMensualDto TendenciaMensual { get; set; } = new();
+        public EstadisticasResumenDto Summary { get; set; } = new();
+        public FichasPorEstadoDto ReportsByState { get; set; } = new();
+        public FichasPorMesDto ReportsByMonth { get; set; } = new();
+        public TendenciaMensualDto MonthlyTrend { get; set; } = new();
     }
 
     public class FichasPorEstadoDto

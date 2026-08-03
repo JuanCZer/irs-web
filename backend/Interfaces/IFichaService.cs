@@ -6,17 +6,17 @@ namespace IRS.API.Interfaces;
 
 public interface IFichaService
 {
-  Task<List<FichaResponseDto>> ObtenerTodasAsync();
-  Task<List<FichasTodosDto>> ObtenerTodosDtoAsync();
-  Task<List<FichasTodosDto>> ObtenerFichasPorRangoFechasAsync(DateTime fechaInicio, DateTime fechaFin);
-  Task<List<FichasTodosDto>> ObtenerFichasDelDiaAsync();
-  Task<List<FichasTodosDto>> ObtenerFichasConcluidasAsync();
-  Task<List<FichasBorradorDto>> ObtenerBorradoresAsync();
-  Task<List<FichasBorradorDto>> BuscarBorradoresAsync(string criterio);
-  Task<FichaInformativa?> ObtenerPorIdAsync(int id);
-  Task<FichaInformativa> CrearAsync(FichaInformativa ficha, string usuario);
-  Task<FichaInformativa?> ActualizarAsync(int id, FichaInformativa ficha);
-  Task<bool> EliminarAsync(int id);
-  Task<List<FichaResponseDto>> BuscarAsync(string criterio);
-  Task<FichasEstadisticasDto> ObtenerEstadisticasAsync();
+  Task<List<FichaResponseDto>> GetAllAsync();
+  Task<List<FichasTodosDto>> GetAllDtosAsync();
+  Task<List<FichasTodosDto>> GetReportsByDateRangeAsync(DateTime startDate, DateTime endDate);
+  Task<List<FichasTodosDto>> GetReportsForTodayAsync();
+  Task<List<FichasTodosDto>> GetCompletedReportsAsync();
+  Task<List<FichasBorradorDto>> GetDraftsAsync();
+  Task<List<FichasBorradorDto>> SearchDraftsAsync(string criteria);
+  Task<FichaInformativa?> GetByIdAsync(int id);
+  Task<FichaInformativa> CreateAsync(FichaInformativa report, string user);
+  Task<FichaInformativa?> UpdateAsync(int id, FichaInformativa report);
+  Task<bool> DeleteAsync(int id);
+  Task<List<FichaResponseDto>> SearchAsync(string criteria);
+  Task<FichasEstadisticasDto> GetStatisticsAsync();
 }

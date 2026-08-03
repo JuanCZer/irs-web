@@ -1,22 +1,22 @@
 <div class="consultar-todas-fichas-container">
-  <!-- Encabezado con título y botones de acción -->
+
   <div class="header-section">
     <h1 class="page-title">Consulta histórica de fichas</h1>
     <div class="header-actions">
-      <button class="btn-action btn-export" (click)="exportarExcel()">
+      <button class="btn-action btn-export" (click)="exportExcel()">
         <i class="fi fi-rr-file-excel"></i>
         Exportar Excel
       </button>
-      <button class="btn-action btn-export" (click)="exportarPDF()">
+      <button class="btn-action btn-export" (click)="exportPdf()">
         <i class="fi fi-rr-file-pdf"></i>
         Exportar PDF
       </button>
     </div>
   </div>
 
-  <!-- Filtros de fecha y búsqueda -->
+
   <div class="filters-section">
-    <!-- Filtro por rango de fechas -->
+
     <div class="date-filters">
       <div class="date-group">
         <label class="date-label">
@@ -26,7 +26,7 @@
         <input
           type="date"
           class="date-input"
-          [(ngModel)]="fechaInicio"
+          [(ngModel)]="startDate"
           name="fechaInicio"
         />
       </div>
@@ -39,20 +39,20 @@
         <input
           type="date"
           class="date-input"
-          [(ngModel)]="fechaFin"
+          [(ngModel)]="endDate"
           name="fechaFin"
         />
       </div>
 
-      <!-- Botones de acceso rápido -->
+
       <div class="quick-filters">
-        <button class="btn-quick" (click)="establecerHoy()" title="Hoy">
+        <button class="btn-quick" (click)="setToday()" title="Hoy">
           <i class="fi fi-rr-calendar-day"></i>
           Hoy
         </button>
         <button
           class="btn-quick"
-          (click)="establecerUltimaSemana()"
+          (click)="setLastWeek()"
           title="Última semana"
         >
           <i class="fi fi-rr-calendar-week"></i>
@@ -60,7 +60,7 @@
         </button>
         <button
           class="btn-quick"
-          (click)="establecerUltimoMes()"
+          (click)="setLastMonth()"
           title="Último mes"
         >
           <i class="fi fi-rr-calendar"></i>
@@ -68,7 +68,7 @@
         </button>
         <button
           class="btn-quick btn-clear"
-          (click)="limpiarFiltros()"
+          (click)="clearFilters()"
           title="Limpiar filtros"
         >
           <i class="fi fi-rr-circle-xmark"></i>
@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    <!-- Barra de búsqueda -->
+
     <div class="search-wrapper">
       <label class="search-label">
         <i class="fi fi-rr-search"></i>
@@ -87,13 +87,13 @@
         type="text"
         class="search-input"
         placeholder="Buscar por folio, asunto, estado..."
-        [(ngModel)]="buscarTexto"
-        (input)="buscar()"
+        [(ngModel)]="searchText"
+        (input)="search()"
       />
     </div>
   </div>
 
-  <!-- Tabla de fichas -->
+
   <div class="table-container">
     <div class="table-responsive">
       <table class="fichas-table">
@@ -113,44 +113,44 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="fichasFiltradas.length === 0">
+          <tr *ngIf="filteredReports.length === 0">
             <td colspan="11" class="empty-message">
               <em>Ningún dato disponible en esta tabla</em>
             </td>
           </tr>
-          <tr *ngFor="let ficha of fichasPaginadas" class="data-row">
+          <tr *ngFor="let report of paginatedReports" class="data-row">
             <td class="action-cell" data-label="Ver Ficha">
-              <button class="btn-ver-ficha" (click)="verFicha(ficha.id)">
+              <button class="btn-ver-ficha" (click)="viewReport(report.id)">
                 <i class="fi fi-rr-eye"></i>
                 Ver
               </button>
             </td>
-            <td data-label="Fecha Elaboración">{{ ficha.fechaElaboracion }}</td>
-            <td class="folio-cell" data-label="Folio">{{ ficha.folio }}</td>
-            <td data-label="Fecha de Suceso">{{ ficha.fechaSuceso }}</td>
-            <td data-label="Hora de Suceso">{{ ficha.horaSuceso }}</td>
-            <td class="estado-cell" data-label="Estado">{{ ficha.estado }}</td>
-            <td class="asunto-cell" data-label="Asunto">{{ ficha.asunto }}</td>
+            <td data-label="Fecha Elaboración">{{ report.creationDate }}</td>
+            <td class="folio-cell" data-label="Folio">{{ report.referenceNumber }}</td>
+            <td data-label="Fecha de Suceso">{{ report.eventDate }}</td>
+            <td data-label="Hora de Suceso">{{ report.eventTime }}</td>
+            <td class="estado-cell" data-label="Estado">{{ report.state }}</td>
+            <td class="asunto-cell" data-label="Asunto">{{ report.subject }}</td>
             <td data-label="Prioridad">
               <span
                 class="badge-prioridad"
-                [ngClass]="'prioridad-' + ficha.prioridad.toLowerCase()"
+                [ngClass]="'prioridad-' + report.priority.toLowerCase()"
               >
-                {{ ficha.prioridad }}
+                {{ report.priority }}
               </span>
             </td>
-            <td data-label="Sector">{{ ficha.sector }}</td>
+            <td data-label="Sector">{{ report.sector }}</td>
             <td class="asistentes-cell" data-label="Asistentes">
-              {{ ficha.asistentes }}
+              {{ report.attendees }}
             </td>
             <td data-label="Estado Actual">
               <span
                 class="badge-estado"
                 [ngClass]="
-                  'estado-' + ficha.estadoActual.toLowerCase().replace(' ', '-')
+                  'estado-' + report.currentStatus.toLowerCase().replace(' ', '-')
                 "
               >
-                {{ ficha.estadoActual }}
+                {{ report.currentStatus }}
               </span>
             </td>
           </tr>
@@ -160,21 +160,21 @@
   </div>
 
   <app-pagination
-    *ngIf="!cargando"
-    [currentPage]="paginaActual"
-    [pageSize]="fichasPorPagina"
-    [totalItems]="fichasFiltradas.length"
+    *ngIf="!loading"
+    [currentPage]="currentPage"
+    [pageSize]="reportsPerPage"
+    [totalItems]="filteredReports.length"
     itemLabel="fichas"
     singularItemLabel="ficha"
-    (pageChange)="irAPagina($event)"
+    (pageChange)="goToPage($event)"
   ></app-pagination>
 </div>
 
-<!-- Modal para ver la ficha completa en modo solo lectura -->
+
 <app-modal-fichas-consulta
-  [mostrarModal]="mostrarModal"
-  [fichaSeleccionada]="fichaSeleccionada"
-  [cargandoFicha]="cargandoFicha"
-  [modoSoloLectura]="true"
-  (cerrar)="cerrarModal()"
+  [showModal]="showModal"
+  [selectedReport]="selectedReport"
+  [reportLoading]="reportLoading"
+  [readOnlyMode]="true"
+  (close)="closeModal()"
 ></app-modal-fichas-consulta>

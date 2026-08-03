@@ -1,32 +1,32 @@
 <div class="mapa-fichas-container">
-  <!-- Sección del Mapa (2/3) -->
+
   <div class="mapa-section">
     <div id="map-container" class="map-container"></div>
   </div>
 
-  <!-- Sección de Fichas (1/3) -->
+
   <div class="fichas-section">
-    <!-- Encabezado -->
+
     <div class="fichas-header">
       <h2>Fichas del periodo</h2>
       <div class="header-info">
-        <span class="fichas-count">{{ fichasVisible.length }} ficha(s)</span>
+        <span class="fichas-count">{{ visibleReports.length }} ficha(s)</span>
         <span class="fichas-ubicadas" title="Fichas con coordenadas válidas">
-          📍 {{ contarFichasConCoordenadas() }}
+          📍 {{ countReportsWithCoordinates() }}
         </span>
       </div>
     </div>
 
-    <!-- Sección de Filtros -->
+
     <div class="filtros-container">
-      <!-- Rango de fechas -->
+
       <div class="filtro-grupo">
         <label for="fecha-inicio">Fecha inicio:</label>
         <input
           type="date"
           id="fecha-inicio"
-          [(ngModel)]="fechaInicio"
-          (change)="cargarFichas()"
+          [(ngModel)]="startDate"
+          (change)="loadReports()"
           class="filtro-input"
         />
       </div>
@@ -36,8 +36,8 @@
         <input
           type="date"
           id="fecha-fin"
-          [(ngModel)]="fechaFin"
-          (change)="cargarFichas()"
+          [(ngModel)]="endDate"
+          (change)="loadReports()"
           class="filtro-input"
         />
       </div>
@@ -46,13 +46,13 @@
         <label for="filtro-estado">Estado:</label>
         <select
           id="filtro-estado"
-          [(ngModel)]="filtroEstado"
-          (change)="aplicarFiltros()"
+          [(ngModel)]="stateFilter"
+          (change)="applyFilters()"
           class="filtro-select"
         >
           <option value="">Todos</option>
-          <option *ngFor="let estado of estados" [value]="estado">
-            {{ estado }}
+          <option *ngFor="let state of states" [value]="state">
+            {{ state }}
           </option>
         </select>
       </div>
@@ -61,12 +61,12 @@
         <label for="filtro-sector">Sector:</label>
         <select
           id="filtro-sector"
-          [(ngModel)]="filtroSector"
-          (change)="aplicarFiltros()"
+          [(ngModel)]="sectorFilter"
+          (change)="applyFilters()"
           class="filtro-select"
         >
           <option value="">Todos</option>
-          <option *ngFor="let sector of sectores" [value]="sector">
+          <option *ngFor="let sector of sectors" [value]="sector">
             {{ sector }}
           </option>
         </select>
@@ -76,91 +76,91 @@
         <label for="filtro-condicion">Condición:</label>
         <select
           id="filtro-condicion"
-          [(ngModel)]="filtroCondicion"
-          (change)="aplicarFiltros()"
+          [(ngModel)]="conditionFilter"
+          (change)="applyFilters()"
           class="filtro-select"
         >
           <option value="">Todas</option>
-          <option *ngFor="let condicion of condiciones" [value]="condicion">
-            {{ condicion }}
+          <option *ngFor="let condition of conditions" [value]="condition">
+            {{ condition }}
           </option>
         </select>
       </div>
 
-      <button class="btn-limpiar-filtros" (click)="limpiarFiltros()">
+      <button class="btn-limpiar-filtros" (click)="clearFilters()">
         <i class="fi fi-rr-cross-small"></i> Limpiar
       </button>
     </div>
 
-    <!-- Lista de Fichas -->
+
     <div class="fichas-list-container">
-      <div *ngIf="cargando" class="cargando-message">
+      <div *ngIf="loading" class="cargando-message">
         <i class="fi fi-rr-spinner fa-spin"></i>
         <p>Cargando fichas...</p>
       </div>
 
-      <div *ngIf="mensajeError" class="error-message">
+      <div *ngIf="errorMessage" class="error-message">
         <i class="fi fi-rr-circle-exclamation-check"></i>
-        <p>{{ mensajeError }}</p>
+        <p>{{ errorMessage }}</p>
       </div>
 
-      <div *ngIf="!cargando && fichasVisible.length === 0" class="sin-fichas">
+      <div *ngIf="!loading && visibleReports.length === 0" class="sin-fichas">
         <i class="fi fi-rr-inbox"></i>
         <p>No hay fichas disponibles para los filtros seleccionados</p>
       </div>
 
       <div
-        *ngFor="let ficha of fichasVisible"
+        *ngFor="let report of visibleReports"
         class="ficha-card"
-        (click)="seleccionarFicha(ficha)"
+        (click)="selectReport(report)"
       >
-        <!-- Contenido de la Tarjeta -->
+
         <div class="card-content">
-          <!-- ID - Folio como título -->
-          <h3 class="card-titulo">{{ ficha.id }} - {{ ficha.folio }}</h3>
+
+          <h3 class="card-titulo">{{ report.id }} - {{ report.referenceNumber }}</h3>
 
           <div class="card-info">
             <div class="info-item">
               <span class="label">Lugar:</span>
-              <span class="value">{{ ficha.lugar }}</span>
+              <span class="value">{{ report.place }}</span>
             </div>
 
             <div class="info-item">
               <span class="label">Estado:</span>
-              <span class="value">{{ ficha.estado }}</span>
+              <span class="value">{{ report.state }}</span>
             </div>
 
             <div class="info-item">
               <span class="label">Sector:</span>
-              <span class="value">{{ ficha.sector }}</span>
+              <span class="value">{{ report.sector }}</span>
             </div>
 
             <div class="info-item">
               <span class="label">Fecha:</span>
-              <span class="value">{{ ficha.fechaSuceso }}</span>
+              <span class="value">{{ report.eventDate }}</span>
             </div>
 
-            <div class="info-item" *ngIf="ficha.asistentes">
+            <div class="info-item" *ngIf="report.attendees">
               <span class="label">Asistentes:</span>
-              <span class="value">{{ ficha.asistentes }}</span>
+              <span class="value">{{ report.attendees }}</span>
             </div>
 
-            <div class="info-item" *ngIf="ficha.estadoActual">
+            <div class="info-item" *ngIf="report.currentStatus">
               <span class="label">Condición:</span>
-              <span class="value">{{ ficha.estadoActual }}</span>
+              <span class="value">{{ report.currentStatus }}</span>
             </div>
 
-            <!-- Coordenadas -->
-            <div class="info-item" *ngIf="ficha.latitud && ficha.longitud">
+
+            <div class="info-item" *ngIf="report.latitude && report.longitude">
               <span class="label">Ubicación:</span>
               <span class="value coords-value">
-                {{ ficha.latitud.toFixed(4) }}, {{ ficha.longitud.toFixed(4) }}
+                {{ report.latitude.toFixed(4) }}, {{ report.longitude.toFixed(4) }}
               </span>
             </div>
           </div>
         </div>
 
-        <!-- Flecha para indicar interacción -->
+
         <div class="card-arrow">
           <i class="fi fi-rr-angle-small-right"></i>
         </div>

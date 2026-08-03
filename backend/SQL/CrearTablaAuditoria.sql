@@ -1,5 +1,3 @@
--- Bitácora de acciones de usuarios para PostgreSQL.
--- Ejecutar una sola vez sobre la base de datos IRS.
 
 CREATE TABLE IF NOT EXISTS public.auditoria_evento
 (

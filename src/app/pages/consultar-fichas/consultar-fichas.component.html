@@ -1,10 +1,10 @@
 <div class="consultar-fichas-container">
-  <!-- Encabezado -->
+
   <div class="header-section">
     <h1 class="page-title">Fichas informativas del día</h1>
   </div>
 
-  <!-- Sección de búsqueda -->
+
   <div class="search-section">
     <div class="search-wrapper">
       <label class="search-label">Buscar:</label>
@@ -12,25 +12,25 @@
         type="text"
         class="search-input"
         placeholder="Buscar por folio, estado, asunto, sector..."
-        [(ngModel)]="buscarTexto"
-        (input)="filtrarFichas()"
+        [(ngModel)]="searchText"
+        (input)="filterReports()"
       />
     </div>
   </div>
 
-  <!-- Estado de carga -->
-  <div *ngIf="cargando" class="loading-message">
+
+  <div *ngIf="loading" class="loading-message">
     <i class="fi fi-rr-spinner fa-spin"></i> Cargando fichas...
   </div>
 
-  <!-- Mensaje de error -->
+
   <div *ngIf="error" class="error-message">
     <i class="fi fi-rr-triangle-warning"></i> {{ error }}
-    <button class="btn-retry" (click)="cargarFichas()">Reintentar</button>
+    <button class="btn-retry" (click)="loadReports()">Reintentar</button>
   </div>
 
-  <!-- Tabla de fichas -->
-  <div class="table-container" *ngIf="!cargando && !error">
+
+  <div class="table-container" *ngIf="!loading && !error">
     <div class="table-responsive">
       <table class="fichas-table">
         <thead>
@@ -49,49 +49,49 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="fichasFiltradas.length === 0">
+          <tr *ngIf="filteredReports.length === 0">
             <td colspan="11" class="empty-message">
               Ningún dato disponible en esta tabla
             </td>
           </tr>
-          <tr *ngFor="let ficha of fichasFiltradas">
+          <tr *ngFor="let report of filteredReports">
             <td class="action-cell" data-label="Ver Ficha">
               <button
                 class="btn-ver"
-                (click)="verDetalleFicha(ficha)"
+                (click)="viewReportDetails(report)"
                 title="Ver detalle"
               >
                 <i class="fi fi-rr-eye"></i>
               </button>
             </td>
             <td data-label="Fecha Elaboración">
-              {{ formatearFecha(ficha.fechaElaboracion) }}
+              {{ formatDate(report.creationDate) }}
             </td>
-            <td class="folio-cell" data-label="Folio">{{ ficha.folio }}</td>
+            <td class="folio-cell" data-label="Folio">{{ report.referenceNumber }}</td>
             <td data-label="Fecha de Suceso">
-              {{ formatearFecha(ficha.fechaSuceso) }}
+              {{ formatDate(report.eventDate) }}
             </td>
-            <td data-label="Hora de Suceso">{{ ficha.horaSuceso }}</td>
-            <td data-label="Estado">{{ ficha.estado }}</td>
-            <td class="asunto-cell" data-label="Asunto">{{ ficha.asunto }}</td>
+            <td data-label="Hora de Suceso">{{ report.eventTime }}</td>
+            <td data-label="Estado">{{ report.state }}</td>
+            <td class="asunto-cell" data-label="Asunto">{{ report.subject }}</td>
             <td data-label="Prioridad">
               <span
                 class="badge"
-                [ngClass]="obtenerColorPrioridad(ficha.prioridad)"
+                [ngClass]="getPriorityColor(report.priority)"
               >
-                {{ ficha.prioridad }}
+                {{ report.priority }}
               </span>
             </td>
-            <td data-label="Sector">{{ ficha.sector }}</td>
+            <td data-label="Sector">{{ report.sector }}</td>
             <td class="asistentes-cell" data-label="Asistentes">
-              {{ ficha.asistentes }}
+              {{ report.attendees }}
             </td>
             <td data-label="Estado Actual">
               <span
                 class="badge"
-                [ngClass]="obtenerColorEstado(ficha.estadoActual)"
+                [ngClass]="getStateColor(report.currentStatus)"
               >
-                {{ ficha.estadoActual }}
+                {{ report.currentStatus }}
               </span>
             </td>
           </tr>

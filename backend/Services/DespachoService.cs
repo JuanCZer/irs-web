@@ -5,42 +5,42 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IRS.API.Services;
 
-public class DespachoService : IDespachoService
+public class DispatchService : IDespachoService
 {
     private readonly IRSDbContext _context;
 
-    public DespachoService(IRSDbContext context)
+    public DispatchService(IRSDbContext context)
     {
         _context = context;
     }
 
-    public async Task<FichaDespacho> CrearFichaDespachoAsync(FichaDespacho fichaDespacho)
+    public async Task<DispatchReport> CreateDispatchReportAsync(DispatchReport dispatchReport)
     {
-        fichaDespacho.FechaValidacion = DateTime.UtcNow;
-        
-        _context.FichasDespacho.Add(fichaDespacho);
+        dispatchReport.ValidationDate = DateTime.UtcNow;
+
+        _context.DispatchReports.Add(dispatchReport);
         await _context.SaveChangesAsync();
-        
-        return fichaDespacho;
+
+        return dispatchReport;
     }
 
-    public async Task<List<FichaDespacho>> ObtenerPorIdFichaAsync(int idFicha)
+    public async Task<List<DispatchReport>> GetByReportIdAsync(int reportId)
     {
-        return await _context.FichasDespacho
-            .Include(fd => fd.FichaInformativa)
-            .Include(fd => fd.CatMedidaSeguridad)
-            .Include(fd => fd.Usuario)
-            .Where(fd => fd.IdFicha == idFicha)
-            .OrderByDescending(fd => fd.FechaValidacion)
+        return await _context.DispatchReports
+            .Include(fd => fd.InformationReport)
+            .Include(fd => fd.SecurityMeasure)
+            .Include(fd => fd.User)
+            .Where(fd => fd.ReportId == reportId)
+            .OrderByDescending(fd => fd.ValidationDate)
             .ToListAsync();
     }
 
-    public async Task<FichaDespacho?> ObtenerPorIdAsync(int idFichaDespacho)
+    public async Task<DispatchReport?> GetByIdAsync(int dispatchReportId)
     {
-        return await _context.FichasDespacho
-            .Include(fd => fd.FichaInformativa)
-            .Include(fd => fd.CatMedidaSeguridad)
-            .Include(fd => fd.Usuario)
-            .FirstOrDefaultAsync(fd => fd.IdFichaDespacho == idFichaDespacho);
+        return await _context.DispatchReports
+            .Include(fd => fd.InformationReport)
+            .Include(fd => fd.SecurityMeasure)
+            .Include(fd => fd.User)
+            .FirstOrDefaultAsync(fd => fd.DispatchReportId == dispatchReportId);
     }
 }

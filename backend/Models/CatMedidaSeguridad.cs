@@ -8,13 +8,13 @@ namespace IRS.API.Models
     {
         [Key]
         [Column("id_cat_medida")]
-        public int IdCatMedida { get; set; }
-        
+        public int MeasureCategoryId { get; set; }
+
         [Column("medida")]
         [MaxLength(255)]
-        public string Medida { get; set; } = string.Empty;
-        
+        public string Measure { get; set; } = string.Empty;
+
         [Column("estatus")]
-        public int Estatus { get; set; } = 1;
+        public int Status { get; set; } = 1;
     }
 }

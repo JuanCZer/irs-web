@@ -22,195 +22,195 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
   styleUrl: './fichas-borradores.component.less',
 })
 export class FichasBorradoresComponent implements OnInit {
-  borradores: FichasBorradorDTO[] = [];
-  borradoresFiltrados: FichasBorradorDTO[] = [];
-  cargando: boolean = false;
+  drafts: FichasBorradorDTO[] = [];
+  filteredDrafts: FichasBorradorDTO[] = [];
+  loading: boolean = false;
   error: string = '';
 
-  // Modal
-  mostrarModal: boolean = false;
-  fichaSeleccionada: FichaInformativa | null = null;
-  cargandoFicha: boolean = false;
 
-  // Búsqueda
-  buscarTexto: string = '';
+  showModal: boolean = false;
+  selectedReport: FichaInformativa | null = null;
+  reportLoading: boolean = false;
 
-  // Paginación
-  paginaActual: number = 1;
-  registrosPorPagina: number = 10;
-  totalPaginas: number = 0;
+
+  searchText: string = '';
+
+
+  currentPage: number = 1;
+  recordsPerPage: number = 10;
+  totalPages: number = 0;
 
   constructor(
-    private fichasService: FichasService,
+    private reportsService: FichasService,
     private cdr: ChangeDetectorRef,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.cargarBorradores();
+    this.loadDrafts();
   }
 
-  async cargarBorradores(): Promise<void> {
-    this.cargando = true;
+  async loadDrafts(): Promise<void> {
+    this.loading = true;
     this.error = '';
 
     try {
-      this.borradores = await this.fichasService.obtenerBorradores();
-      this.borradoresFiltrados = [...this.borradores];
-      this.calcularPaginacion();
+      this.drafts = await this.reportsService.getDrafts();
+      this.filteredDrafts = [...this.drafts];
+      this.calculatePagination();
       this.cdr.detectChanges();
     } catch (error) {
       this.error =
         'No se pudieron cargar los borradores. Verifica que el backend esté corriendo.';
     } finally {
-      this.cargando = false;
+      this.loading = false;
     }
   }
 
-  async buscar(): Promise<void> {
-    if (!this.buscarTexto.trim()) {
-      this.borradoresFiltrados = [...this.borradores];
-      this.paginaActual = 1;
-      this.calcularPaginacion();
+  async search(): Promise<void> {
+    if (!this.searchText.trim()) {
+      this.filteredDrafts = [...this.drafts];
+      this.currentPage = 1;
+      this.calculatePagination();
       return;
     }
 
-    this.cargando = true;
+    this.loading = true;
     try {
-      this.borradoresFiltrados = await this.fichasService.buscarBorradores(
-        this.buscarTexto
+      this.filteredDrafts = await this.reportsService.searchDrafts(
+        this.searchText
       );
-      this.paginaActual = 1;
-      this.calcularPaginacion();
+      this.currentPage = 1;
+      this.calculatePagination();
     } catch (error) {
       this.error = 'Error al realizar la búsqueda';
     } finally {
-      this.cargando = false;
+      this.loading = false;
     }
   }
 
-  limpiarBusqueda(): void {
-    this.buscarTexto = '';
-    this.borradoresFiltrados = [...this.borradores];
-    this.paginaActual = 1;
-    this.calcularPaginacion();
+  clearSearch(): void {
+    this.searchText = '';
+    this.filteredDrafts = [...this.drafts];
+    this.currentPage = 1;
+    this.calculatePagination();
   }
 
-  calcularPaginacion(): void {
-    this.totalPaginas = Math.ceil(
-      this.borradoresFiltrados.length / this.registrosPorPagina
+  calculatePagination(): void {
+    this.totalPages = Math.ceil(
+      this.filteredDrafts.length / this.recordsPerPage
     );
-    this.paginaActual = Math.min(
-      Math.max(1, this.paginaActual),
-      Math.max(1, this.totalPaginas)
+    this.currentPage = Math.min(
+      Math.max(1, this.currentPage),
+      Math.max(1, this.totalPages)
     );
   }
 
-  get borradoresPaginados(): FichasBorradorDTO[] {
-    const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
-    const fin = inicio + this.registrosPorPagina;
-    return this.borradoresFiltrados.slice(inicio, fin);
+  get paginatedDrafts(): FichasBorradorDTO[] {
+    const start = (this.currentPage - 1) * this.recordsPerPage;
+    const end = start + this.recordsPerPage;
+    return this.filteredDrafts.slice(start, end);
   }
 
-  irAPagina(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginas) {
-      this.paginaActual = pagina;
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
     }
   }
 
-  abrirBorrador(id: number): void {
-    this.cargarFichaCompleta(id);
+  openDraft(id: number): void {
+    this.loadFullReport(id);
   }
 
-  async cargarFichaCompleta(id: number): Promise<void> {
-    this.cargandoFicha = true;
-    this.mostrarModal = true;
-    this.fichaSeleccionada = null;
+  async loadFullReport(id: number): Promise<void> {
+    this.reportLoading = true;
+    this.showModal = true;
+    this.selectedReport = null;
 
     try {
-      this.fichaSeleccionada = await this.fichasService.obtenerFichaPorId(id);
+      this.selectedReport = await this.reportsService.getReportById(id);
       this.cdr.detectChanges();
     } catch (error) {
       alert('Error al cargar la ficha');
-      this.cerrarModal();
+      this.closeModal();
     } finally {
-      this.cargandoFicha = false;
+      this.reportLoading = false;
     }
   }
 
-  cerrarModal(): void {
-    this.mostrarModal = false;
-    this.fichaSeleccionada = null;
+  closeModal(): void {
+    this.showModal = false;
+    this.selectedReport = null;
   }
 
-  async validarYGuardar(): Promise<void> {
-    if (!this.fichaSeleccionada) return;
+  async validateAndSave(): Promise<void> {
+    if (!this.selectedReport) return;
 
-    // Validar que tenga datos completos
-    const camposFaltantes: string[] = [];
 
-    if (!this.fichaSeleccionada.delegacion) camposFaltantes.push('Delegación');
-    if (!this.fichaSeleccionada.municipio) camposFaltantes.push('Municipio');
-    if (!this.fichaSeleccionada.lugar) camposFaltantes.push('Lugar');
-    if (!this.fichaSeleccionada.fechaSuceso)
-      camposFaltantes.push('Fecha Suceso');
-    if (!this.fichaSeleccionada.sector) camposFaltantes.push('Sector');
-    if (!this.fichaSeleccionada.prioridad) camposFaltantes.push('Prioridad');
-    if (!this.fichaSeleccionada.asunto) camposFaltantes.push('Asunto');
+    const missingFields: string[] = [];
 
-    if (camposFaltantes.length > 0) {
+    if (!this.selectedReport.delegation) missingFields.push('Delegación');
+    if (!this.selectedReport.municipality) missingFields.push('Municipio');
+    if (!this.selectedReport.place) missingFields.push('Lugar');
+    if (!this.selectedReport.eventDate)
+      missingFields.push('Fecha Suceso');
+    if (!this.selectedReport.sector) missingFields.push('Sector');
+    if (!this.selectedReport.priority) missingFields.push('Prioridad');
+    if (!this.selectedReport.subject) missingFields.push('Asunto');
+
+    if (missingFields.length > 0) {
       alert(
-        `⚠️ Faltan los siguientes campos obligatorios:\n\n${camposFaltantes.join(
+        `⚠️ Faltan los siguientes campos obligatorios:\n\n${missingFields.join(
           '\n'
         )}`
       );
       return;
     }
 
-    // Confirmar validación
-    const confirmar = confirm(
+
+    const confirmed = confirm(
       '¿Estás seguro de validar y guardar esta ficha?\n\n' +
         'Al confirmar, la ficha dejará de ser un borrador y pasará a estado activo.\n\n' +
-        `Delegación: ${this.fichaSeleccionada.delegacion}\n` +
-        `Fecha Suceso: ${this.fichaSeleccionada.fechaSuceso}\n` +
-        `Sector: ${this.fichaSeleccionada.sector}`
+        `Delegación: ${this.selectedReport.delegation}\n` +
+        `Fecha Suceso: ${this.selectedReport.eventDate}\n` +
+        `Sector: ${this.selectedReport.sector}`
     );
 
-    if (!confirmar) return;
+    if (!confirmed) return;
 
-    this.cargandoFicha = true;
+    this.reportLoading = true;
 
     try {
-      // Cambiar Activo de 2 a 3 (o el valor que corresponda para fichas validadas)
-      this.fichaSeleccionada.activo = 3;
-      this.fichaSeleccionada.fechaValidacion = new Date().toISOString();
 
-      await this.fichasService.actualizarFicha(
-        this.fichaSeleccionada.id,
-        this.fichaSeleccionada
+      this.selectedReport.active = 3;
+      this.selectedReport.validationDate = new Date().toISOString();
+
+      await this.reportsService.updateReport(
+        this.selectedReport.id,
+        this.selectedReport
       );
       alert('✅ Ficha validada y guardada correctamente');
 
-      this.cerrarModal();
-      await this.cargarBorradores(); // Recargar lista (ya no aparecerá este borrador)
+      this.closeModal();
+      await this.loadDrafts();
     } catch (error) {
       alert('❌ Error al validar y guardar la ficha');
     } finally {
-      this.cargandoFicha = false;
+      this.reportLoading = false;
     }
   }
 
-  async eliminarBorrador(id: number): Promise<void> {
+  async deleteDraft(id: number): Promise<void> {
     if (confirm('¿Estás seguro de eliminar este borrador?')) {
-      this.cargando = true;
+      this.loading = true;
       try {
-        await this.fichasService.eliminarFicha(id);
+        await this.reportsService.deleteReport(id);
         alert('Borrador eliminado correctamente');
-        await this.cargarBorradores(); // Recargar lista
+        await this.loadDrafts();
       } catch (error) {
         alert('Error al eliminar el borrador');
       } finally {
-        this.cargando = false;
+        this.loading = false;
       }
     }
   }

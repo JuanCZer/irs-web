@@ -11,31 +11,31 @@ import { UsuariosService } from '../../services/usuarios.service';
   styleUrl: './perfil.component.less',
 })
 export class PerfilComponent implements OnInit {
-  // Datos del usuario logueado
-  usuario: UsuarioAutenticado | null = null;
-  nombreCompleto = '';
-  ultimoAccesoFormateado = '';
+
+  user: UsuarioAutenticado | null = null;
+  fullName = '';
+  formattedLastAccess = '';
 
   constructor(
     private authService: AuthService,
-    private usuariosService: UsuariosService,
+    private usersService: UsuariosService,
   ) {}
 
   ngOnInit(): void {
-    // Obtener usuario actual
-    this.usuario = this.authService.currentUserValue;
-    if (this.usuario) {
-      this.nombreCompleto = this.authService.getNombreCompleto();
-      this.ultimoAccesoFormateado = this.formatearFecha(
-        this.usuario.ultimoAcceso,
+
+    this.user = this.authService.currentUserValue;
+    if (this.user) {
+      this.fullName = this.authService.getFullName();
+      this.formattedLastAccess = this.formatDate(
+        this.user.lastAccess,
       );
     }
   }
 
-  formatearFecha(fecha?: string): string {
-    if (!fecha) return 'N/A';
-    const date = new Date(fecha);
-    return date.toLocaleString('es-MX', {
+  formatDate(date?: string): string {
+    if (!date) return 'N/A';
+    const parsedDate = new Date(date);
+    return parsedDate.toLocaleString('es-MX', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -44,131 +44,127 @@ export class PerfilComponent implements OnInit {
     });
   }
 
-  // Formulario de cambio de contraseña
-  cambioPassword = {
-    passwordNueva: '',
-    passwordConfirmar: '',
+
+  passwordChange = {
+    newPassword: '',
+    confirmPassword: '',
   };
 
-  // Estados del formulario
-  mostrarPasswordNueva = false;
-  mostrarPasswordConfirmar = false;
-  mensajeError = '';
-  mensajeExito = '';
-  cargando = false;
 
-  // Validaciones de la contraseña
-  get validacionPassword() {
-    const password = this.cambioPassword.passwordNueva;
+  showNewPassword = false;
+  showPasswordConfirmation = false;
+  errorMessage = '';
+  successMessage = '';
+  loading = false;
+
+
+  get passwordValidation() {
+    const password = this.passwordChange.newPassword;
     return {
-      longitudMinima: password.length >= 8,
+      minimumLength: password.length >= 8,
       tieneMayuscula: /[A-Z]/.test(password),
       tieneMinuscula: /[a-z]/.test(password),
-      tieneNumero: /[0-9]/.test(password),
-      tieneCaracterEspecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+      hasNumber: /[0-9]/.test(password),
+      hasSpecialCharacter: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
         password,
       ),
     };
   }
 
-  get passwordValida(): boolean {
-    const val = this.validacionPassword;
+  get passwordValid(): boolean {
+    const val = this.passwordValidation;
     return (
-      val.longitudMinima &&
+      val.minimumLength &&
       val.tieneMayuscula &&
       val.tieneMinuscula &&
-      val.tieneNumero &&
-      val.tieneCaracterEspecial
+      val.hasNumber &&
+      val.hasSpecialCharacter
     );
   }
 
-  get passwordsCoinciden(): boolean {
+  get passwordsMatch(): boolean {
     return (
-      this.cambioPassword.passwordNueva ===
-        this.cambioPassword.passwordConfirmar &&
-      this.cambioPassword.passwordConfirmar.length > 0
+      this.passwordChange.newPassword ===
+        this.passwordChange.confirmPassword &&
+      this.passwordChange.confirmPassword.length > 0
     );
   }
 
-  toggleMostrarPassword(campo: 'nueva' | 'confirmar'): void {
-    switch (campo) {
+  togglePassword(field: 'nueva' | 'confirmar'): void {
+    switch (field) {
       case 'nueva':
-        this.mostrarPasswordNueva = !this.mostrarPasswordNueva;
+        this.showNewPassword = !this.showNewPassword;
         break;
       case 'confirmar':
-        this.mostrarPasswordConfirmar = !this.mostrarPasswordConfirmar;
+        this.showPasswordConfirmation = !this.showPasswordConfirmation;
         break;
     }
   }
 
-  private validateCambioPassword(): string | null {
-    const nueva = (this.cambioPassword.passwordNueva || '').trim();
-    const confirmar = (this.cambioPassword.passwordConfirmar || '').trim();
+  private validatePasswordChange(): string | null {
+    const newValue = (this.passwordChange.newPassword || '').trim();
+    const confirm = (this.passwordChange.confirmPassword || '').trim();
 
-    if (!nueva) return 'Debes ingresar una nueva contraseña';
-    if (!this.passwordValida)
+    if (!newValue) return 'Debes ingresar una nueva contraseña';
+    if (!this.passwordValid)
       return 'La nueva contraseña no cumple con todos los requisitos de seguridad';
-    if (nueva !== confirmar) return 'Las contraseñas no coinciden';
+    if (newValue !== confirm) return 'Las contraseñas no coinciden';
 
     return null;
   }
 
-  cambiarPassword(): void {
-    this.mensajeError = '';
-    this.mensajeExito = '';
+  changePassword(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
 
-    // Validaciones (centralizadas)
-    const validError = this.validateCambioPassword();
+    const validError = this.validatePasswordChange();
     if (validError) {
-      this.mensajeError = validError;
+      this.errorMessage = validError;
       return;
     }
 
-    // Llamada real al backend
-    this.cargando = true;
+    this.loading = true;
 
-    const datoCambio = {
-      contraseñaNueva: (this.cambioPassword.passwordNueva || '').trim(),
-      confirmarContraseña: (this.cambioPassword.passwordConfirmar || '').trim(),
+    const changedData = {
+      newPassword: (this.passwordChange.newPassword || '').trim(),
+      confirmPassword: (this.passwordChange.confirmPassword || '').trim(),
     };
 
-    this.usuariosService
-      .cambiarContrasena(datoCambio)
-      .then((respuesta) => {
-        this.cargando = false;
-        if (respuesta.exitoso) {
-          this.mensajeExito = '¡Contraseña cambiada exitosamente!';
+    this.usersService
+      .changePassword(changedData)
+      .then((response) => {
+        this.loading = false;
+        if (response.successful) {
+          this.successMessage = '¡Contraseña cambiada exitosamente!';
 
-          // Limpiar el formulario
-          this.cambioPassword = {
-            passwordNueva: '',
-            passwordConfirmar: '',
+          this.passwordChange = {
+            newPassword: '',
+            confirmPassword: '',
           };
 
-          // Ocultar mensaje después de 5 segundos
           setTimeout(() => {
-            this.mensajeExito = '';
+            this.successMessage = '';
           }, 5000);
         } else {
-          this.mensajeError =
-            respuesta.mensaje || 'Error al cambiar la contraseña';
-          if (respuesta.errores && respuesta.errores.length > 0) {
-            this.mensajeError += ': ' + respuesta.errores.join(', ');
+          this.errorMessage =
+            response.message || 'Error al cambiar la contraseña';
+          if (response.errors && response.errors.length > 0) {
+            this.errorMessage += ': ' + response.errors.join(', ');
           }
         }
       })
       .catch((error) => {
-        this.cargando = false;
-        this.mensajeError = 'Error al cambiar la contraseña: ' + error.message;
+        this.loading = false;
+        this.errorMessage = 'Error al cambiar la contraseña: ' + error.message;
       });
   }
 
-  cancelar(): void {
-    this.cambioPassword = {
-      passwordNueva: '',
-      passwordConfirmar: '',
+  cancel(): void {
+    this.passwordChange = {
+      newPassword: '',
+      confirmPassword: '',
     };
-    this.mensajeError = '';
-    this.mensajeExito = '';
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 }

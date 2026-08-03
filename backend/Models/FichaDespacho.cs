@@ -5,38 +5,38 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace IRS.API.Models
 {
     [Table("fichas_despacho")]
-    public class FichaDespacho
+    public class DispatchReport
     {
         [Key]
         [Column("id_ficha_despacho")]
-        public int IdFichaDespacho { get; set; }
-        
+        public int DispatchReportId { get; set; }
+
         [Column("id_ficha")]
-        public int IdFicha { get; set; }
-        
+        public int ReportId { get; set; }
+
         [Column("id_cat_medida")]
-        public int IdCatMedida { get; set; }
-        
+        public int MeasureCategoryId { get; set; }
+
         [Column("comentario")]
-        public string Comentario { get; set; } = string.Empty;
-        
+        public string Comment { get; set; } = string.Empty;
+
         [Column("evidencia")]
-        public string? Evidencia { get; set; }
-        
+        public string? Evidence { get; set; }
+
         [Column("fecha_validacion")]
-        public DateTime FechaValidacion { get; set; } = DateTime.UtcNow;
-        
+        public DateTime ValidationDate { get; set; } = DateTime.UtcNow;
+
         [Column("id_usuario")]
-        public int? IdUsuario { get; set; }
-        
-        // Navigation Properties
-        [ForeignKey("IdFicha")]
-        public virtual FichaInformativa? FichaInformativa { get; set; }
-        
-        [ForeignKey("IdCatMedida")]
-        public virtual CatMedidaSeguridad? CatMedidaSeguridad { get; set; }
-        
-        [ForeignKey("IdUsuario")]
-        public virtual int? Usuario { get; set; }
+        public int? UserId { get; set; }
+
+
+        [ForeignKey(nameof(ReportId))]
+        public virtual FichaInformativa? InformationReport { get; set; }
+
+        [ForeignKey(nameof(MeasureCategoryId))]
+        public virtual CatMedidaSeguridad? SecurityMeasure { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public virtual int? User { get; set; }
     }
 }

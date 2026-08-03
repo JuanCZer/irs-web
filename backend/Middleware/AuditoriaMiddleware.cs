@@ -24,19 +24,19 @@ namespace Backend.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var ruta = context.Request.Path.Value ?? string.Empty;
-            if (!ruta.StartsWith("/api", StringComparison.OrdinalIgnoreCase) ||
-                ruta.StartsWith("/api/health", StringComparison.OrdinalIgnoreCase))
+            var path = context.Request.Path.Value ?? string.Empty;
+            if (!path.StartsWith("/api", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith("/api/health", StringComparison.OrdinalIgnoreCase))
             {
                 await _next(context);
                 return;
             }
 
-            var omitirRegistroAutomatico =
+            var skipAutomaticLogging =
                 context.Request.Method == HttpMethods.Post &&
-                ruta.Equals("/api/auditoria/eventos", StringComparison.OrdinalIgnoreCase);
-            var cronometro = Stopwatch.StartNew();
-            Exception? errorNoControlado = null;
+                path.Equals("/api/auditoria/eventos", StringComparison.OrdinalIgnoreCase);
+            var stopwatch = Stopwatch.StartNew();
+            Exception? unhandledError = null;
 
             try
             {
@@ -44,156 +44,156 @@ namespace Backend.Middleware
             }
             catch (Exception ex)
             {
-                errorNoControlado = ex;
+                unhandledError = ex;
                 throw;
             }
             finally
             {
-                cronometro.Stop();
-                if (!omitirRegistroAutomatico)
+                stopwatch.Stop();
+                if (!skipAutomaticLogging)
                 {
-                    await RegistrarPeticionAsync(
+                    await LogRequestAsync(
                         context,
-                        ruta,
-                        cronometro.ElapsedMilliseconds,
-                        errorNoControlado);
+                        path,
+                        stopwatch.ElapsedMilliseconds,
+                        unhandledError);
                 }
             }
         }
 
-        private async Task RegistrarPeticionAsync(
+        private async Task LogRequestAsync(
             HttpContext context,
-            string ruta,
-            long duracionMs,
-            Exception? errorNoControlado)
+            string path,
+            long durationMs,
+            Exception? unhandledError)
         {
             try
             {
-                var idUsuario = ObtenerIdUsuario(context);
-                var estado = errorNoControlado == null
+                var userId = GetUserId(context);
+                var state = unhandledError == null
                     ? context.Response.StatusCode
                     : StatusCodes.Status500InternalServerError;
-                var clasificacion = Clasificar(context.Request.Method, ruta);
-                var exitoso = estado < 400;
-                var idEntidad = context.Items["AuditoriaEntidadId"]?.ToString()
-                    ?? clasificacion.IdEntidad;
-                if (idEntidad == null &&
-                    (clasificacion.Modulo == "AUTENTICACION" || clasificacion.Modulo == "SEGURIDAD"))
+                var classification = Classify(context.Request.Method, path);
+                var successful = state < 400;
+                var entityId = context.Items["AuditoriaEntidadId"]?.ToString()
+                    ?? classification.EntityId;
+                if (entityId == null &&
+                    (classification.Module == "AUTENTICACION" || classification.Module == "SEGURIDAD"))
                 {
-                    idEntidad = idUsuario?.ToString();
+                    entityId = userId?.ToString();
                 }
-                var descripcion = exitoso
-                    ? clasificacion.Descripcion
-                    : $"{clasificacion.Descripcion} (resultado no exitoso: HTTP {estado})";
+                var description = successful
+                    ? classification.Description
+                    : $"{classification.Description} (resultado no exitoso: HTTP {state})";
 
-                using var alcance = _scopeFactory.CreateScope();
-                var servicio = alcance.ServiceProvider.GetRequiredService<IAuditoriaService>();
-                await servicio.RegistrarAsync(idUsuario, new RegistroAuditoriaDTO
+                using var scope = _scopeFactory.CreateScope();
+                var service = scope.ServiceProvider.GetRequiredService<IAuditoriaService>();
+                await service.LogAsync(userId, new RegistroAuditoriaDTO
                 {
-                    Accion = clasificacion.Accion,
-                    Modulo = clasificacion.Modulo,
-                    Descripcion = descripcion,
-                    MetodoHttp = context.Request.Method,
-                    Ruta = Limitar(ruta, 500),
-                    Entidad = clasificacion.Entidad,
-                    IdEntidad = idEntidad,
-                    DireccionIp = Limitar(context.Connection.RemoteIpAddress?.ToString(), 64),
-                    AgenteUsuario = Limitar(context.Request.Headers.UserAgent.ToString(), 500),
-                    CodigoEstado = estado,
-                    Exitoso = exitoso,
-                    UsuarioAlternativo = context.Items["AuditoriaUsuarioNombre"]?.ToString(),
-                    Detalles = JsonSerializer.Serialize(new
+                    Action = classification.Action,
+                    Module = classification.Module,
+                    Description = description,
+                    HttpMethod = context.Request.Method,
+                    Path = Limit(path, 500),
+                    Entity = classification.Entity,
+                    EntityId = entityId,
+                    IpAddress = Limit(context.Connection.RemoteIpAddress?.ToString(), 64),
+                    UserAgent = Limit(context.Request.Headers.UserAgent.ToString(), 500),
+                    StatusCode = state,
+                    Successful = successful,
+                    FallbackUser = context.Items["AuditoriaUsuarioNombre"]?.ToString(),
+                    Details = JsonSerializer.Serialize(new
                     {
-                        consulta = context.Request.QueryString.Value,
-                        duracionMs,
-                        error = errorNoControlado?.GetType().Name
+                        query = context.Request.QueryString.Value,
+                        durationMs,
+                        error = unhandledError?.GetType().Name
                     })
                 });
             }
             catch (Exception ex)
             {
-                // La bitácora nunca debe interrumpir la operación principal.
-                _logger.LogWarning(ex, "No fue posible guardar el evento de auditoría {Ruta}", ruta);
+
+                _logger.LogWarning(ex, "No fue posible guardar el evento de auditoría {Ruta}", path);
             }
         }
 
-        private static int? ObtenerIdUsuario(HttpContext context)
+        private static int? GetUserId(HttpContext context)
         {
-            if (context.Items["AuditoriaUsuarioId"] is int idDesdeLogin)
-                return idDesdeLogin;
+            if (context.Items["AuditoriaUsuarioId"] is int loginUserId)
+                return loginUserId;
 
             return int.TryParse(
                 context.User.FindFirstValue(ClaimTypes.NameIdentifier),
-                out var idUsuario)
-                ? idUsuario
+                out var userId)
+                ? userId
                 : null;
         }
 
-        private static (string Accion, string Modulo, string Descripcion, string? Entidad, string? IdEntidad)
-            Clasificar(string metodo, string rutaOriginal)
+        private static (string Action, string Module, string Description, string? Entity, string? EntityId)
+            Classify(string method, string originalPath)
         {
-            var ruta = rutaOriginal.TrimEnd('/').ToLowerInvariant();
-            var segmentos = ruta.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            var ultimoId = segmentos.LastOrDefault(segmento => int.TryParse(segmento, out _));
+            var path = originalPath.TrimEnd('/').ToLowerInvariant();
+            var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var lastId = segments.LastOrDefault(segment => int.TryParse(segment, out _));
 
-            if (ruta == "/api/auth/login")
+            if (path == "/api/auth/login")
                 return ("INICIAR_SESION", "AUTENTICACION", "Inició sesión en el sistema", "USUARIO", null);
-            if (ruta == "/api/auth/logout")
+            if (path == "/api/auth/logout")
                 return ("CERRAR_SESION", "AUTENTICACION", "Cerró su sesión", "USUARIO", null);
-            if (ruta == "/api/auth/me")
+            if (path == "/api/auth/me")
                 return ("VALIDAR_SESION", "AUTENTICACION", "Validó su sesión activa", "SESION", null);
-            if (ruta == "/api/auth/cambiar-contrasena")
+            if (path == "/api/auth/cambiar-contrasena")
                 return ("CAMBIAR_CONTRASENA", "SEGURIDAD", "Cambió la contraseña de su cuenta", "USUARIO", null);
 
-            if (ruta.StartsWith("/api/usuarios"))
+            if (path.StartsWith("/api/usuarios"))
             {
-                if (metodo == HttpMethods.Post)
+                if (method == HttpMethods.Post)
                     return ("CREAR_USUARIO", "USUARIOS", "Registró un usuario", "USUARIO", null);
-                if (metodo == HttpMethods.Put)
-                    return ("ACTUALIZAR_USUARIO", "USUARIOS", "Actualizó un usuario", "USUARIO", ultimoId);
-                if (metodo == HttpMethods.Delete)
-                    return ("DESACTIVAR_USUARIO", "USUARIOS", "Desactivó un usuario", "USUARIO", ultimoId);
-                return ultimoId == null
+                if (method == HttpMethods.Put)
+                    return ("ACTUALIZAR_USUARIO", "USUARIOS", "Actualizó un usuario", "USUARIO", lastId);
+                if (method == HttpMethods.Delete)
+                    return ("DESACTIVAR_USUARIO", "USUARIOS", "Desactivó un usuario", "USUARIO", lastId);
+                return lastId == null
                     ? ("CONSULTAR_USUARIOS", "USUARIOS", "Consultó los usuarios dados de alta", "USUARIO", null)
-                    : ("CONSULTAR_USUARIO", "USUARIOS", "Consultó el detalle de un usuario", "USUARIO", ultimoId);
+                    : ("CONSULTAR_USUARIO", "USUARIOS", "Consultó el detalle de un usuario", "USUARIO", lastId);
             }
 
-            if (ruta.StartsWith("/api/fichas"))
+            if (path.StartsWith("/api/fichas"))
             {
-                if (metodo == HttpMethods.Post)
+                if (method == HttpMethods.Post)
                     return ("CREAR_FICHA", "FICHAS", "Registró una ficha informativa", "FICHA", null);
-                if (metodo == HttpMethods.Put)
-                    return ("ACTUALIZAR_FICHA", "FICHAS", "Actualizó una ficha informativa", "FICHA", ultimoId);
-                if (metodo == HttpMethods.Delete)
-                    return ("ELIMINAR_FICHA", "FICHAS", "Eliminó una ficha informativa", "FICHA", ultimoId);
-                if (ruta.Contains("estadisticas"))
+                if (method == HttpMethods.Put)
+                    return ("ACTUALIZAR_FICHA", "FICHAS", "Actualizó una ficha informativa", "FICHA", lastId);
+                if (method == HttpMethods.Delete)
+                    return ("ELIMINAR_FICHA", "FICHAS", "Eliminó una ficha informativa", "FICHA", lastId);
+                if (path.Contains("estadisticas"))
                     return ("CONSULTAR_ESTADISTICAS", "ESTADISTICAS", "Consultó las estadísticas de fichas", "FICHA", null);
-                if (ruta.Contains("borradores"))
+                if (path.Contains("borradores"))
                     return ("CONSULTAR_BORRADORES", "FICHAS", "Consultó borradores de fichas", "FICHA", null);
-                return ("CONSULTAR_FICHAS", "FICHAS", "Consultó fichas informativas", "FICHA", ultimoId);
+                return ("CONSULTAR_FICHAS", "FICHAS", "Consultó fichas informativas", "FICHA", lastId);
             }
 
-            if (ruta.StartsWith("/api/despacho"))
+            if (path.StartsWith("/api/despacho"))
             {
-                return metodo == HttpMethods.Post
-                    ? ("REALIZAR_DESPACHO", "DESPACHO", "Realizó la validación de despacho de una ficha", "FICHA", ultimoId)
-                    : ("CONSULTAR_DESPACHO", "DESPACHO", "Consultó información de despacho", "FICHA", ultimoId);
+                return method == HttpMethods.Post
+                    ? ("REALIZAR_DESPACHO", "DESPACHO", "Realizó la validación de despacho de una ficha", "FICHA", lastId)
+                    : ("CONSULTAR_DESPACHO", "DESPACHO", "Consultó información de despacho", "FICHA", lastId);
             }
 
-            if (ruta.StartsWith("/api/auditoria"))
+            if (path.StartsWith("/api/auditoria"))
                 return ("CONSULTAR_AUDITORIA", "AUDITORIA", "Consultó la bitácora de actividad", "AUDITORIA", null);
-            if (ruta.StartsWith("/api/catalogos"))
+            if (path.StartsWith("/api/catalogos"))
                 return ("CONSULTAR_CATALOGO", "CATALOGOS", "Consultó un catálogo del sistema", "CATALOGO", null);
-            if (ruta.StartsWith("/api/roles"))
+            if (path.StartsWith("/api/roles"))
                 return ("CONSULTAR_ROLES", "USUARIOS", "Consultó el catálogo de roles", "ROL", null);
 
-            return ("PETICION_API", "SISTEMA", $"Ejecutó {metodo} sobre {rutaOriginal}", null, ultimoId);
+            return ("PETICION_API", "SISTEMA", $"Ejecutó {method} sobre {originalPath}", null, lastId);
         }
 
-        private static string? Limitar(string? valor, int longitud)
+        private static string? Limit(string? value, int longitude)
         {
-            if (string.IsNullOrEmpty(valor)) return valor;
-            return valor.Length <= longitud ? valor : valor[..longitud];
+            if (string.IsNullOrEmpty(value)) return value;
+            return value.Length <= longitude ? value : value[..longitude];
         }
     }
 }

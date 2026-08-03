@@ -1,5 +1,3 @@
--- Sesiones revocables ligadas a los JWT emitidos por el servidor.
--- Ejecutar una sola vez sobre la base de datos IRS.
 
 CREATE TABLE IF NOT EXISTS public.sesion_usuario
 (

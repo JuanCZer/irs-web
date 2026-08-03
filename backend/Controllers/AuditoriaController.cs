@@ -12,68 +12,70 @@ namespace Backend.Controllers
     [Authorize]
     public class AuditoriaController : ControllerBase
     {
-        private readonly IAuditoriaService _auditoriaService;
+        private readonly IAuditoriaService _auditService;
 
-        public AuditoriaController(IAuditoriaService auditoriaService)
+        public AuditoriaController(IAuditoriaService auditService)
         {
-            _auditoriaService = auditoriaService;
+            _auditService = auditService;
         }
 
         [HttpGet]
         [Authorize(Roles = "ADMIN")]
-        public async Task<ActionResult<AuditoriaPaginaDTO>> Consultar(
-            [FromQuery] AuditoriaConsultaDTO consulta)
+        public async Task<ActionResult<AuditoriaPaginaDTO>> Query(
+            [FromQuery] AuditoriaConsultaDTO filters)
         {
-            return Ok(await _auditoriaService.ConsultarAsync(consulta));
+            return Ok(await _auditService.QueryAsync(filters));
         }
 
         [HttpPost("eventos")]
-        public async Task<IActionResult> RegistrarNavegacion(
-            [FromBody] RegistrarEventoAuditoriaDTO evento)
+        public async Task<IActionResult> LogNavigation(
+            [FromBody] RegistrarEventoAuditoriaDTO navigationEvent)
         {
-            var idUsuario = ObtenerIdUsuario();
-            if (!idUsuario.HasValue) return Unauthorized();
+            var userId = GetUserId();
+            if (!userId.HasValue) return Unauthorized();
 
-            var ruta = string.IsNullOrWhiteSpace(evento.Ruta) ? "/" : evento.Ruta.Trim();
-            if (ruta.Length > 500) ruta = ruta[..500];
+            var path = string.IsNullOrWhiteSpace(navigationEvent.Path)
+                ? "/"
+                : navigationEvent.Path.Trim();
+            if (path.Length > 500) path = path[..500];
 
-            await _auditoriaService.RegistrarAsync(idUsuario, new RegistroAuditoriaDTO
+            await _auditService.LogAsync(userId, new RegistroAuditoriaDTO
             {
-                Accion = "ABRIR_PANTALLA",
-                Modulo = "NAVEGACION",
-                Descripcion = $"Abrió la pantalla {ObtenerNombrePantalla(ruta)}",
-                MetodoHttp = Request.Method,
-                Ruta = ruta,
-                DireccionIp = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                AgenteUsuario = Request.Headers.UserAgent.ToString(),
-                CodigoEstado = StatusCodes.Status201Created,
-                Exitoso = true,
-                Detalles = JsonSerializer.Serialize(new { ruta })
+                Action = "ABRIR_PANTALLA",
+                Module = "NAVEGACION",
+                Description = $"Abrió la pantalla {GetScreenName(path)}",
+                HttpMethod = Request.Method,
+                Path = path,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                UserAgent = Request.Headers.UserAgent.ToString(),
+                StatusCode = StatusCodes.Status201Created,
+                Successful = true,
+                Details = JsonSerializer.Serialize(new { path })
             });
 
             return StatusCode(StatusCodes.Status201Created);
         }
 
-        private int? ObtenerIdUsuario()
+        private int? GetUserId()
         {
             return int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id)
                 ? id
                 : null;
         }
 
-        private static string ObtenerNombrePantalla(string ruta)
+        private static string GetScreenName(string path)
         {
-            if (ruta.StartsWith("/inicio")) return "Resumen operativo";
-            if (ruta.StartsWith("/fichas/registrar")) return "Registrar ficha";
-            if (ruta.StartsWith("/fichas/borradores")) return "Borradores de fichas";
-            if (ruta.StartsWith("/consultar-fichas")) return "Consulta de fichas";
-            if (ruta.StartsWith("/mapa-fichas")) return "Mapa de fichas";
-            if (ruta.StartsWith("/despacho")) return "Despacho";
-            if (ruta.StartsWith("/estadisticas")) return "Estadísticas";
-            if (ruta.StartsWith("/admin-usuarios")) return "Administración de usuarios";
-            if (ruta.StartsWith("/auditoria")) return "Bitácora de actividad";
-            if (ruta.StartsWith("/perfil")) return "Seguridad de la cuenta";
-            return ruta;
+            if (path.StartsWith("/inicio")) return "Resumen operativo";
+            if (path.StartsWith("/fichas/registrar")) return "Registrar ficha";
+            if (path.StartsWith("/fichas/borradores")) return "Borradores de fichas";
+            if (path.StartsWith("/consultar-fichas")) return "Consulta de fichas";
+            if (path.StartsWith("/mapa-fichas")) return "Mapa de fichas";
+            if (path.StartsWith("/despacho")) return "Despacho";
+            if (path.StartsWith("/estadisticas")) return "Estadísticas";
+            if (path.StartsWith("/admin-usuarios")) return "Administración de usuarios";
+            if (path.StartsWith("/auditoria")) return "Bitácora de actividad";
+            if (path.StartsWith("/perfil")) return "Seguridad de la cuenta";
+            return path;
         }
     }
 }

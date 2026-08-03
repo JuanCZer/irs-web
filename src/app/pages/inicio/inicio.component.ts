@@ -12,14 +12,14 @@ import { AuthService } from '../../services/auth.service';
 export class InicioComponent {
   readonly currentDate = this.formatCurrentDate();
   readonly greeting = this.getGreeting();
-  readonly nombreUsuario: string;
-  readonly nombreRol: string;
+  readonly userName: string;
+  readonly roleName: string;
 
   constructor(private authService: AuthService) {
-    const fullName = this.authService.getNombreCompleto();
-    this.nombreUsuario = fullName.split(/\s+/)[0] || 'Usuario';
-    this.nombreRol =
-      this.authService.currentUserValue?.nombreRol || 'Usuario autorizado';
+    const fullName = this.authService.getFullName();
+    this.userName = fullName.split(/\s+/)[0] || 'Usuario';
+    this.roleName =
+      this.authService.currentUserValue?.roleName || 'Usuario autorizado';
   }
 
   private formatCurrentDate(): string {

@@ -11,19 +11,19 @@ import { FichaInformativa } from '../../services/fichas.service';
   styleUrls: ['./modal-fichas-consulta.component.less'],
 })
 export class ModalFichasConsultaComponent {
-  @Input() mostrarModal: boolean = false;
-  @Input() fichaSeleccionada: FichaInformativa | null = null;
-  @Input() cargandoFicha: boolean = false;
-  @Input() modoSoloLectura: boolean = false;
+  @Input() showModal: boolean = false;
+  @Input() selectedReport: FichaInformativa | null = null;
+  @Input() reportLoading: boolean = false;
+  @Input() readOnlyMode: boolean = false;
 
-  @Output() cerrar = new EventEmitter<void>();
-  @Output() validarYGuardar = new EventEmitter<void>();
+  @Output() close = new EventEmitter<void>();
+  @Output() validateAndSave = new EventEmitter<void>();
 
-  cerrarModal(): void {
-    this.cerrar.emit();
+  closeModal(): void {
+    this.close.emit();
   }
 
-  onValidarYGuardar(): void {
-    this.validarYGuardar.emit();
+  onValidateAndSave(): void {
+    this.validateAndSave.emit();
   }
 }

@@ -2,58 +2,58 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 
 export interface UsuarioDTO {
-  idUsuario: number;
-  nombre?: string;
-  app?: string;
-  apm?: string;
+  userId: number;
+  name?: string;
+  firstSurname?: string;
+  secondSurname?: string;
   alias?: string;
-  usuario: string;
+  user: string;
   status?: number;
   statusList?: number;
-  ultimoAcceso?: string;
-  intento?: number;
+  lastAccess?: string;
+  attempt?: number;
   ip?: string;
-  fechaHoraCreacion?: string;
-  idRol?: number;
-  nombreRol?: string;
+  createdAt?: string;
+  roleId?: number;
+  roleName?: string;
 }
 
 export interface CrearUsuarioDTO {
-  nombre?: string;
-  app?: string;
-  apm?: string;
+  name?: string;
+  firstSurname?: string;
+  secondSurname?: string;
   alias?: string;
-  usuario: string;
+  user: string;
   password: string;
   status?: number;
-  idRol?: number;
+  roleId?: number;
 }
 
 export interface ActualizarUsuarioDTO {
-  nombre?: string;
-  app?: string;
-  apm?: string;
+  name?: string;
+  firstSurname?: string;
+  secondSurname?: string;
   alias?: string;
-  usuario?: string;
+  user?: string;
   password?: string;
   status?: number;
-  idRol?: number;
+  roleId?: number;
 }
 
 export interface CatRol {
-  idCatRol: number;
-  nombreRol: string;
+  roleCategoryId: number;
+  roleName: string;
 }
 
 export interface CambiarContrasenaDTO {
-  contraseñaNueva: string;
-  confirmarContraseña: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface RespuestaCambioContrasenaDTO {
-  exitoso: boolean;
-  mensaje: string;
-  errores?: string[];
+  successful: boolean;
+  message: string;
+  errors?: string[];
 }
 
 @Injectable({
@@ -65,7 +65,7 @@ export class UsuariosService {
 
   constructor(private api: ApiService) {}
 
-  async obtenerRoles(): Promise<CatRol[]> {
+  async getRoles(): Promise<CatRol[]> {
     try {
 
       const response = await this.api.fetch(this.rolesApiUrl, {
@@ -86,7 +86,7 @@ export class UsuariosService {
       return roles;
     } catch (error) {
 
-      // Si es un error de red o CORS
+
       if (error instanceof TypeError) {
         console.error(
           '   Verifica que el backend esté corriendo en:',
@@ -98,7 +98,7 @@ export class UsuariosService {
     }
   }
 
-  async obtenerTodosLosUsuarios(): Promise<UsuarioDTO[]> {
+  async getAllUsers(): Promise<UsuarioDTO[]> {
     try {
       const response = await this.api.fetch(this.apiUrl);
 
@@ -106,14 +106,14 @@ export class UsuariosService {
         throw new Error(`Error HTTP: ${response.status}`);
       }
 
-      const usuarios = await response.json();
-      return usuarios;
+      const users = await response.json();
+      return users;
     } catch (error) {
       throw error;
     }
   }
 
-  async obtenerUsuarioPorId(id: number): Promise<UsuarioDTO> {
+  async getUserById(id: number): Promise<UsuarioDTO> {
     try {
       const response = await this.api.fetch(`${this.apiUrl}/${id}`);
 
@@ -121,21 +121,21 @@ export class UsuariosService {
         throw new Error(`Error HTTP: ${response.status}`);
       }
 
-      const usuario = await response.json();
-      return usuario;
+      const user = await response.json();
+      return user;
     } catch (error) {
       throw error;
     }
   }
 
-  async crearUsuario(usuario: CrearUsuarioDTO): Promise<UsuarioDTO> {
+  async createUser(user: CrearUsuarioDTO): Promise<UsuarioDTO> {
     try {
       const response = await this.api.fetch(this.apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(usuario),
+        body: JSON.stringify(user),
       });
 
       if (!response.ok) {
@@ -143,16 +143,16 @@ export class UsuariosService {
         throw new Error(errorData.error || `Error HTTP: ${response.status}`);
       }
 
-      const nuevoUsuario = await response.json();
-      return nuevoUsuario;
+      const newUser = await response.json();
+      return newUser;
     } catch (error) {
       throw error;
     }
   }
 
-  async actualizarUsuario(
+  async updateUser(
     id: number,
-    usuario: ActualizarUsuarioDTO,
+    user: ActualizarUsuarioDTO,
   ): Promise<void> {
     try {
       const response = await this.api.fetch(`${this.apiUrl}/${id}`, {
@@ -160,7 +160,7 @@ export class UsuariosService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(usuario),
+        body: JSON.stringify(user),
       });
 
       if (!response.ok) {
@@ -172,7 +172,7 @@ export class UsuariosService {
     }
   }
 
-  async eliminarUsuario(id: number): Promise<void> {
+  async deleteUser(id: number): Promise<void> {
     try {
       const response = await this.api.fetch(`${this.apiUrl}/${id}`, {
         method: 'DELETE',
@@ -187,8 +187,8 @@ export class UsuariosService {
     }
   }
 
-  async cambiarContrasena(
-    cambioContraseña: CambiarContrasenaDTO,
+  async changePassword(
+    passwordChange: CambiarContrasenaDTO,
   ): Promise<RespuestaCambioContrasenaDTO> {
     try {
       const response = await this.api.fetch(
@@ -198,25 +198,25 @@ export class UsuariosService {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(cambioContraseña),
+          body: JSON.stringify(passwordChange),
         },
       );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.mensaje || `Error HTTP: ${response.status}`);
+        throw new Error(errorData.message || `Error HTTP: ${response.status}`);
       }
 
-      const resultado = await response.json();
+      const result = await response.json();
 
-      // Mapear respuesta del backend (PascalCase) a camelCase
+
       return {
-        exitoso:
-          resultado.exitoso !== undefined
-            ? resultado.exitoso
-            : resultado.Exitoso,
-        mensaje: resultado.mensaje || resultado.Mensaje || '',
-        errores: resultado.errores || resultado.Errores,
+        successful:
+          result.successful !== undefined
+            ? result.successful
+            : result.Successful,
+        message: result.message || result.Message || '',
+        errors: result.errors || result.Errors,
       };
     } catch (error) {
       throw error;

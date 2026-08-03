@@ -1,112 +1,112 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 
-// DTO para listar fichas en tabla (11 campos)
+
 export interface FichasTodosDTO {
   id: number;
-  fechaElaboracion: string;
-  folio: string;
-  fechaSuceso: string;
-  horaSuceso: string;
-  estado: string;
-  municipio: string;
-  lugar: string;
-  asunto: string;
-  prioridad: string;
+  creationDate: string;
+  referenceNumber: string;
+  eventDate: string;
+  eventTime: string;
+  state: string;
+  municipality: string;
+  place: string;
+  subject: string;
+  priority: string;
   sector: string;
-  asistentes: number;
-  estadoActual: string;
-  latitud?: string;
-  longitud?: string;
+  attendees: number;
+  currentStatus: string;
+  latitude?: string;
+  longitude?: string;
 }
 
-// DTO para borradores (10 campos)
+
 export interface FichasBorradorDTO {
   id: number;
-  fechaElaboracion: string;
-  fechaSuceso: string;
-  horaSuceso: string;
-  estado: string;
-  prioridad: string;
+  creationDate: string;
+  eventDate: string;
+  eventTime: string;
+  state: string;
+  priority: string;
   sector: string;
-  asistentes: number;
-  estadoActual: string;
-  borradorUsuario: string;
+  attendees: number;
+  currentStatus: string;
+  draftUser: string;
 }
 
-// Modelo completo FichaInformativa (31 campos) - para CRUD
+
 export interface FichaInformativa {
   id: number;
-  cedula?: number;
-  delegacion?: string;
-  municipio?: string;
-  lugar?: string;
-  latitud?: string;
-  longitud?: string;
-  horaSucesoInicio?: string;
-  horaSucesoFin?: string;
-  fechaSuceso?: string;
+  certificateNumber?: number;
+  delegation?: string;
+  municipality?: string;
+  place?: string;
+  latitude?: string;
+  longitude?: string;
+  eventStartTime?: string;
+  eventEndTime?: string;
+  eventDate?: string;
   sector?: string;
   subsector?: string;
-  numAsistentes?: number;
-  fechaElaboracion?: string;
-  horaElaboracion?: string;
-  prioridad?: string;
-  condicion?: string;
-  informacion?: string;
-  asunto?: string;
-  hechos?: string;
-  acuerdos?: string;
-  idInformo?: number;
-  idUsuario?: number;
-  idAutorizo?: number;
-  fechaRecepcion?: string;
-  horaRecepcion?: string;
-  idEstadoActual?: number;
-  motivoCancelacion?: string;
-  activo?: number;
-  folioInterno?: string;
-  direccion?: string;
-  visto?: number;
-  idFichaAnterior?: number;
-  fechaValidacion?: string;
+  attendeeCount?: number;
+  creationDate?: string;
+  creationTime?: string;
+  priority?: string;
+  condition?: string;
+  information?: string;
+  subject?: string;
+  facts?: string;
+  agreements?: string;
+  reporterId?: number;
+  userId?: number;
+  authorizerId?: number;
+  receptionDate?: string;
+  receptionTime?: string;
+  currentStatusId?: number;
+  cancellationReason?: string;
+  active?: number;
+  internalReference?: string;
+  address?: string;
+  seen?: number;
+  previousReportId?: number;
+  validationDate?: string;
 }
 
-// DTO para crear/actualizar (envío al backend)
+
 export interface FichaInformativaDTO {
-  cedula?: number;
-  delegacion: string;
-  municipio: string;
-  lugar: string;
-  latitud?: string;
-  longitud?: string;
-  direccion: string;
+  certificateNumber?: number;
+  delegation: string;
+  municipality: string;
+  place: string;
+  latitude?: string;
+  longitude?: string;
+  address: string;
   sector: string;
   subsector: string;
-  horaSucesoInicio: string;
-  horaSucesoFin: string;
-  fechaSuceso: string;
-  numAsistentes?: number;
-  fechaElaboracion: string;
-  horaElaboracion: string;
-  prioridad: string;
-  condicion: string;
-  informacion: string;
-  asunto: string;
-  hechos: string;
-  acuerdos: string;
-  idInformo?: number;
-  idUsuario?: number;
-  idAutorizo?: number;
-  fechaRecepcion: string;
-  horaRecepcion: string;
-  idEstadoActual?: number;
-  motivoCancelacion?: string;
-  activo: number;
-  folioInterno?: string;
-  visto: number;
-  idFichaAnterior?: number;
-  fechaValidacion?: string;
+  eventStartTime: string;
+  eventEndTime: string;
+  eventDate: string;
+  attendeeCount?: number;
+  creationDate: string;
+  creationTime: string;
+  priority: string;
+  condition: string;
+  information: string;
+  subject: string;
+  facts: string;
+  agreements: string;
+  reporterId?: number;
+  userId?: number;
+  authorizerId?: number;
+  receptionDate: string;
+  receptionTime: string;
+  currentStatusId?: number;
+  cancellationReason?: string;
+  active: number;
+  internalReference?: string;
+  seen: number;
+  previousReportId?: number;
+  validationDate?: string;
 }
 
 @Injectable({
@@ -117,7 +117,7 @@ export class FichasService {
 
   constructor(private api: ApiService) {}
 
-  async obtenerTodasLasFichas(): Promise<FichasTodosDTO[]> {
+  async getAllReports(): Promise<FichasTodosDTO[]> {
     try {
       const response = await this.api.fetch(this.apiUrl);
 
@@ -132,7 +132,7 @@ export class FichasService {
     }
   }
 
-  async obtenerFichasPorEstado(estado: string): Promise<FichasTodosDTO[]> {
+  async getReportsByStatus(state: string): Promise<FichasTodosDTO[]> {
     try {
       const response = await this.api.fetch(`${this.apiUrl}/concluidas`);
 
@@ -147,7 +147,7 @@ export class FichasService {
     }
   }
 
-  async obtenerFichaPorId(id: number): Promise<FichaInformativa> {
+  async getReportById(id: number): Promise<FichaInformativa> {
     try {
       const response = await this.api.fetch(`${this.apiUrl}/${id}`);
       if (!response.ok) {
@@ -160,14 +160,14 @@ export class FichasService {
     }
   }
 
-  async crearFicha(ficha: FichaInformativa): Promise<FichaInformativa> {
+  async createReport(report: FichaInformativa): Promise<FichaInformativa> {
     try {
       const response = await this.api.fetch(this.apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(ficha),
+        body: JSON.stringify(report),
       });
 
       if (!response.ok) {
@@ -181,9 +181,9 @@ export class FichasService {
     }
   }
 
-  async actualizarFicha(
+  async updateReport(
     id: number,
-    ficha: FichaInformativa,
+    report: FichaInformativa,
   ): Promise<FichaInformativa> {
     try {
       const response = await this.api.fetch(`${this.apiUrl}/${id}`, {
@@ -191,7 +191,7 @@ export class FichasService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(ficha),
+        body: JSON.stringify(report),
       });
 
       if (!response.ok) {
@@ -205,7 +205,7 @@ export class FichasService {
     }
   }
 
-  async eliminarFicha(id: number): Promise<boolean> {
+  async deleteReport(id: number): Promise<boolean> {
     try {
       const response = await this.api.fetch(`${this.apiUrl}/${id}`, {
         method: 'DELETE',
@@ -220,10 +220,10 @@ export class FichasService {
     }
   }
 
-  async buscarFichas(criterio: string): Promise<FichasTodosDTO[]> {
+  async searchReports(criteria: string): Promise<FichasTodosDTO[]> {
     try {
       const response = await this.api.fetch(
-        `${this.apiUrl}/buscar?criterio=${encodeURIComponent(criterio)}`,
+        `${this.apiUrl}/search?criteria=${encodeURIComponent(criteria)}`,
       );
       if (!response.ok) {
         throw new Error('Error al buscar fichas');
@@ -234,33 +234,33 @@ export class FichasService {
     }
   }
 
-  async obtenerFichasPorRangoFechas(
-    fechaInicio: string,
-    fechaFin: string,
+  async getReportsByDateRange(
+    startDate: string,
+    endDate: string,
   ): Promise<FichasTodosDTO[]> {
     try {
 
-      // Validar que las fechas no estén vacías
-      if (!fechaInicio || !fechaFin) {
+
+      if (!startDate || !endDate) {
         throw new Error('Las fechas son requeridas');
       }
 
-      // Codificar las fechas para URL
-      const fechaInicioEncoded = encodeURIComponent(fechaInicio);
-      const fechaFinEncoded = encodeURIComponent(fechaFin);
 
-      const url = `${this.apiUrl}/rango-fechas?fechaInicio=${fechaInicioEncoded}&fechaFin=${fechaFinEncoded}`;
+      const encodedStartDate = encodeURIComponent(startDate);
+      const encodedEndDate = encodeURIComponent(endDate);
+
+      const url = `${this.apiUrl}/rango-fechas?startDate=${encodedStartDate}&endDate=${encodedEndDate}`;
 
       const response = await this.api.fetch(url);
 
       if (!response.ok) {
         const errorText = await response.text();
 
-        // Intentar parsear el error como JSON
+
         try {
           const errorJson = JSON.parse(errorText);
           throw new Error(
-            errorJson.mensaje || 'Error al obtener fichas por rango de fechas',
+            errorJson.message || 'Error al obtener fichas por rango de fechas',
           );
         } catch {
           throw new Error(`Error ${response.status}: ${errorText}`);
@@ -274,9 +274,9 @@ export class FichasService {
     }
   }
 
-  async obtenerFichasDelDia(): Promise<FichasTodosDTO[]> {
+  async getReportsForToday(): Promise<FichasTodosDTO[]> {
     try {
-      const url = `${this.apiUrl}/dia-actual`;
+      const url = `${this.apiUrl}/day-actual`;
 
       const response = await this.api.fetch(url);
 
@@ -292,9 +292,9 @@ export class FichasService {
     }
   }
 
-  async obtenerBorradores(): Promise<FichasBorradorDTO[]> {
+  async getDrafts(): Promise<FichasBorradorDTO[]> {
     try {
-      const url = `${this.apiUrl}/borradores`;
+      const url = `${this.apiUrl}/drafts`;
 
       const response = await this.api.fetch(url);
 
@@ -310,11 +310,11 @@ export class FichasService {
     }
   }
 
-  async buscarBorradores(criterio: string): Promise<FichasBorradorDTO[]> {
+  async searchDrafts(criteria: string): Promise<FichasBorradorDTO[]> {
     try {
       const url = `${
         this.apiUrl
-      }/borradores/buscar?criterio=${encodeURIComponent(criterio)}`;
+      }/drafts/search?criteria=${encodeURIComponent(criteria)}`;
 
       const response = await this.api.fetch(url);
 

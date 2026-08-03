@@ -65,7 +65,7 @@
               type="text"
               id="usuario"
               name="usuario"
-              [(ngModel)]="credentials.usuario"
+              [(ngModel)]="credentials.user"
               class="form-control"
               placeholder="Usuario institucional"
               autocomplete="username"
@@ -81,7 +81,7 @@
           <div class="input-control password-input-wrapper">
             <i class="fi fi-rr-lock field-icon" aria-hidden="true"></i>
             <input
-              [type]="mostrarPassword ? 'text' : 'password'"
+              [type]="showPassword ? 'text' : 'password'"
               id="password"
               name="password"
               [(ngModel)]="credentials.password"
@@ -94,16 +94,16 @@
             <button
               type="button"
               class="toggle-password"
-              (click)="toggleMostrarPassword()"
+              (click)="togglePassword()"
               [disabled]="loading"
               [attr.aria-label]="
-                mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
               "
             >
               <i
                 class="fi"
-                [class.fi-rr-eye]="!mostrarPassword"
-                [class.fi-rr-eye-crossed]="mostrarPassword"
+                [class.fi-rr-eye]="!showPassword"
+                [class.fi-rr-eye-crossed]="showPassword"
                 aria-hidden="true"
               ></i>
             </button>
@@ -113,7 +113,7 @@
         <button
           type="submit"
           class="btn-login"
-          [disabled]="loading || !credentials.usuario || !credentials.password"
+          [disabled]="loading || !credentials.user || !credentials.password"
         >
           <span *ngIf="!loading">
             Ingresar al sistema

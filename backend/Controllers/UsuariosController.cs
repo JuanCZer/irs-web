@@ -12,71 +12,71 @@ namespace Backend.Controllers
     [Authorize(Roles = "ADMIN")]
     public class UsuariosController : ControllerBase
     {
-        private readonly IUsuariosService _usuariosService;
+        private readonly IUsuariosService _usersService;
 
-        public UsuariosController(IUsuariosService usuariosService)
+        public UsuariosController(IUsuariosService usersService)
         {
-            _usuariosService = usuariosService;
+            _usersService = usersService;
         }
 
-        // GET: api/usuarios
+
         [HttpGet]
-        public async Task<ActionResult<List<UsuarioDTO>>> ObtenerTodosLosUsuarios()
+        public async Task<ActionResult<List<UsuarioDTO>>> GetAllUsers()
         {
             try
             {
-                var usuarios = await _usuariosService.ObtenerTodosLosUsuariosAsync();
-                return Ok(usuarios);
+                var users = await _usersService.GetAllUsersAsync();
+                return Ok(users);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Error al obtener los usuarios", detalle = ex.Message });
+                return StatusCode(500, new { error = "Error al obtener los usuarios", details = ex.Message });
             }
         }
 
-        // GET: api/usuarios/5
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<UsuarioDTO>> ObtenerUsuarioPorId(int id)
+        public async Task<ActionResult<UsuarioDTO>> GetUserById(int id)
         {
             try
             {
-                var usuario = await _usuariosService.ObtenerUsuarioPorIdAsync(id);
+                var user = await _usersService.GetUserByIdAsync(id);
 
-                if (usuario == null)
+                if (user == null)
                 {
                     return NotFound(new { error = $"Usuario con ID {id} no encontrado" });
                 }
 
-                return Ok(usuario);
+                return Ok(user);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Error al obtener el usuario", detalle = ex.Message });
+                return StatusCode(500, new { error = "Error al obtener el usuario", details = ex.Message });
             }
         }
 
-        // POST: api/usuarios
+
         [HttpPost]
-        public async Task<ActionResult<UsuarioDTO>> CrearUsuario([FromBody] CrearUsuarioDTO usuarioDto)
+        public async Task<ActionResult<UsuarioDTO>> CreateUser([FromBody] CrearUsuarioDTO userDto)
         {
             try
             {
-                usuarioDto.IdUsuarioCrea = int.Parse(
+                userDto.CreatorUserId = int.Parse(
                     User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                
-                if (string.IsNullOrWhiteSpace(usuarioDto.Usuario))
+
+                if (string.IsNullOrWhiteSpace(userDto.User))
                 {
                     return BadRequest(new { error = "El campo 'usuario' es requerido" });
                 }
 
-                if (string.IsNullOrWhiteSpace(usuarioDto.Password))
+                if (string.IsNullOrWhiteSpace(userDto.Password))
                 {
                     return BadRequest(new { error = "El campo 'password' es requerido" });
                 }
 
-                var usuario = await _usuariosService.CrearUsuarioAsync(usuarioDto);
-                HttpContext.Items["AuditoriaEntidadId"] = usuario.IdUsuario;
-                return CreatedAtAction(nameof(ObtenerUsuarioPorId), new { id = usuario.IdUsuario }, usuario);
+                var user = await _usersService.CreateUserAsync(userDto);
+                HttpContext.Items["AuditoriaEntidadId"] = user.UserId;
+                return CreatedAtAction(nameof(GetUserById), new { id = user.UserId }, user);
             }
             catch (InvalidOperationException ex)
             {
@@ -84,49 +84,49 @@ namespace Backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Error al crear el usuario", detalle = ex.Message });
+                return StatusCode(500, new { error = "Error al crear el usuario", details = ex.Message });
             }
         }
 
-        // PUT: api/usuarios/5
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarUsuario(int id, [FromBody] ActualizarUsuarioDTO usuarioDto)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] ActualizarUsuarioDTO userDto)
         {
             try
             {
-                var resultado = await _usuariosService.ActualizarUsuarioAsync(id, usuarioDto);
+                var result = await _usersService.UpdateUserAsync(id, userDto);
 
-                if (!resultado)
+                if (!result)
                 {
                     return NotFound(new { error = $"Usuario con ID {id} no encontrado" });
                 }
 
-                return Ok(new { mensaje = "Usuario actualizado correctamente" });
+                return Ok(new { message = "Usuario actualizado correctamente" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Error al actualizar el usuario", detalle = ex.Message });
+                return StatusCode(500, new { error = "Error al actualizar el usuario", details = ex.Message });
             }
         }
 
-        // DELETE: api/usuarios/5
+
         [HttpDelete("{id}")]
-        public async Task<IActionResult> EliminarUsuario(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
             try
             {
-                var resultado = await _usuariosService.EliminarUsuarioAsync(id);
+                var result = await _usersService.DeleteUserAsync(id);
 
-                if (!resultado)
+                if (!result)
                 {
                     return NotFound(new { error = $"Usuario con ID {id} no encontrado" });
                 }
 
-                return Ok(new { mensaje = "Usuario eliminado correctamente" });
+                return Ok(new { message = "Usuario eliminado correctamente" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Error al eliminar el usuario", detalle = ex.Message });
+                return StatusCode(500, new { error = "Error al eliminar el usuario", details = ex.Message });
             }
         }
     }

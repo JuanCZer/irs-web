@@ -10,17 +10,17 @@ namespace Backend.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IUsuariosService _usuariosService;
-        private readonly ISesionService _sesionService;
+        private readonly IUsuariosService _usersService;
+        private readonly ISesionService _sessionService;
         private readonly IConfiguration _configuration;
 
         public AuthController(
-            IUsuariosService usuariosService,
-            ISesionService sesionService,
+            IUsuariosService usersService,
+            ISesionService sessionService,
             IConfiguration configuration)
         {
-            _usuariosService = usuariosService;
-            _sesionService = sesionService;
+            _usersService = usersService;
+            _sessionService = sessionService;
             _configuration = configuration;
         }
 
@@ -28,95 +28,95 @@ namespace Backend.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<UsuarioDTO>> Login([FromBody] LoginDTO loginDto)
         {
-            HttpContext.Items["AuditoriaUsuarioNombre"] = loginDto.Usuario;
+            HttpContext.Items["AuditoriaUsuarioNombre"] = loginDto.User;
 
-            if (string.IsNullOrWhiteSpace(loginDto.Usuario))
+            if (string.IsNullOrWhiteSpace(loginDto.User))
                 return BadRequest(new { error = "El campo 'usuario' es requerido" });
 
             if (string.IsNullOrWhiteSpace(loginDto.Password))
                 return BadRequest(new { error = "El campo 'password' es requerido" });
 
-            var usuario = await _usuariosService.ValidarCredencialesAsync(
-                loginDto.Usuario,
+            var user = await _usersService.ValidateCredentialsAsync(
+                loginDto.User,
                 loginDto.Password);
 
-            if (usuario == null)
+            if (user == null)
                 return Unauthorized(new { error = "Usuario o contraseña incorrectos" });
 
-            var sesion = await _sesionService.CrearSesionAsync(
-                usuario,
+            var session = await _sessionService.CreateSessionAsync(
+                user,
                 HttpContext.Connection.RemoteIpAddress?.ToString(),
                 Request.Headers.UserAgent.ToString());
 
-            HttpContext.Items["AuditoriaUsuarioId"] = usuario.IdUsuario;
-            EscribirCookieJwt(sesion);
-            return Ok(usuario);
+            HttpContext.Items["AuditoriaUsuarioId"] = user.UserId;
+            EscribirCookieJwt(session);
+            return Ok(user);
         }
 
         [HttpGet("me")]
         [Authorize]
-        public async Task<ActionResult<UsuarioDTO>> ObtenerSesionActual()
+        public async Task<ActionResult<UsuarioDTO>> GetCurrentSession()
         {
-            var idUsuario = ObtenerIdUsuario();
-            if (!idUsuario.HasValue) return Unauthorized();
+            var userId = GetUserId();
+            if (!userId.HasValue) return Unauthorized();
 
-            var usuario = await _usuariosService.ObtenerUsuarioPorIdAsync(idUsuario.Value);
-            return usuario == null ? Unauthorized() : Ok(usuario);
+            var user = await _usersService.GetUserByIdAsync(userId.Value);
+            return user == null ? Unauthorized() : Ok(user);
         }
 
         [HttpPost("logout")]
         [Authorize]
         public async Task<IActionResult> Logout()
         {
-            var idSesion = ObtenerIdSesion();
-            if (idSesion.HasValue)
-                await _sesionService.RevocarSesionAsync(idSesion.Value, "Cierre de sesión del usuario");
+            var sessionId = GetSessionId();
+            if (sessionId.HasValue)
+                await _sessionService.RevokeSessionAsync(sessionId.Value, "Cierre de sesión del usuario");
 
-            EliminarCookieJwt();
+            DeleteJwtCookie();
             return NoContent();
         }
 
         [HttpPost("cambiar-contrasena")]
         [Authorize]
-        public async Task<ActionResult<RespuestaCambioContrasenaDTO>> CambiarContrasena(
-            [FromBody] CambiarContrasenaDTO cambioContraseñaDto)
+        public async Task<ActionResult<RespuestaCambioContrasenaDTO>> ChangePassword(
+            [FromBody] CambiarContrasenaDTO passwordChangeDto)
         {
-            var idUsuario = ObtenerIdUsuario();
-            if (!idUsuario.HasValue) return Unauthorized();
+            var userId = GetUserId();
+            if (!userId.HasValue) return Unauthorized();
 
-            var resultado = await _usuariosService.CambiarContrasenaAsync(
-                idUsuario.Value,
-                cambioContraseñaDto);
+            var result = await _usersService.ChangePasswordAsync(
+                userId.Value,
+                passwordChangeDto);
 
-            if (!resultado.Exitoso) return BadRequest(resultado);
+            if (!result.Successful) return BadRequest(result);
 
-            await _sesionService.RevocarOtrasSesionesAsync(
-                idUsuario.Value,
-                ObtenerIdSesion(),
+            await _sessionService.RevokeOtherSessionsAsync(
+                userId.Value,
+                GetSessionId(),
                 "Contraseña modificada");
 
-            return Ok(resultado);
+            return Ok(result);
         }
 
-        private int? ObtenerIdUsuario()
+        private int? GetUserId()
         {
             return int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id)
                 ? id
                 : null;
         }
 
-        private Guid? ObtenerIdSesion()
+        private Guid? GetSessionId()
         {
-            return Guid.TryParse(User.FindFirstValue("sid"), out var idSesion)
-                ? idSesion
+            return Guid.TryParse(User.FindFirstValue("sid"), out var sessionId)
+                ? sessionId
                 : null;
         }
 
-        private void EscribirCookieJwt(TokenSesionDTO sesion)
+        private void EscribirCookieJwt(TokenSesionDTO session)
         {
             Response.Cookies.Append(
                 _configuration["Jwt:CookieName"] ?? "irs_access_token",
-                sesion.Token,
+                session.Token,
                 new CookieOptions
                 {
                     HttpOnly = true,
@@ -124,11 +124,11 @@ namespace Backend.Controllers
                     SameSite = SameSiteMode.None,
                     IsEssential = true,
                     Path = "/",
-                    Expires = sesion.FechaExpiracion
+                    Expires = session.ExpirationDate
                 });
         }
 
-        private void EliminarCookieJwt()
+        private void DeleteJwtCookie()
         {
             Response.Cookies.Delete(
                 _configuration["Jwt:CookieName"] ?? "irs_access_token",

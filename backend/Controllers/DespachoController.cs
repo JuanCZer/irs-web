@@ -10,69 +10,69 @@ namespace IRS.API.Controllers;
 [Route("api/[controller]")]
 public class DespachoController : ControllerBase
 {
-    private readonly IDespachoService _despachoService;
+    private readonly IDespachoService _dispatchService;
     private readonly ILogger<DespachoController> _logger;
 
-    public DespachoController(IDespachoService despachoService, ILogger<DespachoController> logger)
+    public DespachoController(IDespachoService dispatchService, ILogger<DespachoController> logger)
     {
-        _despachoService = despachoService;
+        _dispatchService = dispatchService;
         _logger = logger;
     }
 
     [HttpPost("validar")]
-    public async Task<ActionResult<List<FichaDespachoResponseDto>>> ValidarFicha([FromBody] ValidarFichaDespachoDto dto)
+    public async Task<ActionResult<List<FichaDespachoResponseDto>>> ValidateReport([FromBody] ValidarFichaDespachoDto dto)
     {
         try
         {
-            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var idUsuario))
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
                 return Unauthorized();
 
-            dto.IdUsuario = idUsuario;
-            HttpContext.Items["AuditoriaEntidadId"] = dto.IdFicha;
+            dto.UserId = userId;
+            HttpContext.Items["AuditoriaEntidadId"] = dto.ReportId;
 
-            if (dto.IdsMedidasSeguridad == null || dto.IdsMedidasSeguridad.Count == 0)
+            if (dto.SecurityMeasureIds == null || dto.SecurityMeasureIds.Count == 0)
             {
                 return BadRequest(new { message = "Debe seleccionar al menos una medida de seguridad" });
             }
 
-            var fichasDespachoCreadas = new List<FichaDespachoResponseDto>();
+            var createdDispatchReports = new List<FichaDespachoResponseDto>();
 
-            // Crear una entrada por cada medida seleccionada
-            foreach (var idMedida in dto.IdsMedidasSeguridad)
+
+            foreach (var measureId in dto.SecurityMeasureIds)
             {
-                var fichaDespacho = new FichaDespacho
+                var dispatchReport = new DispatchReport
                 {
-                    IdFicha = dto.IdFicha,
-                    IdCatMedida = idMedida,
-                    Comentario = dto.Comentario,
-                    Evidencia = dto.Evidencia,
-                    IdUsuario = dto.IdUsuario
+                    ReportId = dto.ReportId,
+                    MeasureCategoryId = measureId,
+                    Comment = dto.Comment,
+                    Evidence = dto.Evidence,
+                    UserId = dto.UserId
                 };
 
-                var fichaCreada = await _despachoService.CrearFichaDespachoAsync(fichaDespacho);
+                var createdReport = await _dispatchService.CreateDispatchReportAsync(dispatchReport);
 
-                // Cargar la ficha completa con las relaciones
-                var fichaCompleta = await _despachoService.ObtenerPorIdAsync(fichaCreada.IdFichaDespacho);
 
-                if (fichaCompleta != null)
+                var fullReport = await _dispatchService.GetByIdAsync(createdReport.DispatchReportId);
+
+                if (fullReport != null)
                 {
-                    fichasDespachoCreadas.Add(new FichaDespachoResponseDto
+                    createdDispatchReports.Add(new FichaDespachoResponseDto
                     {
-                        IdFichaDespacho = fichaCompleta.IdFichaDespacho,
-                        IdFicha = fichaCompleta.IdFicha,
-                        IdCatMedida = fichaCompleta.IdCatMedida,
-                        MedidaSeguridad = fichaCompleta.CatMedidaSeguridad?.Medida ?? "",
-                        Comentario = fichaCompleta.Comentario,
-                        Evidencia = fichaCompleta.Evidencia,
-                        FechaValidacion = fichaCompleta.FechaValidacion,
-                        IdUsuario = fichaCompleta.IdUsuario,
+                        DispatchReportId = fullReport.DispatchReportId,
+                        ReportId = fullReport.ReportId,
+                        MeasureCategoryId = fullReport.MeasureCategoryId,
+                        SecurityMeasure = fullReport.SecurityMeasure?.Measure ?? "",
+                        Comment = fullReport.Comment,
+                        Evidence = fullReport.Evidence,
+                        ValidationDate = fullReport.ValidationDate,
+                        UserId = fullReport.UserId,
                     });
                 }
             }
 
-            _logger.LogInformation($"Ficha {dto.IdFicha} validada con {dto.IdsMedidasSeguridad.Count} medidas de seguridad");
+            _logger.LogInformation($"Ficha {dto.ReportId} validada con {dto.SecurityMeasureIds.Count} medidas de seguridad");
 
-            return Ok(fichasDespachoCreadas);
+            return Ok(createdDispatchReports);
         }
         catch (Exception ex)
         {
@@ -81,30 +81,30 @@ public class DespachoController : ControllerBase
         }
     }
 
-    [HttpGet("ficha/{idFicha}")]
-    public async Task<ActionResult<List<FichaDespachoResponseDto>>> ObtenerPorFicha(int idFicha)
+    [HttpGet("ficha/{reportId}")]
+    public async Task<ActionResult<List<FichaDespachoResponseDto>>> GetByReport(int reportId)
     {
         try
         {
-            var fichasDespacho = await _despachoService.ObtenerPorIdFichaAsync(idFicha);
+            var dispatchReports = await _dispatchService.GetByReportIdAsync(reportId);
 
-            var response = fichasDespacho.Select(fd => new FichaDespachoResponseDto
+            var response = dispatchReports.Select(fd => new FichaDespachoResponseDto
             {
-                IdFichaDespacho = fd.IdFichaDespacho,
-                IdFicha = fd.IdFicha,
-                IdCatMedida = fd.IdCatMedida,
-                MedidaSeguridad = fd.CatMedidaSeguridad?.Medida ?? "",
-                Comentario = fd.Comentario,
-                Evidencia = fd.Evidencia,
-                FechaValidacion = fd.FechaValidacion,
-                IdUsuario = fd.IdUsuario,
+                DispatchReportId = fd.DispatchReportId,
+                ReportId = fd.ReportId,
+                MeasureCategoryId = fd.MeasureCategoryId,
+                SecurityMeasure = fd.SecurityMeasure?.Measure ?? "",
+                Comment = fd.Comment,
+                Evidence = fd.Evidence,
+                ValidationDate = fd.ValidationDate,
+                UserId = fd.UserId,
             }).ToList();
 
             return Ok(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error al obtener fichas de despacho para ficha {idFicha}");
+            _logger.LogError(ex, $"Error al obtener fichas de despacho para ficha {reportId}");
             return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
         }
     }

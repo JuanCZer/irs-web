@@ -15,11 +15,11 @@ export class LoginComponent implements OnInit {
   currentYear = new Date().getFullYear();
 
   credentials = {
-    usuario: '',
+    user: '',
     password: '',
   };
 
-  mostrarPassword = false;
+  showPassword = false;
   loading = false;
   errorMessage = '';
 
@@ -31,18 +31,18 @@ export class LoginComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     if (
       this.authService.currentUserValue &&
-      (await this.authService.validarSesion())
+      (await this.authService.validateSession())
     ) {
       await this.router.navigate(['/inicio']);
     }
   }
 
-  toggleMostrarPassword(): void {
-    this.mostrarPassword = !this.mostrarPassword;
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
   }
 
   async onSubmit(): Promise<void> {
-    if (!this.credentials.usuario || !this.credentials.password) {
+    if (!this.credentials.user || !this.credentials.password) {
       this.errorMessage = 'Por favor, ingrese usuario y contraseña';
       return;
     }
@@ -53,7 +53,7 @@ export class LoginComponent implements OnInit {
 
       await this.authService.login(this.credentials);
 
-      // Redirigir al inicio después del login exitoso
+
       this.router.navigate(['/inicio']);
     } catch (error) {
       this.errorMessage =

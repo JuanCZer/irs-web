@@ -8,72 +8,72 @@ namespace Backend.Models
     {
         [Key]
         [Column("id_auditoria")]
-        public long IdAuditoria { get; set; }
+        public long AuditId { get; set; }
 
         [Column("id_usuario")]
-        public int? IdUsuario { get; set; }
+        public int? UserId { get; set; }
 
         [Column("usuario")]
         [MaxLength(100)]
-        public string Usuario { get; set; } = "ANONIMO";
+        public string User { get; set; } = "ANONIMO";
 
         [Column("nombre_completo")]
         [MaxLength(300)]
-        public string? NombreCompleto { get; set; }
+        public string? FullName { get; set; }
 
         [Column("rol")]
         [MaxLength(100)]
-        public string? Rol { get; set; }
+        public string? Role { get; set; }
 
         [Column("accion")]
         [MaxLength(100)]
-        public string Accion { get; set; } = string.Empty;
+        public string Action { get; set; } = string.Empty;
 
         [Column("modulo")]
         [MaxLength(100)]
-        public string Modulo { get; set; } = string.Empty;
+        public string Module { get; set; } = string.Empty;
 
         [Column("descripcion")]
         [MaxLength(600)]
-        public string Descripcion { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
 
         [Column("metodo_http")]
         [MaxLength(10)]
-        public string? MetodoHttp { get; set; }
+        public string? HttpMethod { get; set; }
 
         [Column("ruta")]
         [MaxLength(500)]
-        public string? Ruta { get; set; }
+        public string? Path { get; set; }
 
         [Column("entidad")]
         [MaxLength(100)]
-        public string? Entidad { get; set; }
+        public string? Entity { get; set; }
 
         [Column("id_entidad")]
         [MaxLength(100)]
-        public string? IdEntidad { get; set; }
+        public string? EntityId { get; set; }
 
         [Column("direccion_ip")]
         [MaxLength(64)]
-        public string? DireccionIp { get; set; }
+        public string? IpAddress { get; set; }
 
         [Column("agente_usuario")]
         [MaxLength(500)]
-        public string? AgenteUsuario { get; set; }
+        public string? UserAgent { get; set; }
 
         [Column("codigo_estado")]
-        public int CodigoEstado { get; set; }
+        public int StatusCode { get; set; }
 
         [Column("exitoso")]
-        public bool Exitoso { get; set; }
+        public bool Successful { get; set; }
 
         [Column("fecha_hora")]
-        public DateTimeOffset FechaHora { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset DateTime { get; set; } = DateTimeOffset.UtcNow;
 
         [Column("detalles", TypeName = "jsonb")]
-        public string? Detalles { get; set; }
+        public string? Details { get; set; }
 
-        [ForeignKey(nameof(IdUsuario))]
-        public virtual Usuario? UsuarioRelacionado { get; set; }
+        [ForeignKey(nameof(UserId))]
+        public virtual User? RelatedUser { get; set; }
     }
 }

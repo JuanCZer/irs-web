@@ -1,7 +1,4 @@
-// Reusable responsive helpers for tables and containers
 @mobile-breakpoint: 768px;
-
-// Make tables fluid on small screens: remove min-width, force wrapping
 .responsive-table {
   width: 100% !important;
   min-width: 0 !important;
@@ -9,8 +6,6 @@
   word-break: break-word !important;
   overflow-wrap: anywhere !important;
 }
-
-// Stacked card-like rows for tables on mobile. Use on <table> element.
 .stacked-table-mobile {
   @media (max-width: @mobile-breakpoint) {
     thead { display: none !important; }
@@ -19,8 +14,6 @@
     tbody td[data-label]::before { content: attr(data-label) ": "; font-weight: 700; color: #466b7b; width: 45%; display: inline-block; }
   }
 }
-
-// Utility for content wrappers to take full width on mobile
 .fullwidth-on-mobile {
   @media (max-width: @mobile-breakpoint) {
     margin-left: 0 !important;
@@ -28,8 +21,6 @@
     padding-right: 8px !important;
   }
 }
-
-// Small helper to hide elements on mobile
 .hide-on-mobile {
   @media (max-width: @mobile-breakpoint) {
     display: none !important;

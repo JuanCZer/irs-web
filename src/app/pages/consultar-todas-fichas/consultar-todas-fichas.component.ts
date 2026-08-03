@@ -21,265 +21,265 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
   styleUrl: './consultar-todas-fichas.component.less',
 })
 export class ConsultarTodasFichasComponent implements OnInit {
-  buscarTexto: string = '';
+  searchText: string = '';
 
-  // Modal
-  mostrarModal: boolean = false;
-  fichaSeleccionada: FichaInformativa | null = null;
-  cargandoFicha: boolean = false;
 
-  private _fechaInicio: string = '';
-  private _fechaFin: string = '';
+  showModal: boolean = false;
+  selectedReport: FichaInformativa | null = null;
+  reportLoading: boolean = false;
 
-  // Getters y setters para fechas con auto-filtrado
-  get fechaInicio(): string {
-    return this._fechaInicio;
+  private _startDate: string = '';
+  private _endDate: string = '';
+
+
+  get startDate(): string {
+    return this._startDate;
   }
 
-  set fechaInicio(value: string) {
-    const valorAnterior = this._fechaInicio;
-    this._fechaInicio = value;
+  set startDate(value: string) {
+    const previousValue = this._startDate;
+    this._startDate = value;
 
-    // Solo filtrar si cambió el valor y ambas fechas están definidas
-    if (valorAnterior !== value && this._fechaInicio && this._fechaFin) {
-      setTimeout(() => this.filtrarPorFechas(), 0); // Async para no bloquear el setter
+
+    if (previousValue !== value && this._startDate && this._endDate) {
+      setTimeout(() => this.filterByDates(), 0);
     }
   }
 
-  get fechaFin(): string {
-    return this._fechaFin;
+  get endDate(): string {
+    return this._endDate;
   }
 
-  set fechaFin(value: string) {
-    const valorAnterior = this._fechaFin;
-    this._fechaFin = value;
+  set endDate(value: string) {
+    const previousValue = this._endDate;
+    this._endDate = value;
 
-    // Solo filtrar si cambió el valor y ambas fechas están definidas
-    if (valorAnterior !== value && this._fechaInicio && this._fechaFin) {
-      setTimeout(() => this.filtrarPorFechas(), 0); // Async para no bloquear el setter
+
+    if (previousValue !== value && this._startDate && this._endDate) {
+      setTimeout(() => this.filterByDates(), 0);
     }
   }
 
-  fichas: FichasTodosDTO[] = [];
-  fichasFiltradas: FichasTodosDTO[] = [];
-  cargando: boolean = false;
+  reports: FichasTodosDTO[] = [];
+  filteredReports: FichasTodosDTO[] = [];
+  loading: boolean = false;
   error: string = '';
 
-  // Paginación
-  paginaActual: number = 1;
-  fichasPorPagina: number = 10;
-  totalPaginas: number = 0;
 
-  constructor(private fichasService: FichasService) {}
+  currentPage: number = 1;
+  reportsPerPage: number = 10;
+  totalPages: number = 0;
+
+  constructor(private reportsService: FichasService) {}
 
   async ngOnInit(): Promise<void> {
-    this.establecerFechasPorDefecto();
-    await this.filtrarPorFechas();
+    this.setDefaultDates();
+    await this.filterByDates();
   }
 
-  async cargarFichas(): Promise<void> {
-    this.cargando = true;
+  async loadReports(): Promise<void> {
+    this.loading = true;
     this.error = '';
 
     try {
-      this.fichas = await this.fichasService.obtenerTodasLasFichas();
-      this.fichasFiltradas = [...this.fichas];
-      this.calcularTotalPaginas();
+      this.reports = await this.reportsService.getAllReports();
+      this.filteredReports = [...this.reports];
+      this.calculateTotalPages();
     } catch (error) {
       this.error =
         'Error al cargar las fichas. Verifica que el backend esté corriendo.';
     } finally {
-      this.cargando = false;
+      this.loading = false;
     }
   }
 
-  establecerFechasPorDefecto(): void {
-    const hoy = new Date();
-    const haceUnMes = new Date();
-    haceUnMes.setMonth(haceUnMes.getMonth() - 1);
+  setDefaultDates(): void {
+    const today = new Date();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-    this.fechaFin = this.formatearFechaInput(hoy);
-    this.fechaInicio = this.formatearFechaInput(haceUnMes);
+    this.endDate = this.formatInputDate(today);
+    this.startDate = this.formatInputDate(oneMonthAgo);
   }
 
-  formatearFechaInput(fecha: Date): string {
-    const año = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    return `${año}-${mes}-${dia}`;
+  formatInputDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
-  formatearFecha(fecha: Date): string {
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const año = fecha.getFullYear();
-    return `${dia}/${mes}/${año}`;
+  formatDate(date: Date): string {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   }
 
-  parsearFecha(fechaStr: string): Date {
-    // Formato esperado: yyyy-MM-dd del backend
-    const fecha = new Date(fechaStr);
-    return fecha;
+  parseDate(dateString: string): Date {
+
+    const date = new Date(dateString);
+    return date;
   }
 
-  buscar(): void {
-    this.aplicarFiltros();
+  search(): void {
+    this.applyFilters();
   }
 
-  async filtrarPorFechas(): Promise<void> {
-    if (this._fechaInicio && this._fechaFin) {
-      // Validar que sean fechas válidas
-      const regexFecha = /^\d{4}-\d{2}-\d{2}$/;
+  async filterByDates(): Promise<void> {
+    if (this._startDate && this._endDate) {
 
-      if (!regexFecha.test(this._fechaInicio)) {
-        this.error = `Formato de fecha inicio inválido: ${this._fechaInicio}. Use formato yyyy-MM-dd`;
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+      if (!dateRegex.test(this._startDate)) {
+        this.error = `Formato de date start inválido: ${this._startDate}. Use formato yyyy-MM-dd`;
         return;
       }
 
-      if (!regexFecha.test(this._fechaFin)) {
-        this.error = `Formato de fecha fin inválido: ${this._fechaFin}. Use formato yyyy-MM-dd`;
+      if (!dateRegex.test(this._endDate)) {
+        this.error = `Formato de date end inválido: ${this._endDate}. Use formato yyyy-MM-dd`;
         return;
       }
 
-      // Validar que fechaInicio sea menor o igual a fechaFin
-      if (this._fechaInicio > this._fechaFin) {
+
+      if (this._startDate > this._endDate) {
         this.error =
           'La fecha de inicio debe ser anterior o igual a la fecha fin';
         return;
       }
 
-      this.cargando = true;
+      this.loading = true;
       this.error = '';
 
       try {
-        // Obtener todas las fichas del servidor
-        const todasLasFichas = await this.fichasService.obtenerTodasLasFichas();
 
-        // Filtrar localmente por rango de fechas
-        const fechaInicio = new Date(this._fechaInicio);
-        const fechaFin = new Date(this._fechaFin);
+        const allReports = await this.reportsService.getAllReports();
 
-        this.fichas = todasLasFichas.filter((ficha) => {
-          const fechaSuceso = new Date(ficha.fechaSuceso);
-          return fechaSuceso >= fechaInicio && fechaSuceso <= fechaFin;
+
+        const startDate = new Date(this._startDate);
+        const endDate = new Date(this._endDate);
+
+        this.reports = allReports.filter((report) => {
+          const eventDate = new Date(report.eventDate);
+          return eventDate >= startDate && eventDate <= endDate;
         });
 
-        this.fichasFiltradas = [...this.fichas];
-        this.paginaActual = 1;
-        this.calcularTotalPaginas();
+        this.filteredReports = [...this.reports];
+        this.currentPage = 1;
+        this.calculateTotalPages();
       } catch (error) {
         this.error = 'Error al filtrar por fechas';
       } finally {
-        this.cargando = false;
+        this.loading = false;
       }
-    } else if (!this._fechaInicio && !this._fechaFin) {
-      // Si no hay fechas, cargar todas
-      await this.cargarFichas();
+    } else if (!this._startDate && !this._endDate) {
+
+      await this.loadReports();
     } else {
       this.error = 'Ambas fechas son requeridas para filtrar por rango';
     }
   }
 
-  aplicarFiltros(): void {
-    let resultados = [...this.fichas];
+  applyFilters(): void {
+    let results = [...this.reports];
 
-    // Filtrar por texto
-    if (this.buscarTexto.trim()) {
-      const textoLower = this.buscarTexto.toLowerCase();
-      resultados = resultados.filter(
-        (ficha) =>
-          ficha.folio.toLowerCase().includes(textoLower) ||
-          ficha.asunto.toLowerCase().includes(textoLower) ||
-          ficha.estado.toLowerCase().includes(textoLower) ||
-          ficha.sector.toLowerCase().includes(textoLower) ||
-          ficha.prioridad.toLowerCase().includes(textoLower),
+
+    if (this.searchText.trim()) {
+      const lowercaseText = this.searchText.toLowerCase();
+      results = results.filter(
+        (report) =>
+          report.referenceNumber.toLowerCase().includes(lowercaseText) ||
+          report.subject.toLowerCase().includes(lowercaseText) ||
+          report.state.toLowerCase().includes(lowercaseText) ||
+          report.sector.toLowerCase().includes(lowercaseText) ||
+          report.priority.toLowerCase().includes(lowercaseText),
       );
     }
 
-    this.fichasFiltradas = resultados;
-    this.paginaActual = 1;
-    this.calcularTotalPaginas();
+    this.filteredReports = results;
+    this.currentPage = 1;
+    this.calculateTotalPages();
   }
 
-  limpiarFiltros(): void {
-    this.buscarTexto = '';
-    this.fechaInicio = '';
-    this.fechaFin = '';
-    this.cargarFichas();
+  clearFilters(): void {
+    this.searchText = '';
+    this.startDate = '';
+    this.endDate = '';
+    this.loadReports();
   }
 
-  establecerHoy(): void {
-    const hoy = new Date();
-    this.fechaInicio = this.formatearFechaInput(hoy);
-    this.fechaFin = this.formatearFechaInput(hoy);
-    this.filtrarPorFechas();
+  setToday(): void {
+    const today = new Date();
+    this.startDate = this.formatInputDate(today);
+    this.endDate = this.formatInputDate(today);
+    this.filterByDates();
   }
 
-  establecerUltimaSemana(): void {
-    const hoy = new Date();
-    const haceUnaSemana = new Date();
-    haceUnaSemana.setDate(haceUnaSemana.getDate() - 7);
+  setLastWeek(): void {
+    const today = new Date();
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-    this.fechaInicio = this.formatearFechaInput(haceUnaSemana);
-    this.fechaFin = this.formatearFechaInput(hoy);
-    this.filtrarPorFechas();
+    this.startDate = this.formatInputDate(oneWeekAgo);
+    this.endDate = this.formatInputDate(today);
+    this.filterByDates();
   }
 
-  establecerUltimoMes(): void {
-    const hoy = new Date();
-    const haceUnMes = new Date();
-    haceUnMes.setMonth(haceUnMes.getMonth() - 1);
+  setLastMonth(): void {
+    const today = new Date();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-    this.fechaInicio = this.formatearFechaInput(haceUnMes);
-    this.fechaFin = this.formatearFechaInput(hoy);
-    this.filtrarPorFechas();
+    this.startDate = this.formatInputDate(oneMonthAgo);
+    this.endDate = this.formatInputDate(today);
+    this.filterByDates();
   }
 
-  calcularTotalPaginas(): void {
-    this.totalPaginas = Math.ceil(
-      this.fichasFiltradas.length / this.fichasPorPagina,
+  calculateTotalPages(): void {
+    this.totalPages = Math.ceil(
+      this.filteredReports.length / this.reportsPerPage,
     );
-    this.paginaActual = Math.min(
-      Math.max(1, this.paginaActual),
-      Math.max(1, this.totalPaginas),
+    this.currentPage = Math.min(
+      Math.max(1, this.currentPage),
+      Math.max(1, this.totalPages),
     );
   }
 
-  get fichasPaginadas(): FichasTodosDTO[] {
-    const inicio = (this.paginaActual - 1) * this.fichasPorPagina;
-    const fin = inicio + this.fichasPorPagina;
-    return this.fichasFiltradas.slice(inicio, fin);
+  get paginatedReports(): FichasTodosDTO[] {
+    const start = (this.currentPage - 1) * this.reportsPerPage;
+    const end = start + this.reportsPerPage;
+    return this.filteredReports.slice(start, end);
   }
 
-  irAPagina(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginas) {
-      this.paginaActual = pagina;
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
     }
   }
 
-  exportarExcel(): void {
-    // Implementar lógica para exportar a Excel
+  exportExcel(): void {
+
   }
 
-  exportarPDF(): void {
-    // Implementar lógica para exportar a PDF
+  exportPdf(): void {
+
   }
 
-  async verFicha(id: number): Promise<void> {
-    this.cargandoFicha = true;
-    this.mostrarModal = true;
+  async viewReport(id: number): Promise<void> {
+    this.reportLoading = true;
+    this.showModal = true;
 
     try {
-      this.fichaSeleccionada = await this.fichasService.obtenerFichaPorId(id);
+      this.selectedReport = await this.reportsService.getReportById(id);
     } catch (error) {
-      this.cerrarModal();
+      this.closeModal();
     } finally {
-      this.cargandoFicha = false;
+      this.reportLoading = false;
     }
   }
 
-  cerrarModal(): void {
-    this.mostrarModal = false;
-    this.fichaSeleccionada = null;
+  closeModal(): void {
+    this.showModal = false;
+    this.selectedReport = null;
   }
 }

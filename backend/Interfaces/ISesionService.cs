@@ -4,12 +4,12 @@ namespace IRS.API.Interfaces
 {
     public interface ISesionService
     {
-        Task<TokenSesionDTO> CrearSesionAsync(
-            UsuarioDTO usuario,
-            string? direccionIp,
-            string? agenteUsuario);
-        Task<bool> ValidarSesionAsync(Guid idSesion, string jti, int idUsuario, string rol);
-        Task RevocarSesionAsync(Guid idSesion, string motivo);
-        Task RevocarOtrasSesionesAsync(int idUsuario, Guid? idSesionActual, string motivo);
+        Task<TokenSesionDTO> CreateSessionAsync(
+            UsuarioDTO user,
+            string? ipAddress,
+            string? userAgent);
+        Task<bool> ValidateSessionAsync(Guid sessionId, string jti, int userId, string role);
+        Task RevokeSessionAsync(Guid sessionId, string reason);
+        Task RevokeOtherSessionsAsync(int userId, Guid? currentSessionId, string reason);
     }
 }

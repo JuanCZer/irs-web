@@ -1,19 +1,19 @@
 <div class="borradores-container">
-  <!-- Encabezado -->
+
   <div class="header-section">
     <h1 class="page-title">Fichas informativas guardadas</h1>
 
   </div>
 
-  <!-- Buscador y controles -->
+
   <div class="controls-section">
     <div class="search-box">
       <label for="buscar">Buscar:</label>
       <input
         type="text"
         id="buscar"
-        [(ngModel)]="busqueda"
-        (input)="buscar()"
+        [(ngModel)]="search"
+        (input)="search()"
         placeholder="Buscar por estado, fecha..."
         class="search-input"
       />
@@ -21,7 +21,7 @@
 
   </div>
 
-  <!-- Tabla de borradores -->
+
   <div class="table-container">
     <table class="borradores-table">
       <thead>
@@ -39,45 +39,45 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let borrador of borradorespaginados">
+        <tr *ngFor="let draft of paginatedDrafts">
           <td class="acciones-cell">
             <button
               class="btn-accion btn-editar"
-              (click)="editarBorrador(borrador)"
+              (click)="editDraft(draft)"
               title="Editar borrador"
             >
               <i class="fi fi-rr-folder-open"></i>
             </button>
             <button
               class="btn-accion btn-eliminar"
-              (click)="eliminarBorrador(borrador.id)"
+              (click)="deleteDraft(draft.id)"
               title="Eliminar borrador"
             >
               <i class="fi fi-rr-trash"></i>
             </button>
           </td>
-          <td>{{ borrador.fechaElaboracion }}</td>
-          <td>{{ borrador.fechaSuceso }}</td>
+          <td>{{ draft.creationDate }}</td>
+          <td>{{ draft.eventDate }}</td>
           <td>
-            {{ borrador.horaInicioSuceso || "-" }} -
-            {{ borrador.horaFinSuceso || "-" }}
+            {{ draft.eventStartTime || "-" }} -
+            {{ draft.eventEndTime || "-" }}
           </td>
-          <td>{{ borrador.estado || "-" }}</td>
-          <td>{{ borrador.prioridad || "-" }}</td>
-          <td>{{ borrador.sector || "-" }}</td>
-          <td>{{ borrador.numeroAsistentes || 0 }}</td>
+          <td>{{ draft.state || "-" }}</td>
+          <td>{{ draft.priority || "-" }}</td>
+          <td>{{ draft.sector || "-" }}</td>
+          <td>{{ draft.attendeeCount || 0 }}</td>
           <td>
             <span
               class="badge-estado"
-              [class.nuevo]="borrador.estadoActual === 'NUEVO'"
+              [class.nuevo]="draft.currentStatus === 'NUEVO'"
             >
-              {{ borrador.estadoActual }}
+              {{ draft.currentStatus }}
             </span>
           </td>
-          <td>{{ borrador.borradorUsuario || "-" }}</td>
+          <td>{{ draft.draftUser || "-" }}</td>
         </tr>
 
-        <tr *ngIf="borradorespaginados.length === 0">
+        <tr *ngIf="paginatedDrafts.length === 0">
           <td colspan="10" class="no-data">No se encontraron borradores</td>
         </tr>
       </tbody>
@@ -85,11 +85,11 @@
   </div>
 
   <app-pagination
-    [currentPage]="paginaActual"
-    [pageSize]="elementosPorPagina"
-    [totalItems]="borradoresFiltrados.length"
+    [currentPage]="currentPage"
+    [pageSize]="itemsPerPage"
+    [totalItems]="filteredDrafts.length"
     itemLabel="borradores"
     singularItemLabel="borrador"
-    (pageChange)="cambiarPagina($event)"
+    (pageChange)="changePage($event)"
   ></app-pagination>
 </div>

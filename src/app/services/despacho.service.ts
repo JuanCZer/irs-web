@@ -2,28 +2,28 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 
 export interface ValidarFichaDespachoRequest {
-  idFicha: number;
-  idsMedidasSeguridad: number[];
-  comentario: string;
-  evidencia?: string;
-  idUsuario?: number;
+  reportId: number;
+  securityMeasureIds: number[];
+  comment: string;
+  evidence?: string;
+  userId?: number;
 }
 
 export interface FichaDespachoResponse {
-  idFichaDespacho: number;
-  idFicha: number;
-  idCatMedida: number;
-  medidaSeguridad: string;
-  comentario: string;
-  evidencia?: string;
-  fechaValidacion: string;
-  idUsuario?: number;
-  nombreUsuario?: string;
+  dispatchReportId: number;
+  reportId: number;
+  measureCategoryId: number;
+  securityMeasure: string;
+  comment: string;
+  evidence?: string;
+  validationDate: string;
+  userId?: number;
+  userName?: string;
 }
 
 export interface BorradorMedidasDespacho {
-  medidas: number[];
-  comentario: string;
+  measures: number[];
+  comment: string;
 }
 
 @Injectable({
@@ -31,41 +31,41 @@ export interface BorradorMedidasDespacho {
 })
 export class DespachoService {
   private apiUrl = 'https://localhost:5001/api/despacho';
-  private borradoresMedidas = new Map<number, BorradorMedidasDespacho>();
+  private measureDrafts = new Map<number, BorradorMedidasDespacho>();
 
   constructor(private api: ApiService) {}
 
-  guardarBorradorMedidas(
-    idFicha: number,
-    borrador: BorradorMedidasDespacho
+  saveMeasuresDraft(
+    reportId: number,
+    draft: BorradorMedidasDespacho
   ): void {
-    this.borradoresMedidas.set(idFicha, {
-      medidas: [...borrador.medidas],
-      comentario: borrador.comentario,
+    this.measureDrafts.set(reportId, {
+      measures: [...draft.measures],
+      comment: draft.comment,
     });
   }
 
-  obtenerBorradorMedidas(
-    idFicha: number
+  getMeasuresDraft(
+    reportId: number
   ): BorradorMedidasDespacho | undefined {
-    const borrador = this.borradoresMedidas.get(idFicha);
+    const draft = this.measureDrafts.get(reportId);
 
-    return borrador
+    return draft
       ? {
-          medidas: [...borrador.medidas],
-          comentario: borrador.comentario,
+          measures: [...draft.measures],
+          comment: draft.comment,
         }
       : undefined;
   }
 
-  eliminarBorradorMedidas(idFicha: number): void {
-    this.borradoresMedidas.delete(idFicha);
+  deleteMeasuresDraft(reportId: number): void {
+    this.measureDrafts.delete(reportId);
   }
 
-  async validarFicha(
+  async validateReport(
     request: ValidarFichaDespachoRequest
   ): Promise<FichaDespachoResponse[]> {
-    const response = await this.api.fetch(`${this.apiUrl}/validar`, {
+    const response = await this.api.fetch(`${this.apiUrl}/validate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -81,10 +81,10 @@ export class DespachoService {
     return response.json();
   }
 
-  async obtenerFichasDespacho(
-    idFicha: number
+  async getDispatchReports(
+    reportId: number
   ): Promise<FichaDespachoResponse[]> {
-    const response = await this.api.fetch(`${this.apiUrl}/ficha/${idFicha}`);
+    const response = await this.api.fetch(`${this.apiUrl}/report/${reportId}`);
 
     if (!response.ok) {
       const errorData = await response.json();

@@ -18,8 +18,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   currentYear = new Date().getFullYear();
   currentPageTitle = 'Inicio';
   sidebarCollapsed = false;
-  nombreUsuario = 'Usuario';
-  nombreRol = 'Usuario autorizado';
+  userName = 'Usuario';
+  roleName = 'Usuario autorizado';
   userInitials = 'US';
 
   private subscription = new Subscription();
@@ -43,7 +43,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     private navbarService: NavbarService,
     public authService: AuthService,
     private router: Router,
-    private auditoriaService: AuditoriaService,
+    private auditService: AuditoriaService,
   ) {}
 
   ngOnInit(): void {
@@ -57,9 +57,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
     this.subscription.add(
       this.authService.currentUser.subscribe((user) => {
-        this.nombreUsuario = this.authService.getNombreCompleto();
-        this.nombreRol = user?.nombreRol || 'Usuario autorizado';
-        this.userInitials = this.getInitials(this.nombreUsuario);
+        this.userName = this.authService.getFullName();
+        this.roleName = user?.roleName || 'Usuario autorizado';
+        this.userInitials = this.getInitials(this.userName);
       }),
     );
 
@@ -69,7 +69,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
         .subscribe((event) => {
           const url = (event as NavigationEnd).urlAfterRedirects;
           this.updatePageTitle(url);
-          void this.auditoriaService.registrarNavegacion(url);
+          void this.auditService.logNavigation(url);
         }),
     );
   }

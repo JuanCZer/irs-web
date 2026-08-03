@@ -1,19 +1,19 @@
 <div class="estadisticas-container">
-  <!-- Indicador de carga -->
-  <div *ngIf="cargando" class="loading-indicator">
+
+  <div *ngIf="loading" class="loading-indicator">
     <div class="spinner"></div>
     <p>Cargando estadísticas...</p>
   </div>
 
-  <!-- Mensaje de error -->
-  <div *ngIf="mensajeError" class="alert alert-error">
+
+  <div *ngIf="errorMessage" class="alert alert-error">
     <i class="fi fi-rr-circle-exclamation-check"></i>
-    {{ mensajeError }}
+    {{ errorMessage }}
   </div>
 
-  <!-- Contenido principal (oculto mientras carga) -->
-  <div *ngIf="!cargando && !mensajeError" class="stats-content">
-    <!-- Encabezado -->
+
+  <div *ngIf="!loading && !errorMessage" class="stats-content">
+
     <div class="header-section">
       <div class="header-content">
         <div class="header-text">
@@ -26,17 +26,17 @@
           </p>
         </div>
         <div class="header-actions">
-          <button class="btn-action btn-excel" (click)="exportarExcel()">
+          <button class="btn-action btn-excel" (click)="exportExcel()">
             Excel
           </button>
-          <button class="btn-action btn-pdf" (click)="exportarPDF()">
+          <button class="btn-action btn-pdf" (click)="exportPdf()">
             PDF
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Tarjetas de Resumen -->
+
     <div class="stats-cards">
       <div class="stat-card">
         <div class="stat-icon stat-icon--primary">
@@ -44,7 +44,7 @@
         </div>
         <div class="stat-content">
           <p class="stat-label">Total de fichas</p>
-          <h3 class="stat-value">{{ estadisticasResumen.totalFichas }}</h3>
+          <h3 class="stat-value">{{ statisticsSummary.totalReports }}</h3>
         </div>
       </div>
 
@@ -54,7 +54,7 @@
         </div>
         <div class="stat-content">
           <p class="stat-label">Fichas hoy</p>
-          <h3 class="stat-value">{{ estadisticasResumen.fichasHoy }}</h3>
+          <h3 class="stat-value">{{ statisticsSummary.reportsToday }}</h3>
         </div>
       </div>
 
@@ -64,7 +64,7 @@
         </div>
         <div class="stat-content">
           <p class="stat-label">Esta semana</p>
-          <h3 class="stat-value">{{ estadisticasResumen.fichasSemana }}</h3>
+          <h3 class="stat-value">{{ statisticsSummary.reportsThisWeek }}</h3>
         </div>
       </div>
 
@@ -74,7 +74,7 @@
         </div>
         <div class="stat-content">
           <p class="stat-label">Este mes</p>
-          <h3 class="stat-value">{{ estadisticasResumen.fichasMes }}</h3>
+          <h3 class="stat-value">{{ statisticsSummary.reportsThisMonth }}</h3>
         </div>
       </div>
 
@@ -84,7 +84,7 @@
         </div>
         <div class="stat-content">
           <p class="stat-label">Promedio mensual</p>
-          <h3 class="stat-value">{{ estadisticasResumen.promedioMensual }}</h3>
+          <h3 class="stat-value">{{ statisticsSummary.monthlyAverage }}</h3>
         </div>
       </div>
 
@@ -95,15 +95,15 @@
         <div class="stat-content">
           <p class="stat-label">Crecimiento</p>
           <h3 class="stat-value">
-            +{{ estadisticasResumen.crecimientoMensual }}%
+            +{{ statisticsSummary.monthlyGrowth }}%
           </h3>
         </div>
       </div>
     </div>
 
-    <!-- Grid de Gráficas -->
+
     <div class="charts-grid">
-      <!-- Fichas por Estado -->
+
       <div class="chart-card large">
         <div class="chart-header">
           <i class="fi fi-rr-map-marker"></i>
@@ -114,7 +114,7 @@
         </div>
       </div>
 
-      <!-- Fichas por Mes -->
+
       <div class="chart-card large">
         <div class="chart-header">
           <i class="fi fi-rr-calendar-check"></i>
@@ -125,7 +125,7 @@
         </div>
       </div>
 
-      <!-- Tendencia Mensual -->
+
       <div class="chart-card large">
         <div class="chart-header">
           <i class="fi fi-rr-chart-line-up"></i>

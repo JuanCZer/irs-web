@@ -2,50 +2,50 @@ namespace Backend.DTOs
 {
     public class UsuarioDTO
     {
-        public int IdUsuario { get; set; }
-        public string? Nombre { get; set; }
-        public string? App { get; set; }
-        public string? Apm { get; set; }
+        public int UserId { get; set; }
+        public string? Name { get; set; }
+        public string? FirstSurname { get; set; }
+        public string? SecondSurname { get; set; }
         public string? Alias { get; set; }
-        public string Usuario { get; set; } = string.Empty;
+        public string User { get; set; } = string.Empty;
         public int? Status { get; set; }
         public int? StatusList { get; set; }
-        public DateTime? UltimoAcceso { get; set; }
-        public int? Intento { get; set; }
+        public DateTime? LastAccess { get; set; }
+        public int? Attempt { get; set; }
         public string? Ip { get; set; }
-        public DateTime? FechaHoraCreacion { get; set; }
-        public int? IdRol { get; set; }
-        public string? NombreRol { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public int? RoleId { get; set; }
+        public string? RoleName { get; set; }
     }
 
     public class CrearUsuarioDTO
     {
-        public int? IdUsuarioCrea { get; set; } // Usuario autenticado que crea este usuario
-        public string? Nombre { get; set; }
-        public string? App { get; set; }
-        public string? Apm { get; set; }
+        public int? CreatorUserId { get; set; }
+        public string? Name { get; set; }
+        public string? FirstSurname { get; set; }
+        public string? SecondSurname { get; set; }
         public string? Alias { get; set; }
-        public string Usuario { get; set; } = string.Empty;
+        public string User { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public int? Status { get; set; } = 1;
-        public int? IdRol { get; set; }
+        public int? RoleId { get; set; }
     }
 
     public class ActualizarUsuarioDTO
     {
-        public string? Nombre { get; set; }
-        public string? App { get; set; }
-        public string? Apm { get; set; }
+        public string? Name { get; set; }
+        public string? FirstSurname { get; set; }
+        public string? SecondSurname { get; set; }
         public string? Alias { get; set; }
-        public string? Usuario { get; set; }
+        public string? User { get; set; }
         public string? Password { get; set; }
         public int? Status { get; set; }
-        public int? IdRol { get; set; }
+        public int? RoleId { get; set; }
     }
 
     public class LoginDTO
     {
-        public string Usuario { get; set; } = string.Empty;
+        public string User { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
     }
 }

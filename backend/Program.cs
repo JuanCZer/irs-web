@@ -14,7 +14,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -52,23 +52,23 @@ builder.Services
             },
             OnTokenValidated = async context =>
             {
-                var idTexto = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
-                var idSesionTexto = context.Principal?.FindFirstValue("sid");
+                var idText = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                var sessionIdText = context.Principal?.FindFirstValue("sid");
                 var jti = context.Principal?.FindFirstValue(JwtRegisteredClaimNames.Jti);
-                var rol = context.Principal?.FindFirstValue(ClaimTypes.Role);
+                var role = context.Principal?.FindFirstValue(ClaimTypes.Role);
 
-                if (!int.TryParse(idTexto, out var idUsuario) ||
-                    !Guid.TryParse(idSesionTexto, out var idSesion) ||
+                if (!int.TryParse(idText, out var userId) ||
+                    !Guid.TryParse(sessionIdText, out var sessionId) ||
                     string.IsNullOrWhiteSpace(jti) ||
-                    string.IsNullOrWhiteSpace(rol))
+                    string.IsNullOrWhiteSpace(role))
                 {
                     context.Fail("El token no contiene una sesión válida");
                     return;
                 }
 
-                var sesiones = context.HttpContext.RequestServices
+                var sessions = context.HttpContext.RequestServices
                     .GetRequiredService<ISesionService>();
-                if (!await sesiones.ValidarSesionAsync(idSesion, jti, idUsuario, rol))
+                if (!await sessions.ValidateSessionAsync(sessionId, jti, userId, role))
                     context.Fail("La sesión fue revocada o expiró");
             }
         };
@@ -81,10 +81,10 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-// Configurar SignalR
+
 builder.Services.AddSignalR();
 
-// Configurar CORS para Angular
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp",
@@ -92,35 +92,35 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins(
                     "http://localhost:4200",
-                    "http://localhost:50839",  // Puerto alternativo de Angular
+                    "http://localhost:50839",
                     "http://localhost:4300",
                     "http://localhost:4400"
                   )
                   .AllowAnyHeader()
                   .AllowAnyMethod()
-                  .AllowCredentials(); // Necesario para SignalR
+                  .AllowCredentials();
         });
 });
 
-// Configurar DbContext con PostgreSQL
+
 builder.Services.AddDbContext<IRSDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configurar AutoMapper
+
 builder.Services.AddAutoMapper(typeof(Program));
 
-// Registrar servicios
-builder.Services.AddScoped<IFichaService, FichaService>();
-builder.Services.AddScoped<IUsuariosService, UsuariosService>();
+
+builder.Services.AddScoped<IFichaService, ReportService>();
+builder.Services.AddScoped<IUsuariosService, UsersService>();
 builder.Services.AddScoped<ICatRolService, CatRolService>();
-builder.Services.AddScoped<ICatalogosService, CatalogosService>();
-builder.Services.AddScoped<IDespachoService, DespachoService>();
-builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
-builder.Services.AddScoped<ISesionService, SesionService>();
+builder.Services.AddScoped<ICatalogosService, CatalogsService>();
+builder.Services.AddScoped<IDespachoService, DispatchService>();
+builder.Services.AddScoped<IAuditoriaService, AuditService>();
+builder.Services.AddScoped<ISesionService, SessionService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -137,7 +137,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Mapear el Hub de SignalR
+
 app.MapHub<FichaHub>("/hubs/fichas");
 
 app.Run();

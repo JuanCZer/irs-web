@@ -16,169 +16,165 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './registrar-usuario.component.less',
 })
 export class RegistrarUsuarioComponent implements OnInit {
-  usuario = {
-    nombres: '',
-    primerApellido: '',
-    segundoApellido: '',
-    usuario: '',
+  user = {
+    firstNames: '',
+    firstSurname: '',
+    secondSurname: '',
+    user: '',
     alias: '',
-    contrasena: '',
-    confirmarContrasena: '',
-    rol: '',
+    password: '',
+    confirmPassword: '',
+    role: '',
   };
 
-  mostrarContrasena = false;
-  mostrarConfirmarContrasena = false;
+  showPassword = false;
+  showPasswordConfirmation = false;
 
   roles: CatRol[] = [];
-  cargandoRoles = false;
-  registrando = false;
+  rolesLoading = false;
+  registering = false;
 
-  // Flag cached para template (evita llamadas repetidas a isAdmin())
+
   isAdminFlag = false;
 
-  mensajeExito = '';
-  mensajeError = '';
+  successMessage = '';
+  errorMessage = '';
 
   constructor(
-    private usuariosService: UsuariosService,
+    private usersService: UsuariosService,
     private authService: AuthService,
   ) {}
 
   async ngOnInit() {
-    // Asegurar formulario limpio al entrar
-    this.limpiarFormulario();
-    await this.cargarRoles();
-    // Cachear si el usuario es admin para el template
+
+    this.clearForm();
+    await this.loadRoles();
+
     this.isAdminFlag = this.authService.isAdmin();
   }
 
-  async cargarRoles() {
+  async loadRoles() {
     try {
-      this.cargandoRoles = true;
-      this.roles = await this.usuariosService.obtenerRoles();
+      this.rolesLoading = true;
+      this.roles = await this.usersService.getRoles();
     } catch (error) {
-      this.mensajeError =
+      this.errorMessage =
         'Error al cargar el catálogo de roles. Por favor, recargue la página.';
     } finally {
-      this.cargandoRoles = false;
+      this.rolesLoading = false;
     }
   }
 
-  get validacionPassword() {
-    const password = this.usuario.contrasena;
+  get passwordValidation() {
+    const password = this.user.password;
     return {
-      longitudMinima: password.length >= 8,
+      minimumLength: password.length >= 8,
       tieneMayuscula: /[A-Z]/.test(password),
       tieneMinuscula: /[a-z]/.test(password),
-      tieneNumero: /\d/.test(password),
-      tieneEspecial: /[!@#$%^&*(),.?":{}|<>_-]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSpecialCharacter: /[!@#$%^&*(),.?":{}|<>_-]/.test(password),
     };
   }
 
-  get passwordsCoinciden(): boolean {
+  get passwordsMatch(): boolean {
     return (
-      this.usuario.contrasena === this.usuario.confirmarContrasena &&
-      this.usuario.confirmarContrasena !== ''
+      this.user.password === this.user.confirmPassword &&
+      this.user.confirmPassword !== ''
     );
   }
 
-  get formularioValido(): boolean {
-    const val = this.validacionPassword;
+  get formValid(): boolean {
+    const val = this.passwordValidation;
     return (
-      this.usuario.nombres !== '' &&
-      this.usuario.primerApellido !== '' &&
-      this.usuario.usuario !== '' &&
-      this.usuario.rol !== '' &&
-      val.longitudMinima &&
+      this.user.firstNames !== '' &&
+      this.user.firstSurname !== '' &&
+      this.user.user !== '' &&
+      this.user.role !== '' &&
+      val.minimumLength &&
       val.tieneMayuscula &&
       val.tieneMinuscula &&
-      val.tieneNumero &&
-      val.tieneEspecial &&
-      this.passwordsCoinciden
+      val.hasNumber &&
+      val.hasSpecialCharacter &&
+      this.passwordsMatch
     );
   }
 
-  toggleMostrarContrasena(): void {
-    this.mostrarContrasena = !this.mostrarContrasena;
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
   }
 
-  toggleMostrarConfirmarContrasena(): void {
-    this.mostrarConfirmarContrasena = !this.mostrarConfirmarContrasena;
+  togglePasswordConfirmation(): void {
+    this.showPasswordConfirmation = !this.showPasswordConfirmation;
   }
 
-  // ✅ Validar que el usuario actual sea Administrador
   isAdmin(): boolean {
     return this.authService.isAdmin();
   }
 
-  async registrarUsuario() {
+  async registerUser() {
 
     if (!this.isAdmin()) {
-      this.mensajeError =
+      this.errorMessage =
         'Solo los administradores pueden crear nuevos usuarios.';
-      this.mensajeExito = '';
+      this.successMessage = '';
       return;
     }
 
-    if (!this.formularioValido) {
-      this.mensajeError =
+    if (!this.formValid) {
+      this.errorMessage =
         'Por favor, complete todos los campos requeridos correctamente.';
-      this.mensajeExito = '';
+      this.successMessage = '';
       return;
     }
 
     try {
-      this.registrando = true;
-      this.mensajeError = '';
-      this.mensajeExito = '';
+      this.registering = true;
+      this.errorMessage = '';
+      this.successMessage = '';
 
-      // Construir el DTO para crear usuario
-      const nuevoUsuario: CrearUsuarioDTO = {
-        nombre: this.usuario.nombres,
-        app: this.usuario.primerApellido,
-        apm: this.usuario.segundoApellido || undefined,
-        alias: this.usuario.alias || undefined,
-        usuario: this.usuario.usuario,
-        password: this.usuario.contrasena,
-        status: 1, // Activo por defecto
-        idRol: parseInt(this.usuario.rol),
+      const newUser: CrearUsuarioDTO = {
+        name: this.user.firstNames,
+        firstSurname: this.user.firstSurname,
+        secondSurname: this.user.secondSurname || undefined,
+        alias: this.user.alias || undefined,
+        user: this.user.user,
+        password: this.user.password,
+        status: 1,
+        roleId: parseInt(this.user.role),
       };
 
-      // Llamar al servicio para crear el usuario
-      await this.usuariosService.crearUsuario(nuevoUsuario);
+      await this.usersService.createUser(newUser);
 
-      // Mostrar mensaje de éxito
-      this.mensajeExito = `Usuario "${nuevoUsuario.usuario}" registrado correctamente.`;
-      this.mensajeError = '';
+      this.successMessage = `Usuario "${newUser.user}" registrado correctamente.`;
+      this.errorMessage = '';
 
-      // Limpiar formulario después de 2 segundos
+
       setTimeout(() => {
-        this.limpiarFormulario();
+        this.clearForm();
       }, 2000);
     } catch (error) {
-      this.mensajeError =
+      this.errorMessage =
         error instanceof Error
           ? `Error: ${error.message}`
           : 'Error al registrar el usuario. Por favor, intente nuevamente.';
-      this.mensajeExito = '';
+      this.successMessage = '';
     } finally {
-      this.registrando = false;
+      this.registering = false;
     }
   }
 
-  limpiarFormulario(): void {
-    this.usuario = {
-      nombres: '',
-      primerApellido: '',
-      segundoApellido: '',
-      usuario: '',
+  clearForm(): void {
+    this.user = {
+      firstNames: '',
+      firstSurname: '',
+      secondSurname: '',
+      user: '',
       alias: '',
-      contrasena: '',
-      confirmarContrasena: '',
-      rol: '',
+      password: '',
+      confirmPassword: '',
+      role: '',
     };
-    this.mensajeExito = '';
-    this.mensajeError = '';
+    this.successMessage = '';
+    this.errorMessage = '';
   }
 }

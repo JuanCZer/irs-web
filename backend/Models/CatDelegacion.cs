@@ -8,9 +8,9 @@ public class CatDelegacion
 {
     [Key]
     [Column("id_delegacion")]
-    public int IdCatDelegacion { get; set; }
-    
+    public int DelegationCategoryId { get; set; }
+
     [Column("delegacion")]
     [MaxLength(255)]
-    public string Delegacion { get; set; } = string.Empty;
+    public string Delegation { get; set; } = string.Empty;
 }

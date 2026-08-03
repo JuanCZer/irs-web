@@ -11,28 +11,25 @@ namespace Backend.Controllers
     [Authorize(Roles = "ADMIN")]
     public class RolesController : ControllerBase
     {
-        private readonly ICatRolService _rolService;
+        private readonly ICatRolService _roleService;
 
-        public RolesController(ICatRolService rolService)
+        public RolesController(ICatRolService roleService)
         {
-            _rolService = rolService;
+            _roleService = roleService;
         }
 
-        // GET: api/roles
+
         [HttpGet]
-        public async Task<ActionResult<List<CatRol>>> ObtenerTodosLosRoles()
+        public async Task<ActionResult<List<CatRol>>> GetAllRoles()
         {
             try
             {
-                var roles = await _rolService.ObtenerTodosLosRolesAsync();
+                var roles = await _roleService.GetAllRolesAsync();
                 return Ok(roles);
             }
             catch (Exception ex)
             {
-                if (ex.InnerException != null)
-                {
-                }
-                return StatusCode(500, new { error = "Error al obtener los roles", detalle = ex.Message });
+                return StatusCode(500, new { error = "Error al obtener los roles", details = ex.Message });
             }
         }
     }

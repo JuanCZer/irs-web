@@ -14,11 +14,11 @@ namespace Backend.Services
             _context = context;
         }
 
-        public async Task<List<CatRol>> ObtenerTodosLosRolesAsync()
+        public async Task<List<CatRol>> GetAllRolesAsync()
         {
-            
-            var roles = await _context.CatRoles
-                .OrderBy(r => r.IdCatRol)
+
+            var roles = await _context.Roles
+                .OrderBy(r => r.RoleCategoryId)
                 .ToListAsync();
 
             return roles;

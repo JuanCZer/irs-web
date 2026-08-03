@@ -3,18 +3,18 @@ namespace IRS.API.DTOs;
 public class FichasTodosDto
 {
     public int Id { get; set; }
-    public string FechaElaboracion { get; set; } = string.Empty;
-    public string Folio { get; set; } = string.Empty;
-    public string FechaSuceso { get; set; } = string.Empty;
-    public string HoraSuceso { get; set; } = string.Empty;
-    public string Estado { get; set; } = string.Empty; // Delegación
-    public string Municipio { get; set; } = string.Empty;
-    public string Lugar { get; set; } = string.Empty;
-    public string Asunto { get; set; } = string.Empty;
-    public string Prioridad { get; set; } = string.Empty;
+    public string CreationDate { get; set; } = string.Empty;
+    public string ReferenceNumber { get; set; } = string.Empty;
+    public string EventDate { get; set; } = string.Empty;
+    public string EventTime { get; set; } = string.Empty;
+    public string State { get; set; } = string.Empty;
+    public string Municipality { get; set; } = string.Empty;
+    public string Place { get; set; } = string.Empty;
+    public string Subject { get; set; } = string.Empty;
+    public string Priority { get; set; } = string.Empty;
     public string Sector { get; set; } = string.Empty;
-    public int Asistentes { get; set; }
-    public string EstadoActual { get; set; } = string.Empty; // Condición
-    public string? Latitud { get; set; }
-    public string? Longitud { get; set; }
+    public int Attendees { get; set; }
+    public string CurrentStatus { get; set; } = string.Empty;
+    public string? Latitude { get; set; }
+    public string? Longitude { get; set; }
 }

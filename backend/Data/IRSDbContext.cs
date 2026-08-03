@@ -10,92 +10,92 @@ public class IRSDbContext : DbContext
     {
     }
 
-    public DbSet<FichaInformativa> Fichas { get; set; }
-    public DbSet<Usuario> Usuarios { get; set; }
-    public DbSet<CatRol> CatRoles { get; set; }
-    public DbSet<AuditoriaEvento> AuditoriaEventos { get; set; }
-    public DbSet<SesionUsuario> SesionesUsuario { get; set; }
-    
-    // Catálogos
-    public DbSet<CatSector> CatSectores { get; set; }
-    public DbSet<CatSubsector> CatSubsectores { get; set; }
-    public DbSet<CatPrioridad> CatPrioridades { get; set; }
-    public DbSet<CatCondicion> CatCondiciones { get; set; }
-    public DbSet<CatInformacion> CatInformaciones { get; set; }
-    public DbSet<CatMunicipio> CatMunicipios { get; set; }
-    public DbSet<CatDelegacion> CatDelegaciones { get; set; }
-    public DbSet<CatMedidaSeguridad> CatMedidasSeguridad { get; set; }
-    
-    // Despacho
-    public DbSet<FichaDespacho> FichasDespacho { get; set; }
+    public DbSet<FichaInformativa> Reports { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<CatRol> Roles { get; set; }
+    public DbSet<AuditoriaEvento> AuditEvents { get; set; }
+    public DbSet<SesionUsuario> UserSessions { get; set; }
+
+
+    public DbSet<SectorCategory> Sectors { get; set; }
+    public DbSet<CatSubsector> Subsectors { get; set; }
+    public DbSet<CatPrioridad> Priorities { get; set; }
+    public DbSet<CatCondicion> Conditions { get; set; }
+    public DbSet<CatInformacion> InformationItems { get; set; }
+    public DbSet<CatMunicipio> Municipalities { get; set; }
+    public DbSet<CatDelegacion> Delegations { get; set; }
+    public DbSet<CatMedidaSeguridad> SecurityMeasures { get; set; }
+
+
+    public DbSet<DispatchReport> DispatchReports { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configuración de la relación Usuario -> CatRol
-        modelBuilder.Entity<Usuario>()
-            .HasOne(u => u.Rol)
+
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Role)
             .WithMany()
-            .HasForeignKey(u => u.IdRol)
+            .HasForeignKey(u => u.RoleId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<AuditoriaEvento>()
-            .HasOne(a => a.UsuarioRelacionado)
+            .HasOne(a => a.RelatedUser)
             .WithMany()
-            .HasForeignKey(a => a.IdUsuario)
+            .HasForeignKey(a => a.UserId)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<AuditoriaEvento>()
-            .Property(a => a.Detalles)
+            .Property(a => a.Details)
             .HasColumnType("jsonb");
 
         modelBuilder.Entity<SesionUsuario>()
-            .HasOne(s => s.Usuario)
+            .HasOne(s => s.User)
             .WithMany()
-            .HasForeignKey(s => s.IdUsuario)
+            .HasForeignKey(s => s.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Configuración de FichaInformativa - mapear a la tabla "ficha"
+
         modelBuilder.Entity<FichaInformativa>(entity =>
         {
             entity.ToTable("ficha", "public");
             entity.HasKey(e => e.Id);
-            
+
             entity.Property(e => e.Id).HasColumnName("id_ficha");
-            entity.Property(e => e.Cedula).HasColumnName("cedula");
-            entity.Property(e => e.Delegacion).HasColumnName("delegacion");
-            entity.Property(e => e.Municipio).HasColumnName("municipio");
-            entity.Property(e => e.Lugar).HasColumnName("lugar");
-            entity.Property(e => e.Latitud).HasColumnName("latitud");
-            entity.Property(e => e.Longitud).HasColumnName("longitud");
-            entity.Property(e => e.HoraSucesoInicio).HasColumnName("hora_suceso_inicio");
-            entity.Property(e => e.HoraSucesoFin).HasColumnName("hora_suceso_fin");
-            entity.Property(e => e.FechaSuceso).HasColumnName("fecha_suceso");
+            entity.Property(e => e.CertificateNumber).HasColumnName("cedula");
+            entity.Property(e => e.Delegation).HasColumnName("delegacion");
+            entity.Property(e => e.Municipality).HasColumnName("municipio");
+            entity.Property(e => e.Place).HasColumnName("lugar");
+            entity.Property(e => e.Latitude).HasColumnName("latitud");
+            entity.Property(e => e.Longitude).HasColumnName("longitud");
+            entity.Property(e => e.EventStartTime).HasColumnName("hora_suceso_inicio");
+            entity.Property(e => e.EventEndTime).HasColumnName("hora_suceso_fin");
+            entity.Property(e => e.EventDate).HasColumnName("fecha_suceso");
             entity.Property(e => e.Sector).HasColumnName("sector");
             entity.Property(e => e.Subsector).HasColumnName("subsector");
-            entity.Property(e => e.NumAsistentes).HasColumnName("num_asistentes");
-            entity.Property(e => e.FechaElaboracion).HasColumnName("fecha_elaboracion");
-            entity.Property(e => e.HoraElaboracion).HasColumnName("hora_elaboracion");
-            entity.Property(e => e.Prioridad).HasColumnName("prioridad");
-            entity.Property(e => e.Condicion).HasColumnName("condicion");
-            entity.Property(e => e.Informacion).HasColumnName("informacion");
-            entity.Property(e => e.Asunto).HasColumnName("asunto");
-            entity.Property(e => e.Hechos).HasColumnName("hechos");
-            entity.Property(e => e.Acuerdos).HasColumnName("acuerdos");
-            entity.Property(e => e.IdInformo).HasColumnName("id_informo");
-            entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
-            entity.Property(e => e.IdAutorizo).HasColumnName("id_autorizo");
-            entity.Property(e => e.FechaRecepcion).HasColumnName("fecha_recepcion");
-            entity.Property(e => e.HoraRecepcion).HasColumnName("hora_recepcion");
-            entity.Property(e => e.IdEstadoActual).HasColumnName("id_estado_actual");
-            entity.Property(e => e.MotivoCancelacion).HasColumnName("motivo_cancelacion");
-            entity.Property(e => e.Activo).HasColumnName("activo");
-            entity.Property(e => e.FolioInterno).HasColumnName("folio_interno");
-            entity.Property(e => e.Direccion).HasColumnName("direccion");
-            entity.Property(e => e.Visto).HasColumnName("visto");
-            entity.Property(e => e.IdFichaAnterior).HasColumnName("idfichaanterior");
-            entity.Property(e => e.FechaValidacion).HasColumnName("fecha_validacion");
+            entity.Property(e => e.AttendeeCount).HasColumnName("num_asistentes");
+            entity.Property(e => e.CreationDate).HasColumnName("fecha_elaboracion");
+            entity.Property(e => e.CreationTime).HasColumnName("hora_elaboracion");
+            entity.Property(e => e.Priority).HasColumnName("prioridad");
+            entity.Property(e => e.Condition).HasColumnName("condicion");
+            entity.Property(e => e.Information).HasColumnName("informacion");
+            entity.Property(e => e.Subject).HasColumnName("asunto");
+            entity.Property(e => e.Facts).HasColumnName("hechos");
+            entity.Property(e => e.Agreements).HasColumnName("acuerdos");
+            entity.Property(e => e.ReporterId).HasColumnName("id_informo");
+            entity.Property(e => e.UserId).HasColumnName("id_usuario");
+            entity.Property(e => e.AuthorizerId).HasColumnName("id_autorizo");
+            entity.Property(e => e.ReceptionDate).HasColumnName("fecha_recepcion");
+            entity.Property(e => e.ReceptionTime).HasColumnName("hora_recepcion");
+            entity.Property(e => e.CurrentStatusId).HasColumnName("id_estado_actual");
+            entity.Property(e => e.CancellationReason).HasColumnName("motivo_cancelacion");
+            entity.Property(e => e.Active).HasColumnName("activo");
+            entity.Property(e => e.InternalReference).HasColumnName("folio_interno");
+            entity.Property(e => e.Address).HasColumnName("direccion");
+            entity.Property(e => e.Seen).HasColumnName("visto");
+            entity.Property(e => e.PreviousReportId).HasColumnName("idfichaanterior");
+            entity.Property(e => e.ValidationDate).HasColumnName("fecha_validacion");
         });
     }
 }

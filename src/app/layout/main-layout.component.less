@@ -15,7 +15,6 @@
 }
 
 .content-wrapper {
-  --irs-modal-sidebar-offset: @sidebar-width;
 
   display: flex;
   flex: 1;
@@ -26,7 +25,6 @@
   transition: margin-left 180ms ease;
 
   &.sidebar-collapsed {
-    --irs-modal-sidebar-offset: @sidebar-width-collapsed;
 
     margin-left: @sidebar-width-collapsed;
   }
@@ -216,7 +214,6 @@
 @media (max-width: (@mobile-breakpoint - 1px)) {
   .content-wrapper,
   .content-wrapper.sidebar-collapsed {
-    --irs-modal-sidebar-offset: 0px;
 
     margin-left: 0;
   }

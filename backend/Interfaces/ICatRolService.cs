@@ -4,6 +4,6 @@ namespace IRS.API.Interfaces
 {
   public interface ICatRolService
   {
-    Task<List<CatRol>> ObtenerTodosLosRolesAsync();
+    Task<List<CatRol>> GetAllRolesAsync();
   }
 }

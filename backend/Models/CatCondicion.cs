@@ -8,9 +8,9 @@ public class CatCondicion
 {
     [Key]
     [Column("id_cat_condicion")]
-    public int IdCatCondicion { get; set; }
-    
+    public int ConditionCategoryId { get; set; }
+
     [Column("condicion")]
     [MaxLength(255)]
-    public string Condicion { get; set; } = string.Empty;
+    public string Condition { get; set; } = string.Empty;
 }

@@ -9,27 +9,27 @@
     </p>
   </div>
 
-  <!-- Mensaje de error -->
+
   <div *ngIf="error" class="error-message">
     <i class="fi fi-rr-circle-exclamation-check"></i>
     {{ error }}
   </div>
 
-  <!-- Mensaje de cargando -->
-  <div *ngIf="cargando" class="loading-message">
+
+  <div *ngIf="loading" class="loading-message">
     <i class="fi fi-rr-spinner fa-spin"></i>
     Cargando fichas...
   </div>
 
-  <!-- Información de fichas -->
-  <div *ngIf="!cargando && !error" class="info-section">
+
+  <div *ngIf="!loading && !error" class="info-section">
     <p>
-      Total de fichas concluidas: <strong>{{ fichas.length }}</strong>
+      Total de fichas concluidas: <strong>{{ reports.length }}</strong>
     </p>
   </div>
 
-  <!-- Tabla de fichas -->
-  <div *ngIf="!cargando && !error && fichas.length > 0" class="table-container">
+
+  <div *ngIf="!loading && !error && reports.length > 0" class="table-container">
     <table class="fichas-table">
       <thead>
         <tr>
@@ -45,38 +45,38 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let ficha of fichasPaginadas">
+        <tr *ngFor="let report of paginatedReports">
           <td>
             <div style="display: flex; align-items: center; gap: 10px">
               <button
                 class="btn-icon"
-                (click)="abrirModalVerFicha(ficha)"
+                (click)="openReportDetailsModal(report)"
                 title="Ver detalles de la ficha"
               >
                 <i class="fi fi-rr-eye"></i>
               </button>
-              <strong>{{ ficha.folio }}</strong>
+              <strong>{{ report.referenceNumber }}</strong>
             </div>
           </td>
-          <td>{{ ficha.fechaSuceso }}</td>
-          <td>{{ ficha.delegacion }}</td>
-          <td>{{ ficha.municipio }}</td>
-          <td>{{ ficha.lugar }}</td>
+          <td>{{ report.eventDate }}</td>
+          <td>{{ report.delegation }}</td>
+          <td>{{ report.municipality }}</td>
+          <td>{{ report.place }}</td>
           <td>
             <span
               class="badge-prioridad"
-              [ngClass]="getPrioridadClass(ficha.prioridad)"
+              [ngClass]="getPriorityClass(report.priority)"
             >
-              {{ ficha.prioridad }}
+              {{ report.priority }}
             </span>
           </td>
-          <td>{{ ficha.sector }}</td>
-          <td class="asunto-cell">{{ ficha.asunto }}</td>
+          <td>{{ report.sector }}</td>
+          <td class="asunto-cell">{{ report.subject }}</td>
           <td>
             <div class="acciones-container">
               <button
                 class="btn-medidas"
-                (click)="abrirModalMedidas(ficha)"
+                (click)="openMeasuresModal(report)"
                 title="Aplicar medidas de seguridad"
               >
                 <i class="fi fi-rr-shield"></i>
@@ -84,7 +84,7 @@
               </button>
               <button
                 class="btn-validar"
-                (click)="abrirModalValidar(ficha)"
+                (click)="openValidationModal(report)"
                 title="Validar ficha"
               >
                 <i class="fi fi-rr-check-circle"></i>
@@ -97,105 +97,105 @@
     </table>
   </div>
 
-  <!-- Mensaje cuando no hay fichas -->
-  <div *ngIf="!cargando && !error && fichas.length === 0" class="empty-message">
+
+  <div *ngIf="!loading && !error && reports.length === 0" class="empty-message">
     <i class="fi fi-rr-inbox"></i>
     <p>No hay fichas en estado confluido</p>
   </div>
 
   <app-pagination
-    *ngIf="!cargando"
-    [currentPage]="paginaActual"
-    [pageSize]="fichasPorPagina"
-    [totalItems]="fichas.length"
+    *ngIf="!loading"
+    [currentPage]="currentPage"
+    [pageSize]="reportsPerPage"
+    [totalItems]="reports.length"
     itemLabel="fichas"
     singularItemLabel="ficha"
-    (pageChange)="cambiarPagina($event)"
+    (pageChange)="changePage($event)"
   ></app-pagination>
 </div>
 
-<!-- Modal de medidas de seguridad -->
+
 <app-modal-medidas
-  [visible]="mostrarModalMedidas"
-  [folioFicha]="fichaSeleccionada?.folio || ''"
-  [delegacion]="fichaSeleccionada?.delegacion || ''"
-  [municipio]="fichaSeleccionada?.municipio || ''"
-  [lugar]="fichaSeleccionada?.lugar || ''"
-  [prioridad]="fichaSeleccionada?.prioridad || ''"
-  [medidasSeguridad]="medidasSeguridad"
-  [medidasSeleccionadas]="medidasSeleccionadasIds"
-  [comentarioInicial]="comentarioTemporal"
-  (cerrar)="cerrarModal()"
-  (aplicar)="onAplicarMedidas($event)"
-  (borradorChange)="onBorradorMedidasChange($event)"
+  [visible]="showMeasuresModal"
+  [reportReference]="selectedReport?.referenceNumber || ''"
+  [delegation]="selectedReport?.delegation || ''"
+  [municipality]="selectedReport?.municipality || ''"
+  [place]="selectedReport?.place || ''"
+  [priority]="selectedReport?.priority || ''"
+  [securityMeasures]="securityMeasures"
+  [selectedMeasures]="selectedMeasureIds"
+  [initialComment]="temporaryComment"
+  (close)="closeModal()"
+  (apply)="onApplyMeasures($event)"
+  (draftChange)="onMeasuresDraftChange($event)"
 ></app-modal-medidas>
 
-<!-- Modal para ver detalles de ficha -->
-<div class="modal-overlay" *ngIf="mostrarModalVerFicha" (click)="cerrarModal()">
+
+<div class="modal-overlay" *ngIf="showReportDetailsModal" (click)="closeModal()">
   <div class="modal-content modal-detalle" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>
         <i class="fi fi-rr-document"></i>
         Detalles de la Ficha
       </h2>
-      <button class="btn-close" (click)="cerrarModal()">
+      <button class="btn-close" (click)="closeModal()">
         <i class="fi fi-rr-cross-small"></i>
       </button>
     </div>
 
-    <div class="modal-body" *ngIf="fichaDetalleCompleta">
-      <!-- Información General -->
+    <div class="modal-body" *ngIf="fullReportDetails">
+
       <div class="detalle-section">
         <h3>Información General</h3>
         <div class="info-grid">
           <div class="info-item">
             <span class="label">Folio:</span>
-            <span class="value">{{ fichaDetalleCompleta.folio }}</span>
+            <span class="value">{{ fullReportDetails.referenceNumber }}</span>
           </div>
           <div class="info-item">
             <span class="label">Fecha Suceso:</span>
-            <span class="value">{{ fichaDetalleCompleta.fechaSuceso }}</span>
+            <span class="value">{{ fullReportDetails.eventDate }}</span>
           </div>
           <div class="info-item">
             <span class="label">Delegación:</span>
-            <span class="value">{{ fichaDetalleCompleta.estado }}</span>
+            <span class="value">{{ fullReportDetails.state }}</span>
           </div>
           <div class="info-item">
             <span class="label">Municipio:</span>
-            <span class="value">{{ fichaDetalleCompleta.municipio }}</span>
+            <span class="value">{{ fullReportDetails.municipality }}</span>
           </div>
           <div class="info-item">
             <span class="label">Lugar:</span>
-            <span class="value">{{ fichaDetalleCompleta.lugar }}</span>
+            <span class="value">{{ fullReportDetails.place }}</span>
           </div>
           <div class="info-item">
             <span class="label">Sector:</span>
-            <span class="value">{{ fichaDetalleCompleta.sector }}</span>
+            <span class="value">{{ fullReportDetails.sector }}</span>
           </div>
           <div class="info-item">
             <span class="label">Prioridad:</span>
             <span
               class="badge-prioridad"
-              [ngClass]="getPrioridadClass(fichaDetalleCompleta.prioridad)"
+              [ngClass]="getPriorityClass(fullReportDetails.priority)"
             >
-              {{ fichaDetalleCompleta.prioridad }}
+              {{ fullReportDetails.priority }}
             </span>
           </div>
         </div>
       </div>
 
-      <!-- Descripción -->
+
       <div class="detalle-section">
         <h3>Descripción</h3>
         <div class="info-item-full">
           <span class="label">Asunto:</span>
-          <p class="value-text">{{ fichaDetalleCompleta.asunto }}</p>
+          <p class="value-text">{{ fullReportDetails.subject }}</p>
         </div>
       </div>
     </div>
 
     <div class="modal-footer">
-      <button class="btn-cancelar" (click)="cerrarModal()">
+      <button class="btn-cancelar" (click)="closeModal()">
         <i class="fi fi-rr-cross-small"></i>
         Cerrar
       </button>
@@ -203,14 +203,14 @@
   </div>
 </div>
 
-<!-- Modal de validación con drag & drop -->
+
 <app-modal-validar
-  [visible]="mostrarModalValidar"
-  [folioFicha]="fichaSeleccionada?.folio || ''"
-  [delegacion]="fichaSeleccionada?.delegacion || ''"
-  [municipio]="fichaSeleccionada?.municipio || ''"
-  [lugar]="fichaSeleccionada?.lugar || ''"
-  [prioridad]="fichaSeleccionada?.prioridad || ''"
-  (cerrar)="cerrarModal()"
-  (validar)="onValidarFicha($event)"
+  [visible]="showValidationModal"
+  [reportReference]="selectedReport?.referenceNumber || ''"
+  [delegation]="selectedReport?.delegation || ''"
+  [municipality]="selectedReport?.municipality || ''"
+  [place]="selectedReport?.place || ''"
+  [priority]="selectedReport?.priority || ''"
+  (close)="closeModal()"
+  (validate)="onValidateReport($event)"
 ></app-modal-validar>

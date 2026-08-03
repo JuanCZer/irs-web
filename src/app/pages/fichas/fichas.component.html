@@ -2,10 +2,10 @@
   <div class="header">
     <h2>Registrar ficha informativa</h2>
     <div class="header-actions">
-      <button type="button" class="btn-borrador" (click)="guardarBorrador()">
+      <button type="button" class="btn-borrador" (click)="saveDraft()">
         <i class="fi fi-rr-disk"></i> Guardar como borrador
       </button>
-      <button type="button" class="btn-validar" (click)="guardarYValidar()">
+      <button type="button" class="btn-validar" (click)="saveAndValidate()">
         <i class="fi fi-rr-check"></i> Guardar y validar ficha
       </button>
     </div>
@@ -16,21 +16,21 @@
   </div>
 
   <form class="ficha-form">
-    <!-- Sección: Estado y Ubicación -->
+
     <div class="seccion-card">
       <div class="form-row">
         <div class="form-group">
           <label for="estado">Estado: <span class="required">*</span></label>
           <select
             id="estado"
-            [(ngModel)]="ficha.estado"
+            [(ngModel)]="report.state"
             name="estado"
             class="form-control"
             required
           >
             <option value="" disabled selected>Seleccione un Estado</option>
-            <option *ngFor="let estado of estadosMexico" [value]="estado">
-              {{ estado }}
+            <option *ngFor="let state of mexicanStates" [value]="state">
+              {{ state }}
             </option>
           </select>
         </div>
@@ -40,7 +40,7 @@
           <input
             type="text"
             id="lugar"
-            [(ngModel)]="ficha.lugar"
+            [(ngModel)]="report.place"
             name="lugar"
             class="form-control"
             placeholder="Ingrese el lugar"
@@ -55,9 +55,9 @@
           <input
             type="number"
             id="latitud"
-            [(ngModel)]="ficha.latitud"
+            [(ngModel)]="report.latitude"
             name="latitud"
-            (change)="actualizarMarcadorDesdeInput()"
+            (change)="updateMarkerFromInput()"
             class="form-control"
             step="0.000001"
             placeholder="Ej: 19.432608"
@@ -69,9 +69,9 @@
           <input
             type="number"
             id="longitud"
-            [(ngModel)]="ficha.longitud"
+            [(ngModel)]="report.longitude"
             name="longitud"
-            (change)="actualizarMarcadorDesdeInput()"
+            (change)="updateMarkerFromInput()"
             class="form-control"
             step="0.000001"
             placeholder="Ej: -99.133209"
@@ -83,7 +83,7 @@
           <input
             type="text"
             id="direccion"
-            [(ngModel)]="ficha.direccion"
+            [(ngModel)]="report.address"
             name="direccion"
             class="form-control"
             placeholder="Ingrese la dirección completa"
@@ -91,7 +91,7 @@
         </div>
       </div>
 
-      <!-- Mapa -->
+
       <div class="mapa-container">
         <div id="map" class="mapa"></div>
         <small class="mapa-instruccion">
@@ -102,7 +102,7 @@
       </div>
     </div>
 
-    <!-- Sección: Sector y Detalles del Suceso -->
+
     <div class="seccion-card">
       <div class="form-row">
         <div class="form-group">
@@ -111,12 +111,12 @@
             id="sector"
             name="sector"
             class="form-control"
-            [(ngModel)]="ficha.sector"
+            [(ngModel)]="report.sector"
             (ngModelChange)="onSectorChange($event)"
             required
           >
             <option value="" disabled selected>Seleccione una opción</option>
-            <option *ngFor="let sector of sectores" [value]="sector.sector">
+            <option *ngFor="let sector of sectors" [value]="sector.sector">
               {{ sector.sector }}
             </option>
           </select>
@@ -128,11 +128,11 @@
             id="subsector"
             name="subsector"
             class="form-control"
-            [(ngModel)]="ficha.subsector"
-            [disabled]="subsectores.length === 0"
+            [(ngModel)]="report.subsector"
+            [disabled]="subsectors.length === 0"
           >
             <option value="" disabled selected>Seleccione una opción</option>
-            <option *ngFor="let subsector of subsectores" [value]="subsector.subsector">
+            <option *ngFor="let subsector of subsectors" [value]="subsector.subsector">
               {{ subsector.subsector }}
             </option>
           </select>
@@ -145,7 +145,7 @@
           <input
             type="time"
             id="horaInicioSuceso"
-            [(ngModel)]="ficha.horaInicioSuceso"
+            [(ngModel)]="report.eventStartTime"
             name="horaInicioSuceso"
             class="form-control"
           />
@@ -156,7 +156,7 @@
           <input
             type="time"
             id="horaFinSuceso"
-            [(ngModel)]="ficha.horaFinSuceso"
+            [(ngModel)]="report.eventEndTime"
             name="horaFinSuceso"
             class="form-control"
           />
@@ -169,7 +169,7 @@
           <input
             type="date"
             id="fechaSuceso"
-            [(ngModel)]="ficha.fechaSuceso"
+            [(ngModel)]="report.eventDate"
             name="fechaSuceso"
             class="form-control"
             required
@@ -181,7 +181,7 @@
           <input
             type="number"
             id="numeroAsistentes"
-            [(ngModel)]="ficha.numeroAsistentes"
+            [(ngModel)]="report.attendeeCount"
             name="numeroAsistentes"
             class="form-control"
             min="0"
@@ -191,7 +191,7 @@
       </div>
     </div>
 
-    <!-- Sección: Clasificación -->
+
     <div class="seccion-card">
       <div class="form-row">
         <div class="form-group">
@@ -200,14 +200,14 @@
           >
           <select
             id="prioridad"
-            [(ngModel)]="ficha.prioridad"
+            [(ngModel)]="report.priority"
             name="prioridad"
             class="form-control"
             required
           >
             <option value="" disabled selected>Seleccione una opción</option>
-            <option *ngFor="let prioridad of prioridades" [value]="prioridad.prioridad">
-              {{ prioridad.prioridad }}
+            <option *ngFor="let priority of priorities" [value]="priority.priority">
+              {{ priority.priority }}
             </option>
           </select>
         </div>
@@ -216,16 +216,16 @@
           <label for="condicionEvento">Condición del evento:</label>
           <select
             id="condicionEvento"
-            [(ngModel)]="ficha.condicionEvento"
+            [(ngModel)]="report.eventCondition"
             name="condicionEvento"
             class="form-control"
           >
             <option value="" disabled selected>Seleccione una opción</option>
             <option
-              *ngFor="let condicion of condicionesEvento"
-              [value]="condicion.condicion"
+              *ngFor="let condition of eventConditions"
+              [value]="condition.condition"
             >
-              {{ condicion.condicion }}
+              {{ condition.condition }}
             </option>
           </select>
         </div>
@@ -234,26 +234,26 @@
           <label for="informacion">Información:</label>
           <select
             id="informacion"
-            [(ngModel)]="ficha.informacion"
+            [(ngModel)]="report.information"
             name="informacion"
             class="form-control"
           >
             <option value="" disabled selected>Seleccione una opción</option>
-            <option *ngFor="let info of tiposInformacion" [value]="info.informacion">
-              {{ info.informacion }}
+            <option *ngFor="let info of informationTypes" [value]="info.information">
+              {{ info.information }}
             </option>
           </select>
         </div>
       </div>
     </div>
 
-    <!-- Sección: Descripción -->
+
     <div class="seccion-card">
       <div class="form-group full-width">
         <label for="asunto">Asunto:</label>
         <textarea
           id="asunto"
-          [(ngModel)]="ficha.asunto"
+          [(ngModel)]="report.subject"
           name="asunto"
           class="form-control textarea-field"
           rows="4"
@@ -265,7 +265,7 @@
         <label for="hechos">Hechos:</label>
         <textarea
           id="hechos"
-          [(ngModel)]="ficha.hechos"
+          [(ngModel)]="report.facts"
           name="hechos"
           class="form-control textarea-field"
           rows="6"
@@ -277,7 +277,7 @@
         <label for="acuerdos">Acuerdos:</label>
         <textarea
           id="acuerdos"
-          [(ngModel)]="ficha.acuerdos"
+          [(ngModel)]="report.agreements"
           name="acuerdos"
           class="form-control textarea-field"
           rows="4"
@@ -286,19 +286,19 @@
       </div>
     </div>
 
-    <!-- Sección: Información de Recepción -->
+
     <div class="seccion-card seccion-recepcion">
       <div class="form-row">
         <div class="form-group">
           <label for="informo">Informó:</label>
           <select
             id="informo"
-            [(ngModel)]="ficha.informo"
+            [(ngModel)]="report.reporter"
             name="informo"
             class="form-control"
           >
             <option value="" disabled selected>Seleccione una opción</option>
-            <option *ngFor="let informante of informantes" [value]="informante">
+            <option *ngFor="let informante of informants" [value]="informante">
               {{ informante }}
             </option>
           </select>
@@ -309,7 +309,7 @@
           <input
             type="date"
             id="fechaRecepcion"
-            [(ngModel)]="ficha.fechaRecepcion"
+            [(ngModel)]="report.receptionDate"
             name="fechaRecepcion"
             class="form-control"
           />
@@ -320,7 +320,7 @@
           <input
             type="time"
             id="horaRecepcion"
-            [(ngModel)]="ficha.horaRecepcion"
+            [(ngModel)]="report.receptionTime"
             name="horaRecepcion"
             class="form-control"
           />
@@ -328,19 +328,19 @@
       </div>
     </div>
 
-    <!-- Botón Salir -->
+
     <div class="form-actions">
-      <button type="button" class="btn-salir" (click)="salir()">
+      <button type="button" class="btn-salir" (click)="exit()">
         <i class="fi fi-rr-sign-out-alt"></i> Salir
       </button>
     </div>
 
-    <!-- Mensajes -->
-    <div class="message success" *ngIf="mensajeExito">
-      <i class="fi fi-rr-check-circle"></i> {{ mensajeExito }}
+
+    <div class="message success" *ngIf="successMessage">
+      <i class="fi fi-rr-check-circle"></i> {{ successMessage }}
     </div>
-    <div class="message error" *ngIf="mensajeError">
-      <i class="fi fi-rr-circle-exclamation-check"></i> {{ mensajeError }}
+    <div class="message error" *ngIf="errorMessage">
+      <i class="fi fi-rr-circle-exclamation-check"></i> {{ errorMessage }}
     </div>
   </form>
 </div>

@@ -4,13 +4,13 @@ namespace IRS.API.Interfaces;
 
 public interface ICatalogosService
 {
-  Task<List<CatSector>> ObtenerSectoresAsync();
-  Task<List<CatSubsector>> ObtenerSubsectoresAsync();
-  Task<List<CatSubsector>> ObtenerSubsectoresPorSectorAsync(int idSector);
-  Task<List<CatPrioridad>> ObtenerPrioridadesAsync();
-  Task<List<CatCondicion>> ObtenerCondicionesAsync();
-  Task<List<CatInformacion>> ObtenerInformacionesAsync();
-  Task<List<CatMunicipio>> ObtenerMunicipiosAsync();
-  Task<List<CatDelegacion>> ObtenerDelegacionesAsync();
-  Task<List<CatMedidaSeguridad>> ObtenerMedidasSeguridadAsync();
+  Task<List<SectorCategory>> GetSectorsAsync();
+  Task<List<CatSubsector>> GetSubsectorsAsync();
+  Task<List<CatSubsector>> GetSubsectorsBySectorAsync(int sectorId);
+  Task<List<CatPrioridad>> GetPrioritiesAsync();
+  Task<List<CatCondicion>> GetConditionsAsync();
+  Task<List<CatInformacion>> GetInformationItemsAsync();
+  Task<List<CatMunicipio>> GetMunicipalitiesAsync();
+  Task<List<CatDelegacion>> GetDelegationsAsync();
+  Task<List<CatMedidaSeguridad>> GetSecurityMeasuresAsync();
 }

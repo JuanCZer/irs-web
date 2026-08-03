@@ -4,7 +4,7 @@ namespace IRS.API.Interfaces;
 
 public interface IDespachoService
 {
-  Task<FichaDespacho> CrearFichaDespachoAsync(FichaDespacho fichaDespacho);
-  Task<List<FichaDespacho>> ObtenerPorIdFichaAsync(int idFicha);
-  Task<FichaDespacho?> ObtenerPorIdAsync(int idFichaDespacho);
+  Task<DispatchReport> CreateDispatchReportAsync(DispatchReport dispatchReport);
+  Task<List<DispatchReport>> GetByReportIdAsync(int reportId);
+  Task<DispatchReport?> GetByIdAsync(int dispatchReportId);
 }

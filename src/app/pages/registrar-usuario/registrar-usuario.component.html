@@ -3,14 +3,14 @@
 </div>
 
 <div class="registrar-usuario-container">
-  <form class="usuario-form" (ngSubmit)="registrarUsuario()" autocomplete="off">
+  <form class="usuario-form" (ngSubmit)="registerUser()" autocomplete="off">
     <div class="form-row">
       <div class="form-group">
         <label for="nombres">Nombre(s):</label>
         <input
           type="text"
           id="nombres"
-          [(ngModel)]="usuario.nombres"
+          [(ngModel)]="user.firstNames"
           name="nombres"
           class="form-control"
           autocomplete="off"
@@ -23,7 +23,7 @@
         <input
           type="text"
           id="primerApellido"
-          [(ngModel)]="usuario.primerApellido"
+          [(ngModel)]="user.firstSurname"
           name="primerApellido"
           class="form-control"
           autocomplete="off"
@@ -36,7 +36,7 @@
         <input
           type="text"
           id="segundoApellido"
-          [(ngModel)]="usuario.segundoApellido"
+          [(ngModel)]="user.secondSurname"
           name="segundoApellido"
           class="form-control"
           autocomplete="off"
@@ -50,7 +50,7 @@
         <input
           type="text"
           id="usuario"
-          [(ngModel)]="usuario.usuario"
+          [(ngModel)]="user.user"
           name="usuario"
           class="form-control"
           autocomplete="new-username"
@@ -63,7 +63,7 @@
         <input
           type="text"
           id="alias"
-          [(ngModel)]="usuario.alias"
+          [(ngModel)]="user.alias"
           name="alias"
           class="form-control"
           autocomplete="off"
@@ -76,9 +76,9 @@
         <label for="contrasena">Contraseña:</label>
         <div class="password-input-wrapper">
           <input
-            [type]="mostrarContrasena ? 'text' : 'password'"
+            [type]="showPassword ? 'text' : 'password'"
             id="contrasena"
-            [(ngModel)]="usuario.contrasena"
+            [(ngModel)]="user.password"
             name="contrasena"
             class="form-control"
             autocomplete="new-password"
@@ -87,56 +87,56 @@
           <button
             type="button"
             class="toggle-password"
-            (click)="toggleMostrarContrasena()"
+            (click)="togglePassword()"
           >
             <i
-              [class]="mostrarContrasena ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'"
+              [class]="showPassword ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'"
             ></i>
           </button>
         </div>
-        <div class="password-requirements" *ngIf="usuario.contrasena">
-          <small [class.valid]="validacionPassword.longitudMinima">
+        <div class="password-requirements" *ngIf="user.password">
+          <small [class.valid]="passwordValidation.minimumLength">
             <i
               [class]="
-                validacionPassword.longitudMinima
+                passwordValidation.minimumLength
                   ? 'fi fi-rr-check'
                   : 'fi fi-rr-cross-small'
               "
             ></i>
             Mínimo 8 caracteres
           </small>
-          <small [class.valid]="validacionPassword.tieneMayuscula">
+          <small [class.valid]="passwordValidation.tieneMayuscula">
             <i
               [class]="
-                validacionPassword.tieneMayuscula
+                passwordValidation.tieneMayuscula
                   ? 'fi fi-rr-check'
                   : 'fi fi-rr-cross-small'
               "
             ></i>
             Una mayúscula
           </small>
-          <small [class.valid]="validacionPassword.tieneMinuscula">
+          <small [class.valid]="passwordValidation.tieneMinuscula">
             <i
               [class]="
-                validacionPassword.tieneMinuscula
+                passwordValidation.tieneMinuscula
                   ? 'fi fi-rr-check'
                   : 'fi fi-rr-cross-small'
               "
             ></i>
             Una minúscula
           </small>
-          <small [class.valid]="validacionPassword.tieneNumero">
+          <small [class.valid]="passwordValidation.hasNumber">
             <i
               [class]="
-                validacionPassword.tieneNumero ? 'fi fi-rr-check' : 'fi fi-rr-cross-small'
+                passwordValidation.hasNumber ? 'fi fi-rr-check' : 'fi fi-rr-cross-small'
               "
             ></i>
             Un número
           </small>
-          <small [class.valid]="validacionPassword.tieneEspecial">
+          <small [class.valid]="passwordValidation.hasSpecialCharacter">
             <i
               [class]="
-                validacionPassword.tieneEspecial ? 'fi fi-rr-check' : 'fi fi-rr-cross-small'
+                passwordValidation.hasSpecialCharacter ? 'fi fi-rr-check' : 'fi fi-rr-cross-small'
               "
             ></i>
             Un carácter especial
@@ -148,9 +148,9 @@
         <label for="confirmarContrasena">Confirmar Contraseña:</label>
         <div class="password-input-wrapper">
           <input
-            [type]="mostrarConfirmarContrasena ? 'text' : 'password'"
+            [type]="showPasswordConfirmation ? 'text' : 'password'"
             id="confirmarContrasena"
-            [(ngModel)]="usuario.confirmarContrasena"
+            [(ngModel)]="user.confirmPassword"
             name="confirmarContrasena"
             class="form-control"
             autocomplete="new-password"
@@ -159,23 +159,23 @@
           <button
             type="button"
             class="toggle-password"
-            (click)="toggleMostrarConfirmarContrasena()"
+            (click)="togglePasswordConfirmation()"
           >
             <i
               [class]="
-                mostrarConfirmarContrasena ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
+                showPasswordConfirmation ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
               "
             ></i>
           </button>
         </div>
-        <div class="password-match" *ngIf="usuario.confirmarContrasena">
+        <div class="password-match" *ngIf="user.confirmPassword">
           <small
-            [class.valid]="passwordsCoinciden"
-            [class.invalid]="!passwordsCoinciden"
+            [class.valid]="passwordsMatch"
+            [class.invalid]="!passwordsMatch"
           >
-            <i [class]="passwordsCoinciden ? 'fi fi-rr-check' : 'fi fi-rr-cross-small'"></i>
+            <i [class]="passwordsMatch ? 'fi fi-rr-check' : 'fi fi-rr-cross-small'"></i>
             {{
-              passwordsCoinciden
+              passwordsMatch
                 ? "Las contraseñas coinciden"
                 : "Las contraseñas no coinciden"
             }}
@@ -189,14 +189,14 @@
         <label for="rol">Rol del usuario:</label>
         <select
           id="rol"
-          [(ngModel)]="usuario.rol"
+          [(ngModel)]="user.role"
           name="rol"
           class="form-control"
           required
         >
           <option value="" disabled>Seleccione una opción</option>
-          <option *ngFor="let rol of roles" [value]="rol.idCatRol">
-            {{ rol.nombreRol }}
+          <option *ngFor="let role of roles" [value]="role.roleCategoryId">
+            {{ role.roleName }}
           </option>
         </select>
       </div>
@@ -206,18 +206,18 @@
       <button
         type="submit"
         class="btn-registrar"
-        [disabled]="!formularioValido || registrando || !isAdminFlag"
+        [disabled]="!formValid || registering || !isAdminFlag"
         [title]="!isAdminFlag ? 'Solo administradores pueden crear usuarios' : ''"
       >
-        {{ registrando ? "Registrando..." : "Registrar Usuario" }}
+        {{ registering ? "Registrando..." : "Registrar Usuario" }}
       </button>
     </div>
 
-    <div class="message success" *ngIf="mensajeExito">
-      <i class="fi fi-rr-check-circle"></i> {{ mensajeExito }}
+    <div class="message success" *ngIf="successMessage">
+      <i class="fi fi-rr-check-circle"></i> {{ successMessage }}
     </div>
-    <div class="message error" *ngIf="mensajeError">
-      <i class="fi fi-rr-circle-exclamation-check"></i> {{ mensajeError }}
+    <div class="message error" *ngIf="errorMessage">
+      <i class="fi fi-rr-circle-exclamation-check"></i> {{ errorMessage }}
     </div>
   </form>
 </div>

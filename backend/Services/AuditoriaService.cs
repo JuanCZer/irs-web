@@ -6,138 +6,138 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services
 {
-    public class AuditoriaService : IAuditoriaService
+    public class AuditService : IAuditoriaService
     {
         private readonly IRSDbContext _context;
 
-        public AuditoriaService(IRSDbContext context)
+        public AuditService(IRSDbContext context)
         {
             _context = context;
         }
 
-        public async Task RegistrarAsync(int? idUsuario, RegistroAuditoriaDTO registro)
+        public async Task LogAsync(int? userId, RegistroAuditoriaDTO entry)
         {
-            Usuario? usuario = null;
-            if (idUsuario.HasValue)
+            User? user = null;
+            if (userId.HasValue)
             {
-                usuario = await _context.Usuarios
+                user = await _context.Users
                     .AsNoTracking()
-                    .Include(u => u.Rol)
-                    .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario.Value);
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.UserId == userId.Value);
             }
 
-            var nombreCompleto = usuario == null
+            var fullName = user == null
                 ? null
-                : string.Join(" ", new[] { usuario.Nombre, usuario.App, usuario.Apm }
-                    .Where(valor => !string.IsNullOrWhiteSpace(valor)));
+                : string.Join(" ", new[] { user.Name, user.FirstSurname, user.SecondSurname }
+                    .Where(value => !string.IsNullOrWhiteSpace(value)));
 
-            var evento = new AuditoriaEvento
+            var auditEvent = new AuditoriaEvento
             {
-                IdUsuario = usuario?.IdUsuario,
-                Usuario = usuario?.Usuario1 ?? registro.UsuarioAlternativo ?? "ANONIMO",
-                NombreCompleto = string.IsNullOrWhiteSpace(nombreCompleto) ? null : nombreCompleto,
-                Rol = usuario?.Rol?.NombreRol,
-                Accion = registro.Accion,
-                Modulo = registro.Modulo,
-                Descripcion = registro.Descripcion,
-                MetodoHttp = registro.MetodoHttp,
-                Ruta = registro.Ruta,
-                Entidad = registro.Entidad,
-                IdEntidad = registro.IdEntidad,
-                DireccionIp = registro.DireccionIp,
-                AgenteUsuario = registro.AgenteUsuario,
-                CodigoEstado = registro.CodigoEstado,
-                Exitoso = registro.Exitoso,
-                FechaHora = DateTimeOffset.UtcNow,
-                Detalles = registro.Detalles
+                UserId = user?.UserId,
+                User = user?.Username ?? entry.FallbackUser ?? "ANONIMO",
+                FullName = string.IsNullOrWhiteSpace(fullName) ? null : fullName,
+                Role = user?.Role?.RoleName,
+                Action = entry.Action,
+                Module = entry.Module,
+                Description = entry.Description,
+                HttpMethod = entry.HttpMethod,
+                Path = entry.Path,
+                Entity = entry.Entity,
+                EntityId = entry.EntityId,
+                IpAddress = entry.IpAddress,
+                UserAgent = entry.UserAgent,
+                StatusCode = entry.StatusCode,
+                Successful = entry.Successful,
+                DateTime = DateTimeOffset.UtcNow,
+                Details = entry.Details
             };
 
-            _context.Set<AuditoriaEvento>().Add(evento);
+            _context.Set<AuditoriaEvento>().Add(auditEvent);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<AuditoriaPaginaDTO> ConsultarAsync(AuditoriaConsultaDTO consulta)
+        public async Task<AuditoriaPaginaDTO> QueryAsync(AuditoriaConsultaDTO filters)
         {
-            var pagina = Math.Max(1, consulta.Pagina);
-            var tamanoPagina = Math.Clamp(consulta.TamanoPagina, 10, 100);
+            var page = Math.Max(1, filters.Page);
+            var pageSize = Math.Clamp(filters.PageSize, 10, 100);
             var query = _context.Set<AuditoriaEvento>().AsNoTracking().AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(consulta.Busqueda))
+            if (!string.IsNullOrWhiteSpace(filters.Search))
             {
-                var termino = $"%{consulta.Busqueda.Trim()}%";
+                var term = $"%{filters.Search.Trim()}%";
                 query = query.Where(e =>
-                    EF.Functions.ILike(e.Usuario, termino) ||
-                    (e.NombreCompleto != null && EF.Functions.ILike(e.NombreCompleto, termino)) ||
-                    EF.Functions.ILike(e.Descripcion, termino) ||
-                    EF.Functions.ILike(e.Accion, termino) ||
-                    EF.Functions.ILike(e.Modulo, termino));
+                    EF.Functions.ILike(e.User, term) ||
+                    (e.FullName != null && EF.Functions.ILike(e.FullName, term)) ||
+                    EF.Functions.ILike(e.Description, term) ||
+                    EF.Functions.ILike(e.Action, term) ||
+                    EF.Functions.ILike(e.Module, term));
             }
 
-            if (consulta.IdUsuario.HasValue)
-                query = query.Where(e => e.IdUsuario == consulta.IdUsuario.Value);
+            if (filters.UserId.HasValue)
+                query = query.Where(e => e.UserId == filters.UserId.Value);
 
-            if (!string.IsNullOrWhiteSpace(consulta.Modulo))
-                query = query.Where(e => e.Modulo == consulta.Modulo);
+            if (!string.IsNullOrWhiteSpace(filters.Module))
+                query = query.Where(e => e.Module == filters.Module);
 
-            if (!string.IsNullOrWhiteSpace(consulta.Accion))
-                query = query.Where(e => e.Accion == consulta.Accion);
+            if (!string.IsNullOrWhiteSpace(filters.Action))
+                query = query.Where(e => e.Action == filters.Action);
 
-            if (consulta.Exitoso.HasValue)
-                query = query.Where(e => e.Exitoso == consulta.Exitoso.Value);
+            if (filters.Successful.HasValue)
+                query = query.Where(e => e.Successful == filters.Successful.Value);
 
-            if (consulta.FechaInicio.HasValue)
-                query = query.Where(e => e.FechaHora >= consulta.FechaInicio.Value);
+            if (filters.StartDate.HasValue)
+                query = query.Where(e => e.DateTime >= filters.StartDate.Value);
 
-            if (consulta.FechaFin.HasValue)
-                query = query.Where(e => e.FechaHora < consulta.FechaFin.Value.AddDays(1));
+            if (filters.EndDate.HasValue)
+                query = query.Where(e => e.DateTime < filters.EndDate.Value.AddDays(1));
 
             var total = await query.CountAsync();
-            var exitosos = await query.CountAsync(e => e.Exitoso);
-            var usuariosDistintos = await query
-                .Where(e => e.IdUsuario.HasValue)
-                .Select(e => e.IdUsuario)
+            var successfulItems = await query.CountAsync(e => e.Successful);
+            var distinctUsers = await query
+                .Where(e => e.UserId.HasValue)
+                .Select(e => e.UserId)
                 .Distinct()
                 .CountAsync();
 
-            var eventos = await query
-                .OrderByDescending(e => e.FechaHora)
-                .Skip((pagina - 1) * tamanoPagina)
-                .Take(tamanoPagina)
+            var events = await query
+                .OrderByDescending(e => e.DateTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(e => new AuditoriaEventoDTO
                 {
-                    IdAuditoria = e.IdAuditoria,
-                    IdUsuario = e.IdUsuario,
-                    Usuario = e.Usuario,
-                    NombreCompleto = e.NombreCompleto,
-                    Rol = e.Rol,
-                    Accion = e.Accion,
-                    Modulo = e.Modulo,
-                    Descripcion = e.Descripcion,
-                    MetodoHttp = e.MetodoHttp,
-                    Ruta = e.Ruta,
-                    Entidad = e.Entidad,
-                    IdEntidad = e.IdEntidad,
-                    DireccionIp = e.DireccionIp,
-                    CodigoEstado = e.CodigoEstado,
-                    Exitoso = e.Exitoso,
-                    FechaHora = e.FechaHora,
-                    Detalles = e.Detalles
+                    AuditId = e.AuditId,
+                    UserId = e.UserId,
+                    User = e.User,
+                    FullName = e.FullName,
+                    Role = e.Role,
+                    Action = e.Action,
+                    Module = e.Module,
+                    Description = e.Description,
+                    HttpMethod = e.HttpMethod,
+                    Path = e.Path,
+                    Entity = e.Entity,
+                    EntityId = e.EntityId,
+                    IpAddress = e.IpAddress,
+                    StatusCode = e.StatusCode,
+                    Successful = e.Successful,
+                    DateTime = e.DateTime,
+                    Details = e.Details
                 })
                 .ToListAsync();
 
             return new AuditoriaPaginaDTO
             {
-                Elementos = eventos,
-                Resumen = new AuditoriaResumenDTO
+                Items = events,
+                Summary = new AuditoriaResumenDTO
                 {
-                    TotalEventos = total,
-                    EventosExitosos = exitosos,
-                    EventosConError = total - exitosos,
-                    UsuariosDistintos = usuariosDistintos
+                    TotalEvents = total,
+                    SuccessfulEvents = successfulItems,
+                    FailedEvents = total - successfulItems,
+                    DistinctUsers = distinctUsers
                 },
-                Pagina = pagina,
-                TamanoPagina = tamanoPagina,
-                TotalPaginas = total == 0 ? 0 : (int)Math.Ceiling(total / (double)tamanoPagina)
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = total == 0 ? 0 : (int)Math.Ceiling(total / (double)pageSize)
             };
         }
 

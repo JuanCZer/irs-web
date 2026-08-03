@@ -11,8 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { CatMedidaSeguridad } from '../../services/catalogos.service';
 
 export interface AplicarMedidasEvent {
-  medidas: number[];
-  comentario: string;
+  measures: number[];
+  comment: string;
 }
 
 @Component({
@@ -24,21 +24,21 @@ export interface AplicarMedidasEvent {
 })
 export class ModalMedidasComponent implements OnChanges {
   @Input() visible = false;
-  @Input() folioFicha = '';
-  @Input() delegacion = '';
-  @Input() municipio = '';
-  @Input() lugar = '';
-  @Input() prioridad = '';
-  @Input() medidasSeguridad: CatMedidaSeguridad[] = [];
-  @Input() medidasSeleccionadas: number[] = [];
-  @Input() comentarioInicial = '';
+  @Input() reportReference = '';
+  @Input() delegation = '';
+  @Input() municipality = '';
+  @Input() place = '';
+  @Input() priority = '';
+  @Input() securityMeasures: CatMedidaSeguridad[] = [];
+  @Input() selectedMeasures: number[] = [];
+  @Input() initialComment = '';
 
-  @Output() cerrar = new EventEmitter<void>();
-  @Output() aplicar = new EventEmitter<AplicarMedidasEvent>();
-  @Output() borradorChange = new EventEmitter<AplicarMedidasEvent>();
+  @Output() close = new EventEmitter<void>();
+  @Output() apply = new EventEmitter<AplicarMedidasEvent>();
+  @Output() draftChange = new EventEmitter<AplicarMedidasEvent>();
 
-  comentario = '';
-  medidasSeleccionadasMap: { [key: number]: boolean } = {};
+  comment = '';
+  selectedMeasuresMap: { [key: number]: boolean } = {};
 
   ngOnChanges(changes: SimpleChanges): void {
     if (
@@ -47,64 +47,64 @@ export class ModalMedidasComponent implements OnChanges {
         changes['medidasSeleccionadas'] ||
         changes['comentarioInicial'])
     ) {
-      this.comentario = this.comentarioInicial;
-      this.medidasSeleccionadasMap = Object.fromEntries(
-        this.medidasSeleccionadas.map((id) => [id, true])
+      this.comment = this.initialComment;
+      this.selectedMeasuresMap = Object.fromEntries(
+        this.selectedMeasures.map((id) => [id, true])
       );
     }
   }
 
-  get medidasSeleccionadasCount(): number {
-    return Object.values(this.medidasSeleccionadasMap).filter((v) => v).length;
+  get selectedMeasureCount(): number {
+    return Object.values(this.selectedMeasuresMap).filter((v) => v).length;
   }
 
-  getMedidasSeleccionadasList(): CatMedidaSeguridad[] {
-    return this.medidasSeguridad.filter(
-      (m) => this.medidasSeleccionadasMap[m.idCatMedida]
+  getSelectedMeasures(): CatMedidaSeguridad[] {
+    return this.securityMeasures.filter(
+      (m) => this.selectedMeasuresMap[m.measureCategoryId]
     );
   }
 
-  onCerrar(): void {
-    this.emitirBorrador();
-    this.cerrar.emit();
+  onClose(): void {
+    this.emitDraft();
+    this.close.emit();
   }
 
-  onMedidaChange(idMedida: number, seleccionada: boolean): void {
-    this.medidasSeleccionadasMap[idMedida] = seleccionada;
-    this.emitirBorrador();
+  onMeasureChange(measureId: number, selected: boolean): void {
+    this.selectedMeasuresMap[measureId] = selected;
+    this.emitDraft();
   }
 
-  onComentarioChange(comentario: string): void {
-    this.comentario = comentario;
-    this.emitirBorrador();
+  onCommentChange(comment: string): void {
+    this.comment = comment;
+    this.emitDraft();
   }
 
-  onAplicar(): void {
-    const medidasIds = Object.keys(this.medidasSeleccionadasMap)
-      .filter((key) => this.medidasSeleccionadasMap[+key])
+  onApply(): void {
+    const measureIds = Object.keys(this.selectedMeasuresMap)
+      .filter((key) => this.selectedMeasuresMap[+key])
       .map((key) => +key);
 
-    if (medidasIds.length === 0) {
+    if (measureIds.length === 0) {
       alert('Debe seleccionar al menos una medida de seguridad');
       return;
     }
 
-    this.aplicar.emit({
-      medidas: medidasIds,
-      comentario: this.comentario,
+    this.apply.emit({
+      measures: measureIds,
+      comment: this.comment,
     });
   }
 
-  private emitirBorrador(): void {
-    const medidas = Object.keys(this.medidasSeleccionadasMap)
-      .filter((key) => this.medidasSeleccionadasMap[+key])
+  private emitDraft(): void {
+    const measures = Object.keys(this.selectedMeasuresMap)
+      .filter((key) => this.selectedMeasuresMap[+key])
       .map((key) => +key);
 
-    this.borradorChange.emit({ medidas, comentario: this.comentario });
+    this.draftChange.emit({ measures, comment: this.comment });
   }
 
-  getPrioridadClass(prioridad: string): string {
-    switch (prioridad?.toLowerCase()) {
+  getPriorityClass(priority: string): string {
+    switch (priority?.toLowerCase()) {
       case 'alta':
         return 'prioridad-alta';
       case 'media':

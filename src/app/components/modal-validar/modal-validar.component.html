@@ -5,40 +5,40 @@
         <i class="fi fi-rr-file-upload"></i>
         Validar Ficha
       </h2>
-      <button class="btn-close" (click)="onCerrar()">×</button>
+      <button class="btn-close" (click)="onClose()">×</button>
     </div>
 
     <div class="modal-body">
-      <!-- Información de la Ficha -->
+
       <div class="ficha-info">
         <h3>Información de la Ficha</h3>
         <div class="info-grid">
           <div class="info-item">
             <span class="label">Folio:</span>
-            <span class="value">{{ folioFicha }}</span>
+            <span class="value">{{ reportReference }}</span>
           </div>
           <div class="info-item">
             <span class="label">Delegación:</span>
-            <span class="value">{{ delegacion }}</span>
+            <span class="value">{{ delegation }}</span>
           </div>
           <div class="info-item">
             <span class="label">Municipio:</span>
-            <span class="value">{{ municipio }}</span>
+            <span class="value">{{ municipality }}</span>
           </div>
           <div class="info-item">
             <span class="label">Lugar:</span>
-            <span class="value">{{ lugar }}</span>
+            <span class="value">{{ place }}</span>
           </div>
           <div class="info-item">
             <span class="label">Prioridad:</span>
-            <span class="badge-prioridad" [ngClass]="getPrioridadClass()">
-              {{ prioridad }}
+            <span class="badge-prioridad" [ngClass]="getPriorityClass()">
+              {{ priority }}
             </span>
           </div>
         </div>
       </div>
 
-      <!-- Sección de Subir Evidencia -->
+
       <div class="upload-section">
         <h3>
           <i class="fi fi-rr-cloud-upload-alt"></i>
@@ -67,21 +67,21 @@
           style="display: none"
         />
 
-        <!-- Lista de Archivos Seleccionados -->
-        <div class="archivos-lista" *ngIf="archivosSeleccionados.length > 0">
-          <h4>Archivos Seleccionados ({{ archivosSeleccionados.length }})</h4>
+
+        <div class="archivos-lista" *ngIf="selectedFiles.length > 0">
+          <h4>Archivos Seleccionados ({{ selectedFiles.length }})</h4>
           <div
             class="archivo-item"
-            *ngFor="let item of archivosSeleccionados; let i = index"
+            *ngFor="let item of selectedFiles; let i = index"
           >
             <i class="fi fi-rr-file-image"></i>
             <div class="archivo-info">
-              <span class="archivo-nombre">{{ item.archivo.name }}</span>
+              <span class="archivo-nombre">{{ item.file.name }}</span>
               <span class="archivo-size">{{
-                formatFileSize(item.archivo.size)
+                formatFileSize(item.file.size)
               }}</span>
             </div>
-            <button class="btn-eliminar-archivo" (click)="eliminarArchivo(i)">
+            <button class="btn-eliminar-archivo" (click)="removeFile(i)">
               <i class="fi fi-rr-cross-small"></i>
             </button>
           </div>
@@ -90,14 +90,14 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn-cancelar" (click)="onCerrar()">
+      <button class="btn-cancelar" (click)="onClose()">
         <i class="fi fi-rr-cross-small"></i>
         Cancelar
       </button>
       <button
         class="btn-validar"
-        (click)="onValidar()"
-        [disabled]="archivosSeleccionados.length === 0"
+        (click)="onValidate()"
+        [disabled]="selectedFiles.length === 0"
       >
         <i class="fi fi-rr-check"></i>
         Validar Ficha

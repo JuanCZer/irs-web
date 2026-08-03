@@ -8,20 +8,20 @@ using IRS.API.Interfaces;
 
 namespace Backend.Services
 {
-    public class UsuariosService : IUsuariosService
+    public class UsersService : IUsuariosService
     {
         private readonly IRSDbContext _context;
 
-        public UsuariosService(IRSDbContext context)
+        public UsersService(IRSDbContext context)
         {
             _context = context;
         }
 
-        private string ObtenerIPLocal()
+        private string GetLocalIp()
         {
             try
             {
-                
+
                 var processStartInfo = new ProcessStartInfo
                 {
                     FileName = "ipconfig",
@@ -39,14 +39,14 @@ namespace Backend.Services
                 var output = process.StandardOutput.ReadToEnd();
                 process.WaitForExit();
 
-                // Buscar la primera dirección IPv4 que no sea localhost
+
                 var ipv4Pattern = @"IPv4.*?: (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})";
                 var matches = Regex.Matches(output, ipv4Pattern);
 
                 foreach (Match match in matches)
                 {
                     var ip = match.Groups[1].Value;
-                    // Ignorar localhost y IPs de link-local
+
                     if (ip != "127.0.0.1" && !ip.StartsWith("169.254"))
                     {
                         return ip;
@@ -54,54 +54,54 @@ namespace Backend.Services
                 }
                 return "0.0.0.0";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return "0.0.0.0";
             }
         }
 
-        public async Task<List<UsuarioDTO>> ObtenerTodosLosUsuariosAsync()
+        public async Task<List<UsuarioDTO>> GetAllUsersAsync()
         {
-            
-            var usuarios = await _context.Usuarios
-                .Include(u => u.Rol) // Incluir la relación con CatRol
-                .Where(u => u.Status == 1) // Solo usuarios activos
-                .OrderByDescending(u => u.FechaHoraCreacion)
+
+            var users = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Status == 1)
+                .OrderByDescending(u => u.CreatedAt)
                 .ToListAsync();
 
-            return usuarios.Select(u => MapearAUsuarioDTO(u)).ToList();
+            return users.Select(u => MapToUserDto(u)).ToList();
         }
 
-        public async Task<UsuarioDTO?> ObtenerUsuarioPorIdAsync(int id)
-        {      
-            var usuario = await _context.Usuarios
-                .Include(u => u.Rol) // Incluir la relación con CatRol
-                .FirstOrDefaultAsync(u => u.IdUsuario == id);
+        public async Task<UsuarioDTO?> GetUserByIdAsync(int id)
+        {
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == id);
 
-            if (usuario == null)
+            if (user == null)
             {
                 return null;
             }
-            return MapearAUsuarioDTO(usuario);
+            return MapToUserDto(user);
         }
 
-        public async Task<UsuarioDTO> CrearUsuarioAsync(CrearUsuarioDTO usuarioDto)
+        public async Task<UsuarioDTO> CreateUserAsync(CrearUsuarioDTO userDto)
         {
             try
             {
-                if (usuarioDto.IdUsuarioCrea.HasValue)
+                if (userDto.CreatorUserId.HasValue)
                 {
-                    var usuarioCrea = await _context.Usuarios
-                        .Include(u => u.Rol)
-                        .FirstOrDefaultAsync(u => u.IdUsuario == usuarioDto.IdUsuarioCrea.Value);
+                    var creatingUser = await _context.Users
+                        .Include(u => u.Role)
+                        .FirstOrDefaultAsync(u => u.UserId == userDto.CreatorUserId.Value);
 
-                    if (usuarioCrea == null)
+                    if (creatingUser == null)
                     {
                         throw new InvalidOperationException("El usuario que intenta crear no fue encontrado");
                     }
 
-                    // Verificar que sea Administrador
-                    if (usuarioCrea.Rol?.NombreRol?.ToUpper() != "ADMIN")
+
+                    if (creatingUser.Role?.RoleName?.ToUpper() != "ADMIN")
                     {
                         throw new InvalidOperationException("Solo los administradores pueden crear nuevos usuarios");
                     }
@@ -111,236 +111,233 @@ namespace Backend.Services
                     throw new InvalidOperationException("El ID del usuario que crea es requerido");
                 }
 
-                // Verificar si el usuario ya existe
-                var usuarioExistente = await _context.Usuarios
-                    .FirstOrDefaultAsync(u => u.Usuario1 == usuarioDto.Usuario);
 
-                if (usuarioExistente != null)
+                var existingUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Username == userDto.User);
+
+                if (existingUser != null)
                 {
-                    throw new InvalidOperationException($"El usuario '{usuarioDto.Usuario}' ya existe");
+                    throw new InvalidOperationException($"El usuario '{userDto.User}' ya existe");
                 }
 
-                // Encriptar contraseña
-                var passwordHash = BCrypt.Net.BCrypt.HashPassword(usuarioDto.Password);
 
-                // Obtener IP local del sistema
-                var ipLocal = ObtenerIPLocal();
+                var passwordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
 
-                var nuevoUsuario = new Usuario
+
+                var localIp = GetLocalIp();
+
+                var newUser = new User
                 {
-                    Nombre = usuarioDto.Nombre,
-                    App = usuarioDto.App,
-                    Apm = usuarioDto.Apm,
-                    Alias = usuarioDto.Alias,
-                    Usuario1 = usuarioDto.Usuario,
+                    Name = userDto.Name,
+                    FirstSurname = userDto.FirstSurname,
+                    SecondSurname = userDto.SecondSurname,
+                    Alias = userDto.Alias,
+                    Username = userDto.User,
                     Password = passwordHash,
-                    Status = usuarioDto.Status ?? 1,
+                    Status = userDto.Status ?? 1,
                     StatusList = 1,
-                    IdRol = usuarioDto.IdRol,
-                    FechaHoraCreacion = DateTime.UtcNow,
-                    UltimoAcceso = DateTime.UtcNow,
-                    Intento = 0,
-                    Ip = ipLocal
+                    RoleId = userDto.RoleId,
+                    CreatedAt = DateTime.UtcNow,
+                    LastAccess = DateTime.UtcNow,
+                    Attempt = 0,
+                    Ip = localIp
                 };
-                _context.Usuarios.Add(nuevoUsuario);
+                _context.Users.Add(newUser);
                 await _context.SaveChangesAsync();
 
-                // Recargar el usuario con la navegación del rol
-                var usuarioConRol = await _context.Usuarios
-                    .Include(u => u.Rol)
-                    .FirstOrDefaultAsync(u => u.IdUsuario == nuevoUsuario.IdUsuario);
 
-                return MapearAUsuarioDTO(usuarioConRol ?? nuevoUsuario);
+                var userWithRole = await _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.UserId == newUser.UserId);
+
+                return MapToUserDto(userWithRole ?? newUser);
             }
-            catch (Exception ex)
+            catch
             {
-                if (ex.InnerException != null)
-                {
-                }
                 throw;
             }
         }
 
-        public async Task<bool> ActualizarUsuarioAsync(int id, ActualizarUsuarioDTO usuarioDto)
+        public async Task<bool> UpdateUserAsync(int id, ActualizarUsuarioDTO userDto)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
 
-            if (usuario == null)
+            if (user == null)
             {
                 return false;
             }
 
-            // Actualizar solo los campos proporcionados
-            if (usuarioDto.Nombre != null) usuario.Nombre = usuarioDto.Nombre;
-            if (usuarioDto.App != null) usuario.App = usuarioDto.App;
-            if (usuarioDto.Apm != null) usuario.Apm = usuarioDto.Apm;
-            if (usuarioDto.Alias != null) usuario.Alias = usuarioDto.Alias;
-            if (usuarioDto.Usuario != null) usuario.Usuario1 = usuarioDto.Usuario;
-            if (usuarioDto.Status.HasValue) usuario.Status = usuarioDto.Status.Value;
-            if (usuarioDto.IdRol.HasValue) usuario.IdRol = usuarioDto.IdRol.Value;
 
-            // Si se proporciona una nueva contraseña, encriptarla
-            if (!string.IsNullOrEmpty(usuarioDto.Password))
+            if (userDto.Name != null) user.Name = userDto.Name;
+            if (userDto.FirstSurname != null) user.FirstSurname = userDto.FirstSurname;
+            if (userDto.SecondSurname != null) user.SecondSurname = userDto.SecondSurname;
+            if (userDto.Alias != null) user.Alias = userDto.Alias;
+            if (userDto.User != null) user.Username = userDto.User;
+            if (userDto.Status.HasValue) user.Status = userDto.Status.Value;
+            if (userDto.RoleId.HasValue) user.RoleId = userDto.RoleId.Value;
+
+
+            if (!string.IsNullOrEmpty(userDto.Password))
             {
-                usuario.Password = BCrypt.Net.BCrypt.HashPassword(usuarioDto.Password);
+                user.Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
             }
 
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> EliminarUsuarioAsync(int id)
+        public async Task<bool> DeleteUserAsync(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
 
-            if (usuario == null)
+            if (user == null)
             {
                 return false;
             }
 
-            // Eliminación lógica: cambiar status a 0 (inactivo)
-            usuario.Status = 0;
+
+            user.Status = 0;
             await _context.SaveChangesAsync();
 
             return true;
         }
 
-        public async Task<UsuarioDTO?> ValidarCredencialesAsync(string usuario, string password)
+        public async Task<UsuarioDTO?> ValidateCredentialsAsync(string user, string password)
         {
             try
             {
-                var usuarioEncontrado = await _context.Usuarios
-                    .Include(u => u.Rol)
-                    .FirstOrDefaultAsync(u => u.Usuario1 == usuario && u.Status == 1);
+                var foundUser = await _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.Username == user && u.Status == 1);
 
-                if (usuarioEncontrado == null)
+                if (foundUser == null)
                 {
                     return null;
                 }
 
-                // Verificar la contraseña con BCrypt
-                bool passwordValida = BCrypt.Net.BCrypt.Verify(password, usuarioEncontrado.Password);
 
-                if (!passwordValida)
+                bool passwordValid = BCrypt.Net.BCrypt.Verify(password, foundUser.Password);
+
+                if (!passwordValid)
                 {
-                    usuarioEncontrado.Intento = (usuarioEncontrado.Intento ?? 0) + 1;
+                    foundUser.Attempt = (foundUser.Attempt ?? 0) + 1;
                     await _context.SaveChangesAsync();
-                    
+
                     return null;
                 }
 
-                // Actualizar último acceso y reiniciar intentos
-                usuarioEncontrado.UltimoAcceso = DateTime.UtcNow;
-                usuarioEncontrado.Intento = 0;
+
+                foundUser.LastAccess = DateTime.UtcNow;
+                foundUser.Attempt = 0;
                 await _context.SaveChangesAsync();
 
-                return MapearAUsuarioDTO(usuarioEncontrado);
+                return MapToUserDto(foundUser);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
         }
 
-        private UsuarioDTO MapearAUsuarioDTO(Usuario usuario)
+        private UsuarioDTO MapToUserDto(User user)
         {
             return new UsuarioDTO
             {
-                IdUsuario = usuario.IdUsuario,
-                Nombre = usuario.Nombre,
-                App = usuario.App,
-                Apm = usuario.Apm,
-                Alias = usuario.Alias,
-                Usuario = usuario.Usuario1,
-                Status = usuario.Status,
-                StatusList = usuario.StatusList,
-                UltimoAcceso = usuario.UltimoAcceso,
-                Intento = usuario.Intento,
-                Ip = usuario.Ip,
-                FechaHoraCreacion = usuario.FechaHoraCreacion,
-                IdRol = usuario.IdRol,
-                NombreRol = usuario.Rol?.NombreRol ?? "Sin rol" // Obtener nombre del rol desde la relación
+                UserId = user.UserId,
+                Name = user.Name,
+                FirstSurname = user.FirstSurname,
+                SecondSurname = user.SecondSurname,
+                Alias = user.Alias,
+                User = user.Username,
+                Status = user.Status,
+                StatusList = user.StatusList,
+                LastAccess = user.LastAccess,
+                Attempt = user.Attempt,
+                Ip = user.Ip,
+                CreatedAt = user.CreatedAt,
+                RoleId = user.RoleId,
+                RoleName = user.Role?.RoleName ?? "Sin rol"
             };
         }
 
-        public async Task<RespuestaCambioContrasenaDTO> CambiarContrasenaAsync(int idUsuario, CambiarContrasenaDTO cambioContraseñaDto)
+        public async Task<RespuestaCambioContrasenaDTO> ChangePasswordAsync(int userId, CambiarContrasenaDTO passwordChangeDto)
         {
             try
             {
-                var errores = new List<string>();
+                var errors = new List<string>();
 
-                if (string.IsNullOrWhiteSpace(cambioContraseñaDto.ContraseñaNueva))
+                if (string.IsNullOrWhiteSpace(passwordChangeDto.NewPassword))
                 {
-                    errores.Add("La nueva contraseña es requerida");
+                    errors.Add("La nueva contraseña es requerida");
                 }
 
-                if (cambioContraseñaDto.ContraseñaNueva != cambioContraseñaDto.ConfirmarContraseña)
+                if (passwordChangeDto.NewPassword != passwordChangeDto.ConfirmPassword)
                 {
-                    errores.Add("Las contraseñas nuevas no coinciden");
+                    errors.Add("Las contraseñas nuevas no coinciden");
                 }
 
-                if (cambioContraseñaDto.ContraseñaNueva?.Length < 8)
+                if (passwordChangeDto.NewPassword?.Length < 8)
                 {
-                    errores.Add("La nueva contraseña debe tener al menos 8 caracteres");
+                    errors.Add("La nueva contraseña debe tener al menos 8 caracteres");
                 }
 
-                if (errores.Count > 0)
-                {
-                    return new RespuestaCambioContrasenaDTO
-                    {
-                        Exitoso = false,
-                        Mensaje = "Errores de validación",
-                        Errores = errores
-                    };
-                }
-
-                // Obtener el usuario
-                var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
-
-                if (usuario == null)
+                if (errors.Count > 0)
                 {
                     return new RespuestaCambioContrasenaDTO
                     {
-                        Exitoso = false,
-                        Mensaje = "Usuario no encontrado",
-                        Errores = new List<string> { "El usuario especificado no existe" }
+                        Successful = false,
+                        Message = "Errores de validación",
+                        Errors = errors
                     };
                 }
 
-                // Evitar que la nueva contraseña sea igual a la actual
-                bool contraseñaIgual = BCrypt.Net.BCrypt.Verify(cambioContraseñaDto.ContraseñaNueva, usuario.Password);
-                if (contraseñaIgual)
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+
+                if (user == null)
                 {
                     return new RespuestaCambioContrasenaDTO
                     {
-                        Exitoso = false,
-                        Mensaje = "La nueva contraseña debe ser diferente a la actual",
-                        Errores = new List<string> { "La nueva contraseña no puede ser igual a la anterior" }
+                        Successful = false,
+                        Message = "Usuario no encontrado",
+                        Errors = new List<string> { "El usuario especificado no existe" }
                     };
                 }
 
-                // Hashear la nueva contraseña
-                string contraseñaHasheada = BCrypt.Net.BCrypt.HashPassword(cambioContraseñaDto.ContraseñaNueva);
 
-                // Actualizar la contraseña
-                usuario.Password = contraseñaHasheada;
-                usuario.UltimoAcceso = DateTime.UtcNow;
+                bool samePassword = BCrypt.Net.BCrypt.Verify(passwordChangeDto.NewPassword, user.Password);
+                if (samePassword)
+                {
+                    return new RespuestaCambioContrasenaDTO
+                    {
+                        Successful = false,
+                        Message = "La nueva contraseña debe ser diferente a la actual",
+                        Errors = new List<string> { "La nueva contraseña no puede ser igual a la anterior" }
+                    };
+                }
+
+
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(passwordChangeDto.NewPassword);
+
+
+                user.Password = hashedPassword;
+                user.LastAccess = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
 
                 return new RespuestaCambioContrasenaDTO
                 {
-                    Exitoso = true,
-                    Mensaje = "Contraseña actualizada exitosamente"
+                    Successful = true,
+                    Message = "Contraseña actualizada exitosamente"
                 };
             }
             catch (Exception ex)
             {
                 return new RespuestaCambioContrasenaDTO
                 {
-                    Exitoso = false,
-                    Mensaje = "Error al cambiar la contraseña",
-                    Errores = new List<string> { ex.Message }
+                    Successful = false,
+                    Message = "Error al cambiar la contraseña",
+                    Errors = new List<string> { ex.Message }
                 };
             }
         }

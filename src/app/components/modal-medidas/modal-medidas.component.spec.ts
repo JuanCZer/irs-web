@@ -10,32 +10,32 @@ describe('ModalMedidasComponent', () => {
 
   it('restaura las medidas y el comentario al abrirse', () => {
     component.visible = true;
-    component.medidasSeleccionadas = [2, 4];
-    component.comentarioInicial = 'Mantener vigilancia';
+    component.selectedMeasures = [2, 4];
+    component.initialComment = 'Mantener vigilancia';
 
     component.ngOnChanges({
       visible: new SimpleChange(false, true, true),
     });
 
-    expect(component.medidasSeleccionadasMap).toEqual({ 2: true, 4: true });
-    expect(component.comentario).toBe('Mantener vigilancia');
+    expect(component.selectedMeasuresMap).toEqual({ 2: true, 4: true });
+    expect(component.comment).toBe('Mantener vigilancia');
   });
 
   it('conserva y comunica el borrador al cerrar', () => {
-    const borradores: Array<{ medidas: number[]; comentario: string }> = [];
-    component.borradorChange.subscribe((borrador) =>
-      borradores.push(borrador)
+    const drafts: Array<{ measures: number[]; comment: string }> = [];
+    component.draftChange.subscribe((draft) =>
+      drafts.push(draft)
     );
-    component.onMedidaChange(3, true);
-    component.onComentarioChange('Rondines');
+    component.onMeasureChange(3, true);
+    component.onCommentChange('Rondines');
 
-    component.onCerrar();
+    component.onClose();
 
-    expect(component.medidasSeleccionadasMap[3]).toBeTrue();
-    expect(component.comentario).toBe('Rondines');
-    expect(borradores.at(-1)).toEqual({
-      medidas: [3],
-      comentario: 'Rondines',
+    expect(component.selectedMeasuresMap[3]).toBeTrue();
+    expect(component.comment).toBe('Rondines');
+    expect(drafts.at(-1)).toEqual({
+      measures: [3],
+      comment: 'Rondines',
     });
   });
 });

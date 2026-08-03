@@ -4,7 +4,7 @@ namespace IRS.API.Interfaces
 {
     public interface IAuditoriaService
     {
-        Task RegistrarAsync(int? idUsuario, RegistroAuditoriaDTO registro);
-        Task<AuditoriaPaginaDTO> ConsultarAsync(AuditoriaConsultaDTO consulta);
+        Task LogAsync(int? userId, RegistroAuditoriaDTO registro);
+        Task<AuditoriaPaginaDTO> QueryAsync(AuditoriaConsultaDTO filters);
     }
 }

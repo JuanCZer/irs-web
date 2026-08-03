@@ -4,12 +4,12 @@ namespace IRS.API.Interfaces
 {
   public interface IUsuariosService
   {
-    Task<List<UsuarioDTO>> ObtenerTodosLosUsuariosAsync();
-    Task<UsuarioDTO?> ObtenerUsuarioPorIdAsync(int id);
-    Task<UsuarioDTO> CrearUsuarioAsync(CrearUsuarioDTO usuarioDto);
-    Task<bool> ActualizarUsuarioAsync(int id, ActualizarUsuarioDTO usuarioDto);
-    Task<bool> EliminarUsuarioAsync(int id);
-    Task<UsuarioDTO?> ValidarCredencialesAsync(string usuario, string password);
-    Task<RespuestaCambioContrasenaDTO> CambiarContrasenaAsync(int idUsuario, CambiarContrasenaDTO cambioContraseñaDto);
+    Task<List<UsuarioDTO>> GetAllUsersAsync();
+    Task<UsuarioDTO?> GetUserByIdAsync(int id);
+    Task<UsuarioDTO> CreateUserAsync(CrearUsuarioDTO userDto);
+    Task<bool> UpdateUserAsync(int id, ActualizarUsuarioDTO userDto);
+    Task<bool> DeleteUserAsync(int id);
+    Task<UsuarioDTO?> ValidateCredentialsAsync(string user, string password);
+    Task<RespuestaCambioContrasenaDTO> ChangePasswordAsync(int userId, CambiarContrasenaDTO passwordChangeDto);
   }
 }

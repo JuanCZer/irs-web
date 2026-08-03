@@ -18,12 +18,12 @@ import { UsuarioDTO, UsuariosService } from '../../services/usuarios.service';
   styleUrl: './auditoria.component.less',
 })
 export class AuditoriaComponent implements OnInit {
-  eventos: AuditoriaEvento[] = [];
-  usuarios: UsuarioDTO[] = [];
-  cargando = false;
+  events: AuditoriaEvento[] = [];
+  users: UsuarioDTO[] = [];
+  loading = false;
   error = '';
 
-  readonly modulos = [
+  readonly modules = [
     'AUTENTICACION',
     'SEGURIDAD',
     'USUARIOS',
@@ -36,7 +36,7 @@ export class AuditoriaComponent implements OnInit {
     'SISTEMA',
   ];
 
-  readonly acciones = [
+  readonly actions = [
     'INICIAR_SESION',
     'CERRAR_SESION',
     'CAMBIAR_CONTRASENA',
@@ -54,109 +54,109 @@ export class AuditoriaComponent implements OnInit {
     'ABRIR_PANTALLA',
   ];
 
-  filtros: AuditoriaFiltros = this.crearFiltrosIniciales();
+  filters: AuditoriaFiltros = this.createInitialFilters();
 
-  resumen: AuditoriaPagina['resumen'] = {
-    totalEventos: 0,
-    eventosExitosos: 0,
-    eventosConError: 0,
-    usuariosDistintos: 0,
+  summary: AuditoriaPagina['summary'] = {
+    totalEvents: 0,
+    successfulEvents: 0,
+    failedEvents: 0,
+    distinctUsers: 0,
   };
 
   constructor(
-    private auditoriaService: AuditoriaService,
-    private usuariosService: UsuariosService,
+    private auditService: AuditoriaService,
+    private usersService: UsuariosService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    await Promise.all([this.cargarUsuarios(), this.cargarEventos()]);
+    await Promise.all([this.loadUsers(), this.loadEvents()]);
   }
 
-  async cargarEventos(): Promise<void> {
-    this.asegurarFechaPorDefecto();
-    this.cargando = true;
+  async loadEvents(): Promise<void> {
+    this.ensureDefaultDate();
+    this.loading = true;
     this.error = '';
 
     try {
-      const pagina = await this.auditoriaService.consultar(this.filtros);
-      this.eventos = pagina.elementos;
-      this.resumen = pagina.resumen;
-      this.filtros.pagina = pagina.pagina;
+      const page = await this.auditService.query(this.filters);
+      this.events = page.items;
+      this.summary = page.summary;
+      this.filters.page = page.page;
     } catch (error) {
       this.error =
         error instanceof Error
           ? error.message
           : 'No fue posible consultar la bitácora.';
-      this.eventos = [];
+      this.events = [];
     } finally {
-      this.cargando = false;
+      this.loading = false;
     }
   }
 
-  aplicarFiltros(): void {
-    this.filtros.pagina = 1;
-    void this.cargarEventos();
+  applyFilters(): void {
+    this.filters.page = 1;
+    void this.loadEvents();
   }
 
-  limpiarFiltros(): void {
-    this.filtros = this.crearFiltrosIniciales();
-    void this.cargarEventos();
+  clearFilters(): void {
+    this.filters = this.createInitialFilters();
+    void this.loadEvents();
   }
 
-  cambiarPagina(pagina: number): void {
-    this.filtros.pagina = pagina;
-    void this.cargarEventos();
+  changePage(page: number): void {
+    this.filters.page = page;
+    void this.loadEvents();
   }
 
-  cambiarResultado(valor: string): void {
-    this.filtros.exitoso =
-      valor === '' ? undefined : valor === 'true';
+  changeResult(value: string): void {
+    this.filters.successful =
+      value === '' ? undefined : value === 'true';
   }
 
-  formatearCodigo(codigo: string): string {
-    return codigo
+  formatCode(code: string): string {
+    return code
       .toLowerCase()
       .split('_')
-      .map((palabra) => palabra.charAt(0).toUpperCase() + palabra.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   }
 
-  trackByEvento(_: number, evento: AuditoriaEvento): number {
-    return evento.idAuditoria;
+  trackByEvent(_: number, event: AuditoriaEvento): number {
+    return event.auditId;
   }
 
-  private crearFiltrosIniciales(): AuditoriaFiltros {
-    const hoy = this.obtenerFechaLocalActual();
+  private createInitialFilters(): AuditoriaFiltros {
+    const today = this.getCurrentLocalDate();
 
     return {
-      fechaInicio: hoy,
-      fechaFin: hoy,
-      pagina: 1,
-      tamanoPagina: 25,
+      startDate: today,
+      endDate: today,
+      page: 1,
+      pageSize: 25,
     };
   }
 
-  private asegurarFechaPorDefecto(): void {
-    if (this.filtros.fechaInicio || this.filtros.fechaFin) return;
+  private ensureDefaultDate(): void {
+    if (this.filters.startDate || this.filters.endDate) return;
 
-    const hoy = this.obtenerFechaLocalActual();
-    this.filtros.fechaInicio = hoy;
-    this.filtros.fechaFin = hoy;
+    const today = this.getCurrentLocalDate();
+    this.filters.startDate = today;
+    this.filters.endDate = today;
   }
 
-  private obtenerFechaLocalActual(): string {
-    const fecha = new Date();
-    const anio = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    return `${anio}-${mes}-${dia}`;
+  private getCurrentLocalDate(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
-  private async cargarUsuarios(): Promise<void> {
+  private async loadUsers(): Promise<void> {
     try {
-      this.usuarios = await this.usuariosService.obtenerTodosLosUsuarios();
+      this.users = await this.usersService.getAllUsers();
     } catch {
-      this.usuarios = [];
+      this.users = [];
     }
   }
 }

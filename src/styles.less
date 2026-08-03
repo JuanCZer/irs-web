@@ -3,27 +3,6 @@
 
 :root {
   color-scheme: light;
-  --irs-navy-950: #101a22;
-  --irs-navy-900: #15232d;
-  --irs-navy-800: #203642;
-  --irs-steel-700: #365a6a;
-  --irs-steel-600: #466b7b;
-  --irs-brass-500: #8a7448;
-  --irs-surface: #ffffff;
-  --irs-surface-muted: #f7f8f8;
-  --irs-canvas: #eef1f2;
-  --irs-border: #d8dee1;
-  --irs-border-strong: #c4ccd0;
-  --irs-text: #1b2831;
-  --irs-text-muted: #64717a;
-  --irs-success: #356a4e;
-  --irs-warning: #875f1e;
-  --irs-danger: #8b3e43;
-  --irs-info: #3e6476;
-  --irs-radius: 7px;
-  --irs-shadow: 0 1px 2px rgba(16, 26, 34, 0.07);
-  --irs-shadow-raised: 0 8px 24px rgba(16, 26, 34, 0.1);
-  --irs-focus: 0 0 0 3px rgba(70, 107, 123, 0.16);
 }
 
 *,
@@ -143,8 +122,6 @@ ul {
   min-height: 400px;
   padding: 24px;
 }
-
-// Capa de normalización para los módulos heredados.
 .main-content {
   :where(
       app-inicio,
@@ -330,9 +307,6 @@ ul {
   background: rgba(10, 17, 22, 0.56) !important;
   backdrop-filter: none !important;
 }
-
-// Los modales cubren todo el viewport, pero su contenido se centra dentro del
-// área de trabajo disponible según el estado actual del menú lateral.
 app-main-layout .content-wrapper :where(.modal-overlay) {
   position: fixed !important;
   inset: 0 !important;
@@ -366,18 +340,13 @@ app-main-layout .content-wrapper :where(.modal-overlay) {
     color: var(--irs-text) !important;
   }
 }
-
-// Estados semánticos de bajo contraste.
 :where(.success, .estado-activo, .prioridad-baja) {
-  --status-color: var(--irs-success);
 }
 
 :where(.warning, .prioridad-media) {
-  --status-color: var(--irs-warning);
 }
 
 :where(.error, .estado-inactivo, .prioridad-alta) {
-  --status-color: var(--irs-danger);
 }
 
 @media (max-width: 768px) {

@@ -22,107 +22,107 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
   styleUrls: ['./editar-usuario.component.less'],
 })
 export class EditarUsuarioComponent implements OnInit {
-  usuarios: UsuarioDTO[] = [];
-  usuariosFiltrados: UsuarioDTO[] = [];
-  cargando = false;
+  users: UsuarioDTO[] = [];
+  filteredUsers: UsuarioDTO[] = [];
+  loading = false;
   error = '';
-  mostrarModal = false;
-  usuarioSeleccionado: UsuarioDTO | null = null;
-  cargandoUsuario = false;
-  paginaActual = 1;
-  usuariosPorPagina = 10;
-  totalPaginas = 0;
-  terminoBusqueda = '';
+  showModal = false;
+  selectedUser: UsuarioDTO | null = null;
+  userLoading = false;
+  currentPage = 1;
+  usersPerPage = 10;
+  totalPages = 0;
+  searchTerm = '';
 
-  constructor(private usuariosService: UsuariosService) {}
+  constructor(private usersService: UsuariosService) {}
 
   async ngOnInit() {
-    await this.cargarUsuarios();
+    await this.loadUsers();
   }
 
-  async cargarUsuarios() {
-    this.cargando = true;
+  async loadUsers() {
+    this.loading = true;
     try {
-      this.usuarios = await this.usuariosService.obtenerTodosLosUsuarios();
-      this.usuariosFiltrados = [...this.usuarios];
-      this.calcularTotalPaginas();
+      this.users = await this.usersService.getAllUsers();
+      this.filteredUsers = [...this.users];
+      this.calculateTotalPages();
     } catch (error) {
       this.error = 'Error al cargar usuarios';
     } finally {
-      this.cargando = false;
+      this.loading = false;
     }
   }
 
-  buscar() {
-    const termino = this.terminoBusqueda.toLowerCase();
-    this.usuariosFiltrados = termino
-      ? this.usuarios.filter((u) => u.usuario.toLowerCase().includes(termino))
-      : [...this.usuarios];
-    this.paginaActual = 1;
-    this.calcularTotalPaginas();
+  search() {
+    const term = this.searchTerm.toLowerCase();
+    this.filteredUsers = term
+      ? this.users.filter((u) => u.user.toLowerCase().includes(term))
+      : [...this.users];
+    this.currentPage = 1;
+    this.calculateTotalPages();
   }
 
-  calcularTotalPaginas() {
-    this.totalPaginas = Math.ceil(
-      this.usuariosFiltrados.length / this.usuariosPorPagina
+  calculateTotalPages() {
+    this.totalPages = Math.ceil(
+      this.filteredUsers.length / this.usersPerPage
     );
-    this.paginaActual = Math.min(
-      Math.max(1, this.paginaActual),
-      Math.max(1, this.totalPaginas)
-    );
-  }
-
-  get usuariosPaginados() {
-    const inicio = (this.paginaActual - 1) * this.usuariosPorPagina;
-    return this.usuariosFiltrados.slice(
-      inicio,
-      inicio + this.usuariosPorPagina
+    this.currentPage = Math.min(
+      Math.max(1, this.currentPage),
+      Math.max(1, this.totalPages)
     );
   }
 
-  cambiarPagina(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginas) {
-      this.paginaActual = pagina;
+  get paginatedUsers() {
+    const start = (this.currentPage - 1) * this.usersPerPage;
+    return this.filteredUsers.slice(
+      start,
+      start + this.usersPerPage
+    );
+  }
+
+  changePage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
     }
   }
 
-  async abrirModalEditar(id: number) {
-    this.mostrarModal = true;
-    this.cargandoUsuario = true;
+  async openEditModal(id: number) {
+    this.showModal = true;
+    this.userLoading = true;
     try {
-      this.usuarioSeleccionado = await this.usuariosService.obtenerUsuarioPorId(
+      this.selectedUser = await this.usersService.getUserById(
         id
       );
     } catch {
-      this.cerrarModal();
+      this.closeModal();
     } finally {
-      this.cargandoUsuario = false;
+      this.userLoading = false;
     }
   }
 
-  cerrarModal() {
-    this.mostrarModal = false;
-    this.usuarioSeleccionado = null;
+  closeModal() {
+    this.showModal = false;
+    this.selectedUser = null;
   }
 
-  async guardarUsuario(usuario: UsuarioDTO) {
+  async saveUser(user: UsuarioDTO) {
     try {
-      await this.usuariosService.actualizarUsuario(
-        usuario.idUsuario,
-        usuario as ActualizarUsuarioDTO
+      await this.usersService.updateUser(
+        user.userId,
+        user as ActualizarUsuarioDTO
       );
-      this.cerrarModal();
-      await this.cargarUsuarios();
+      this.closeModal();
+      await this.loadUsers();
     } catch {
       this.error = 'Error al actualizar usuario';
     }
   }
 
-  async eliminarUsuario(id: number, nombre: string) {
-    if (confirm(`¿Eliminar usuario "${nombre}"?`)) {
+  async deleteUser(id: number, name: string) {
+    if (confirm(`¿Eliminar usuario "${name}"?`)) {
       try {
-        await this.usuariosService.eliminarUsuario(id);
-        await this.cargarUsuarios();
+        await this.usersService.deleteUser(id);
+        await this.loadUsers();
       } catch {
         this.error = 'Error al eliminar';
       }

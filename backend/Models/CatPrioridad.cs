@@ -8,9 +8,9 @@ public class CatPrioridad
 {
     [Key]
     [Column("id_cat_prioridad")]
-    public int IdCatPrioridad { get; set; }
-    
+    public int PriorityCategoryId { get; set; }
+
     [Column("prioridad")]
     [MaxLength(255)]
-    public string Prioridad { get; set; } = string.Empty;
+    public string Priority { get; set; } = string.Empty;
 }

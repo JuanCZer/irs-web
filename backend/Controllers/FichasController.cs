@@ -11,239 +11,236 @@ namespace IRS.API.Controllers;
 [Route("api/[controller]")]
 public class FichasController : ControllerBase
 {
-    private readonly IFichaService _fichaService;
+    private readonly IFichaService _reportService;
 
-    public FichasController(IFichaService fichaService)
+    public FichasController(IFichaService reportService)
     {
-        _fichaService = fichaService;
+        _reportService = reportService;
     }
 
-    /// <summary>
-    /// Obtener todas las fichas informativas con formato simplificado
-    /// </summary>
+
+
+
     [HttpGet]
-    public async Task<ActionResult<List<FichasTodosDto>>> ObtenerTodas()
+    public async Task<ActionResult<List<FichasTodosDto>>> GetAll()
     {
-        var fichas = await _fichaService.ObtenerTodosDtoAsync();
-        return Ok(fichas);
+        var reports = await _reportService.GetAllDtosAsync();
+        return Ok(reports);
     }
 
-    /// <summary>
-    /// Obtener una ficha por ID
-    /// </summary>
+
+
+
     [HttpGet("{id}")]
-    public async Task<ActionResult> ObtenerPorId(int id)
+    public async Task<ActionResult> GetById(int id)
     {
-        var ficha = await _fichaService.ObtenerPorIdAsync(id);
-        if (ficha == null)
-            return NotFound(new { mensaje = "Ficha no encontrada" });
+        var report = await _reportService.GetByIdAsync(id);
+        if (report == null)
+            return NotFound(new { message = "Ficha no encontrada" });
 
-        return Ok(ficha);
+        return Ok(report);
     }
 
-    /// <summary>
-    /// Crear una nueva ficha informativa
-    /// </summary>
+
+
+
     [HttpPost]
-    public async Task<ActionResult> Crear([FromBody] FichaInformativa ficha)
+    public async Task<ActionResult> Create([FromBody] FichaInformativa report)
     {
         try
         {
-            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var idUsuario))
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
                 return Unauthorized();
 
-            ficha.IdUsuario = idUsuario;
-            var fichaCreada = await _fichaService.CrearAsync(
-                ficha,
+            report.UserId = userId;
+            var createdReport = await _reportService.CreateAsync(
+                report,
                 User.FindFirstValue(ClaimTypes.Name) ?? "Usuario");
-            HttpContext.Items["AuditoriaEntidadId"] = fichaCreada.Id;
-            return CreatedAtAction(nameof(ObtenerPorId), new { id = fichaCreada.Id }, fichaCreada);
+            HttpContext.Items["AuditoriaEntidadId"] = createdReport.Id;
+            return CreatedAtAction(nameof(GetById), new { id = createdReport.Id }, createdReport);
         }
         catch (Exception ex)
         {
-            return BadRequest(new { mensaje = "Error al crear la ficha", error = ex.Message });
+            return BadRequest(new { message = "Error al crear la ficha", error = ex.Message });
         }
     }
 
-    /// <summary>
-    /// Actualizar una ficha existente
-    /// </summary>
+
+
+
     [HttpPut("{id}")]
-    public async Task<ActionResult> Actualizar(int id, [FromBody] FichaInformativa ficha)
+    public async Task<ActionResult> Update(int id, [FromBody] FichaInformativa report)
     {
         try
         {
-            var fichaActualizada = await _fichaService.ActualizarAsync(id, ficha);
-            if (fichaActualizada == null)
-                return NotFound(new { mensaje = "Ficha no encontrada" });
+            var updatedReport = await _reportService.UpdateAsync(id, report);
+            if (updatedReport == null)
+                return NotFound(new { message = "Ficha no encontrada" });
 
-            return Ok(fichaActualizada);
+            return Ok(updatedReport);
         }
         catch (Exception ex)
         {
-            return BadRequest(new { mensaje = "Error al actualizar la ficha", error = ex.Message });
+            return BadRequest(new { message = "Error al actualizar la ficha", error = ex.Message });
         }
     }
 
-    /// <summary>
-    /// Eliminar una ficha
-    /// </summary>
+
+
+
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Eliminar(int id)
+    public async Task<ActionResult> Delete(int id)
     {
-        var resultado = await _fichaService.EliminarAsync(id);
-        if (!resultado)
-            return NotFound(new { mensaje = "Ficha no encontrada" });
+        var result = await _reportService.DeleteAsync(id);
+        if (!result)
+            return NotFound(new { message = "Ficha no encontrada" });
 
-        return Ok(new { mensaje = "Ficha eliminada correctamente" });
+        return Ok(new { message = "Ficha eliminada correctamente" });
     }
 
-    /// <summary>
-    /// Buscar fichas por criterio
-    /// </summary>
+
+
+
     [HttpGet("buscar")]
-    public async Task<ActionResult<List<FichaResponseDto>>> Buscar([FromQuery] string criterio)
+    public async Task<ActionResult<List<FichaResponseDto>>> Search([FromQuery] string criteria)
     {
-        var fichas = await _fichaService.BuscarAsync(criterio);
-        return Ok(fichas);
+        var reports = await _reportService.SearchAsync(criteria);
+        return Ok(reports);
     }
 
-    /// <summary>
-    /// Obtener fichas por rango de fechas
-    /// </summary>
+
+
+
     [HttpGet("rango-fechas")]
-    public async Task<ActionResult<List<FichasTodosDto>>> ObtenerPorRangoFechas(
-        [FromQuery] string? fechaInicio, 
-        [FromQuery] string? fechaFin)
+    public async Task<ActionResult<List<FichasTodosDto>>> GetByDateRange(
+        [FromQuery] string? startDate,
+        [FromQuery] string? endDate)
     {
-        try {           
-            // Validar que los parámetros no sean nulos o vacíos
-            if (string.IsNullOrWhiteSpace(fechaInicio))
+        try {
+
+            if (string.IsNullOrWhiteSpace(startDate))
             {
-                return BadRequest(new { mensaje = "El parámetro 'fechaInicio' es requerido. Use formato: yyyy-MM-dd (ejemplo: 2024-11-01)" });
-            }
-            
-            if (string.IsNullOrWhiteSpace(fechaFin))
-            {
-                return BadRequest(new { mensaje = "El parámetro 'fechaFin' es requerido. Use formato: yyyy-MM-dd (ejemplo: 2024-11-30)" });
-            }
-              
-            // Parsear las fechas del formato yyyy-MM-dd
-            if (!DateTime.TryParse(fechaInicio, out DateTime dtFechaInicio))
-            {
-                return BadRequest(new { mensaje = $"Formato de fechaInicio inválido: '{fechaInicio}'. Use formato: yyyy-MM-dd (ejemplo: 2024-11-01)" });
-            }
-            
-            if (!DateTime.TryParse(fechaFin, out DateTime dtFechaFin))
-            {
-                return BadRequest(new { mensaje = $"Formato de fechaFin inválido: '{fechaFin}'. Use formato: yyyy-MM-dd (ejemplo: 2024-11-30)" });
+                return BadRequest(new { message = "El parámetro 'fechaInicio' es requerido. Use formato: yyyy-MM-dd (ejemplo: 2024-11-01)" });
             }
 
-            var fichas = await _fichaService.ObtenerFichasPorRangoFechasAsync(dtFechaInicio, dtFechaFin);
-            
-            return Ok(fichas);
+            if (string.IsNullOrWhiteSpace(endDate))
+            {
+                return BadRequest(new { message = "El parámetro 'fechaFin' es requerido. Use formato: yyyy-MM-dd (ejemplo: 2024-11-30)" });
+            }
+
+
+            if (!DateTime.TryParse(startDate, out DateTime parsedStartDate))
+            {
+                return BadRequest(new { message = $"Formato de fechaInicio inválido: '{startDate}'. Use formato: yyyy-MM-dd (ejemplo: 2024-11-01)" });
+            }
+
+            if (!DateTime.TryParse(endDate, out DateTime parsedEndDate))
+            {
+                return BadRequest(new { message = $"Formato de fechaFin inválido: '{endDate}'. Use formato: yyyy-MM-dd (ejemplo: 2024-11-30)" });
+            }
+
+            var reports = await _reportService.GetReportsByDateRangeAsync(parsedStartDate, parsedEndDate);
+
+            return Ok(reports);
         }
         catch (Exception ex)
         {
-            return BadRequest(new { mensaje = "Error al obtener fichas por rango de fechas", error = ex.Message, stackTrace = ex.StackTrace });
+            return BadRequest(new { message = "Error al obtener fichas por rango de fechas", error = ex.Message, stackTrace = ex.StackTrace });
         }
     }
 
-    /// <summary>
-    /// Obtener fichas del día actual
-    /// </summary>
+
+
+
     [HttpGet("dia-actual")]
-    public async Task<ActionResult<List<FichasTodosDto>>> ObtenerDelDia()
+    public async Task<ActionResult<List<FichasTodosDto>>> GetForToday()
     {
         try
         {
-            var fichas = await _fichaService.ObtenerFichasDelDiaAsync();
-            return Ok(fichas);
+            var reports = await _reportService.GetReportsForTodayAsync();
+            return Ok(reports);
         }
         catch (Exception ex)
         {
-            return BadRequest(new { mensaje = "Error al obtener fichas del día", error = ex.Message });
+            return BadRequest(new { message = "Error al obtener fichas del día", error = ex.Message });
         }
     }
 
-    /// <summary>
-    /// Obtener fichas con estado CONCLUIDO (IdEstadoActual = 7)
-    /// </summary>
+
+
+
     [HttpGet("concluidas")]
-    public async Task<ActionResult<List<FichasTodosDto>>> ObtenerConcluidas()
+    public async Task<ActionResult<List<FichasTodosDto>>> GetCompleted()
     {
         try
         {
-            var fichas = await _fichaService.ObtenerFichasConcluidasAsync();
-            return Ok(fichas);
+            var reports = await _reportService.GetCompletedReportsAsync();
+            return Ok(reports);
         }
         catch (Exception ex)
         {
-            return BadRequest(new { mensaje = "Error al obtener fichas concluidas", error = ex.Message });
+            return BadRequest(new { message = "Error al obtener fichas concluidas", error = ex.Message });
         }
     }
 
-    /// <summary>
-    /// Obtener borradores de fichas (Activo = 2)
-    /// </summary>
+
+
+
     [HttpGet("borradores")]
-    public async Task<ActionResult<List<FichasBorradorDto>>> ObtenerBorradores()
+    public async Task<ActionResult<List<FichasBorradorDto>>> GetDrafts()
     {
         try
         {
-            var borradores = await _fichaService.ObtenerBorradoresAsync();
-            return Ok(borradores);
+            var drafts = await _reportService.GetDraftsAsync();
+            return Ok(drafts);
         }
         catch (Exception ex)
         {
-            return BadRequest(new { mensaje = "Error al obtener borradores", error = ex.Message });
+            return BadRequest(new { message = "Error al obtener borradores", error = ex.Message });
         }
     }
 
-    /// <summary>
-    /// Buscar borradores por criterio
-    /// </summary>
+
+
+
     [HttpGet("borradores/buscar")]
-    public async Task<ActionResult<List<FichasBorradorDto>>> BuscarBorradores([FromQuery] string criterio)
+    public async Task<ActionResult<List<FichasBorradorDto>>> SearchDrafts([FromQuery] string criteria)
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(criterio))
+            if (string.IsNullOrWhiteSpace(criteria))
             {
-                var todosBorradores = await _fichaService.ObtenerBorradoresAsync();
-                return Ok(todosBorradores);
+                var allDrafts = await _reportService.GetDraftsAsync();
+                return Ok(allDrafts);
             }
 
-            var borradores = await _fichaService.BuscarBorradoresAsync(criterio);
-            return Ok(borradores);
+            var drafts = await _reportService.SearchDraftsAsync(criteria);
+            return Ok(drafts);
         }
         catch (Exception ex)
         {
-            return BadRequest(new { mensaje = "Error al buscar borradores", error = ex.Message });
+            return BadRequest(new { message = "Error al buscar borradores", error = ex.Message });
         }
     }
 
-    /// <summary>
-    /// Obtener estadísticas de fichas (resumen, por estado, por mes, tendencia anual)
-    /// </summary>
+
+
+
     [HttpGet("estadisticas")]
-    public async Task<ActionResult<FichasEstadisticasDto>> ObtenerEstadisticas()
+    public async Task<ActionResult<FichasEstadisticasDto>> GetStatistics()
     {
         try
         {
-            var estadisticas = await _fichaService.ObtenerEstadisticasAsync();
-            return Ok(estadisticas);
+            var statistics = await _reportService.GetStatisticsAsync();
+            return Ok(statistics);
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { mensaje = "Error de validación", error = ex.Message });
+            return BadRequest(new { message = "Error de validación", error = ex.Message });
         }
         catch (Exception ex)
         {
-            if (ex.InnerException != null)
-            {
-            }
-            return StatusCode(500, new { mensaje = "Error al obtener estadísticas", error = ex.Message, tipo = ex.GetType().Name });
+            return StatusCode(500, new { message = "Error al obtener estadísticas", error = ex.Message, type = ex.GetType().Name });
         }
     }
 }

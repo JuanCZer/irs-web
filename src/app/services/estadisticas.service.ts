@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 
 export interface EstadisticasResumen {
-  totalFichas: number;
-  fichasHoy: number;
-  fichasSemana: number;
-  fichasMes: number;
-  promedioMensual: number;
-  crecimientoMensual: number;
+  totalReports: number;
+  reportsToday: number;
+  reportsThisWeek: number;
+  reportsThisMonth: number;
+  monthlyAverage: number;
+  monthlyGrowth: number;
 }
 
 export interface FichasPorEstado {
@@ -31,10 +31,10 @@ export interface TendenciaMensual {
 }
 
 export interface FichasEstadisticas {
-  resumen: EstadisticasResumen;
-  fichasPorEstado: FichasPorEstado;
-  fichasPorMes: FichasPorMes;
-  tendenciaMensual: TendenciaMensual;
+  summary: EstadisticasResumen;
+  reportsByState: FichasPorEstado;
+  reportsByMonth: FichasPorMes;
+  monthlyTrend: TendenciaMensual;
 }
 
 @Injectable({
@@ -45,7 +45,7 @@ export class EstadisticasService {
 
   constructor(private api: ApiService) {}
 
-  async obtenerEstadisticas(): Promise<FichasEstadisticas> {
+  async getStatistics(): Promise<FichasEstadisticas> {
     try {
       const response = await this.api.fetch(this.apiUrl, {
         method: 'GET',
@@ -58,16 +58,16 @@ export class EstadisticasService {
         let errorData: any = {};
         try {
           errorData = await response.json();
-        } catch (e) {}
-        const mensaje =
-          errorData.mensaje ||
+        } catch {}
+        const message =
+          errorData.message ||
           errorData.error ||
           `Error HTTP: ${response.status}`;
-        throw new Error(mensaje);
+        throw new Error(message);
       }
 
-      const estadisticas = await response.json();
-      return estadisticas;
+      const statistics = await response.json();
+      return statistics;
     } catch (error) {
       throw error;
     }

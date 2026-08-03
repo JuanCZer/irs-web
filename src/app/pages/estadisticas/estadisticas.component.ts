@@ -13,7 +13,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import 'jspdf-autotable';
 
-// Registrar todos los componentes de Chart.js
+
 Chart.register(...registerables);
 
 @Component({
@@ -24,100 +24,100 @@ Chart.register(...registerables);
 })
 export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('fichasPorEstadoChart')
-  fichasPorEstadoCanvas!: ElementRef<HTMLCanvasElement>;
+  reportsByStateCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('fichasPorMesChart')
-  fichasPorMesCanvas!: ElementRef<HTMLCanvasElement>;
+  reportsByMonthCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('tendenciaMensualChart')
-  tendenciaMensualCanvas!: ElementRef<HTMLCanvasElement>;
+  monthlyTrendCanvas!: ElementRef<HTMLCanvasElement>;
 
   private charts: Chart[] = [];
-  cargando = true;
-  mensajeError = '';
+  loading = true;
+  errorMessage = '';
 
-  // Variables que recibirán datos del servicio
-  fichasPorEstado = {
+
+  reportsByState = {
     labels: [] as string[],
     data: [] as number[],
   };
 
-  fichasPorMes = {
+  reportsByMonth = {
     labels: [] as string[],
     data: [] as number[],
   };
 
-  tendenciaMensual = {
+  monthlyTrend = {
     labels: [] as string[],
     datasets: [] as Array<{ label: string; data: number[] }>,
   };
 
-  // Estadísticas resumidas
-  estadisticasResumen = {
-    totalFichas: 0,
-    fichasHoy: 0,
-    fichasSemana: 0,
-    fichasMes: 0,
-    promedioMensual: 0,
-    crecimientoMensual: 0,
+
+  statisticsSummary = {
+    totalReports: 0,
+    reportsToday: 0,
+    reportsThisWeek: 0,
+    reportsThisMonth: 0,
+    monthlyAverage: 0,
+    monthlyGrowth: 0,
   };
 
-  constructor(private estadisticasService: EstadisticasService) {}
+  constructor(private statisticsService: EstadisticasService) {}
 
   async ngOnInit(): Promise<void> {
-    // Cargar datos del servicio
-    await this.cargarEstadisticas();
+
+    await this.loadStatistics();
   }
 
-  async cargarEstadisticas(): Promise<void> {
+  async loadStatistics(): Promise<void> {
     try {
-      this.cargando = true;
-      this.mensajeError = '';
+      this.loading = true;
+      this.errorMessage = '';
 
-      const datos = await this.estadisticasService.obtenerEstadisticas();
+      const data = await this.statisticsService.getStatistics();
 
-      // Asignar datos al componente
-      this.estadisticasResumen = datos.resumen;
-      this.fichasPorEstado = datos.fichasPorEstado;
-      this.fichasPorMes = datos.fichasPorMes;
-      this.tendenciaMensual = datos.tendenciaMensual;
+
+      this.statisticsSummary = data.summary;
+      this.reportsByState = data.reportsByState;
+      this.reportsByMonth = data.reportsByMonth;
+      this.monthlyTrend = data.monthlyTrend;
     } catch (error) {
-      this.mensajeError =
+      this.errorMessage =
         'Error al cargar las estadísticas. Por favor, intente nuevamente.';
     } finally {
-      this.cargando = false;
-      // Crear gráficas después de cargar datos
+      this.loading = false;
+
       setTimeout(() => {
-        this.crearGraficas();
+        this.createCharts();
       }, 100);
     }
   }
 
   ngAfterViewInit(): void {
-    // Las gráficas se crearán después de cargar los datos en ngOnInit
+
   }
 
   ngOnDestroy(): void {
-    // Destruir las gráficas al salir del componente
+
     this.charts.forEach((chart) => chart.destroy());
   }
 
-  private crearGraficas(): void {
-    this.crearGraficaFichasPorEstado();
-    this.crearGraficaFichasPorMes();
-    this.crearGraficaTendenciaMensual();
+  private createCharts(): void {
+    this.createReportsByStateChart();
+    this.createReportsByMonthChart();
+    this.createMonthlyTrendChart();
   }
 
-  private crearGraficaFichasPorEstado(): void {
-    const ctx = this.fichasPorEstadoCanvas.nativeElement.getContext('2d');
+  private createReportsByStateChart(): void {
+    const ctx = this.reportsByStateCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
 
     const chart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: this.fichasPorEstado.labels,
+        labels: this.reportsByState.labels,
         datasets: [
           {
             label: 'Fichas por Estado',
-            data: this.fichasPorEstado.data,
+            data: this.reportsByState.data,
             backgroundColor: [
               'rgba(54, 90, 106, 0.82)',
               'rgba(70, 107, 123, 0.78)',
@@ -162,25 +162,25 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.charts.push(chart);
   }
 
-  private crearGraficaFichasPorMes(): void {
-    const ctx = this.fichasPorMesCanvas.nativeElement.getContext('2d');
+  private createReportsByMonthChart(): void {
+    const ctx = this.reportsByMonthCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
 
-    // Obtener el año actual
-    const añoActual = new Date().getFullYear();
 
-    // Calcular el máximo dinámico (valor máximo de los datos + 10% para espacio visual)
-    const maxDatos = Math.max(...this.fichasPorMes.data, 10);
-    const maxEjeY = Math.ceil((maxDatos * 1.1) / 10) * 10; // Redondea al siguiente múltiplo de 10
+    const currentYear = new Date().getFullYear();
+
+
+    const maxData = Math.max(...this.reportsByMonth.data, 10);
+    const maxYAxis = Math.ceil((maxData * 1.1) / 10) * 10;
 
     const chart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: this.fichasPorMes.labels,
+        labels: this.reportsByMonth.labels,
         datasets: [
           {
             label: 'Fichas Generadas',
-            data: this.fichasPorMes.data,
+            data: this.reportsByMonth.data,
             borderColor: 'rgba(70, 107, 123, 1)',
             backgroundColor: 'rgba(70, 107, 123, 0.2)',
             borderWidth: 3,
@@ -198,14 +198,14 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
           },
           title: {
             display: true,
-            text: `Fichas por Mes del Año ${añoActual}`,
+            text: `Fichas por Mes del Año ${currentYear}`,
             font: { size: 16, weight: 'bold' },
           },
         },
         scales: {
           y: {
             min: 10,
-            max: maxEjeY,
+            max: maxYAxis,
           },
         },
       },
@@ -214,26 +214,26 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.charts.push(chart);
   }
 
-  private crearGraficaTendenciaMensual(): void {
-    const ctx = this.tendenciaMensualCanvas.nativeElement.getContext('2d');
+  private createMonthlyTrendChart(): void {
+    const ctx = this.monthlyTrendCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
 
     const chart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: this.tendenciaMensual.labels,
+        labels: this.monthlyTrend.labels,
         datasets: [
           {
-            label: this.tendenciaMensual.datasets[0].label,
-            data: this.tendenciaMensual.datasets[0].data,
+            label: this.monthlyTrend.datasets[0].label,
+            data: this.monthlyTrend.datasets[0].data,
             borderColor: 'rgba(149, 165, 166, 1)',
             backgroundColor: 'rgba(149, 165, 166, 0.2)',
             borderWidth: 2,
             tension: 0.4,
           },
           {
-            label: this.tendenciaMensual.datasets[1].label,
-            data: this.tendenciaMensual.datasets[1].data,
+            label: this.monthlyTrend.datasets[1].label,
+            data: this.monthlyTrend.datasets[1].data,
             borderColor: 'rgba(70, 107, 123, 1)',
             backgroundColor: 'rgba(70, 107, 123, 0.2)',
             borderWidth: 2,
@@ -265,20 +265,20 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.charts.push(chart);
   }
 
-  async actualizarDatos(): Promise<void> {
-    // Método para actualizar los datos desde el servicio
-    await this.cargarEstadisticas();
-    this.actualizarGraficas();
+  async updateData(): Promise<void> {
+
+    await this.loadStatistics();
+    this.updateCharts();
   }
 
-  private actualizarGraficas(): void {
-    // Destruir gráficas existentes y recrearlas
+  private updateCharts(): void {
+
     this.charts.forEach((chart) => chart.destroy());
     this.charts = [];
-    this.crearGraficas();
+    this.createCharts();
   }
 
-  async exportarPDF(): Promise<void> {
+  async exportPdf(): Promise<void> {
     try {
       const doc = new jsPDF({
         orientation: 'portrait',
@@ -290,7 +290,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
       const pageHeight = doc.internal.pageSize.getHeight();
       let yPosition = 10;
 
-      // Título
+
       doc.setFontSize(20);
       doc.setFont('helvetica', 'bold');
       doc.text('Reporte de Estadísticas', pageWidth / 2, yPosition, {
@@ -298,21 +298,21 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       yPosition += 12;
 
-      // Fecha de generación
+
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      const fechaActual = new Date().toLocaleDateString('es-ES');
-      doc.text(`Generado: ${fechaActual}`, pageWidth / 2, yPosition, {
+      const currentDate = new Date().toLocaleDateString('es-ES');
+      doc.text(`Generado: ${currentDate}`, pageWidth / 2, yPosition, {
         align: 'center',
       });
       yPosition += 8;
 
-      // Línea separadora
+
       doc.setDrawColor(0, 0, 0);
       doc.line(10, yPosition, pageWidth - 10, yPosition);
       yPosition += 8;
 
-      // Resumen de estadísticas
+
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.text('Resumen de Estadísticas', 10, yPosition);
@@ -321,27 +321,27 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
 
-      const resumenData = [
-        `Total de Fichas: ${this.estadisticasResumen.totalFichas}`,
-        `Fichas Hoy: ${this.estadisticasResumen.fichasHoy}`,
-        `Fichas Esta Semana: ${this.estadisticasResumen.fichasSemana}`,
-        `Fichas Este Mes: ${this.estadisticasResumen.fichasMes}`,
-        `Promedio Mensual: ${this.estadisticasResumen.promedioMensual.toFixed(2)}`,
-        `Crecimiento Mensual: ${this.estadisticasResumen.crecimientoMensual.toFixed(2)}%`,
+      const summaryData = [
+        `Total de Fichas: ${this.statisticsSummary.totalReports}`,
+        `Fichas Hoy: ${this.statisticsSummary.reportsToday}`,
+        `Fichas Esta Semana: ${this.statisticsSummary.reportsThisWeek}`,
+        `Fichas Este Mes: ${this.statisticsSummary.reportsThisMonth}`,
+        `Promedio Mensual: ${this.statisticsSummary.monthlyAverage.toFixed(2)}`,
+        `Crecimiento Mensual: ${this.statisticsSummary.monthlyGrowth.toFixed(2)}%`,
       ];
 
-      resumenData.forEach((linea) => {
+      summaryData.forEach((line) => {
         if (yPosition > pageHeight - 20) {
           doc.addPage();
           yPosition = 10;
         }
-        doc.text(linea, 10, yPosition);
+        doc.text(line, 10, yPosition);
         yPosition += 6;
       });
 
       yPosition += 4;
 
-      // Tabla de Fichas por Estado
+
       if (yPosition > pageHeight - 40) {
         doc.addPage();
         yPosition = 10;
@@ -352,17 +352,17 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
       yPosition += 6;
 
       doc.setFont('helvetica', 'normal');
-      const estadoTable = [
+      const stateTable = [
         ['Estado', 'Cantidad'],
-        ...this.fichasPorEstado.labels.map((label, index) => [
+        ...this.reportsByState.labels.map((label, index) => [
           label,
-          this.fichasPorEstado.data[index].toString(),
+          this.reportsByState.data[index].toString(),
         ]),
       ];
 
       (doc as any).autoTable({
-        head: [estadoTable[0]],
-        body: estadoTable.slice(1),
+        head: [stateTable[0]],
+        body: stateTable.slice(1),
         startY: yPosition,
         theme: 'grid',
         styles: { fontSize: 9 },
@@ -371,7 +371,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
 
       yPosition = (doc as any).lastAutoTable.finalY + 10;
 
-      // Tabla de Fichas por Mes
+
       if (yPosition > pageHeight - 40) {
         doc.addPage();
         yPosition = 10;
@@ -382,32 +382,32 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
       yPosition += 6;
 
       doc.setFont('helvetica', 'normal');
-      const mesTable = [
+      const monthTable = [
         ['Mes', 'Cantidad'],
-        ...this.fichasPorMes.labels.map((label, index) => [
+        ...this.reportsByMonth.labels.map((label, index) => [
           label,
-          this.fichasPorMes.data[index].toString(),
+          this.reportsByMonth.data[index].toString(),
         ]),
       ];
 
       (doc as any).autoTable({
-        head: [mesTable[0]],
-        body: mesTable.slice(1),
+        head: [monthTable[0]],
+        body: monthTable.slice(1),
         startY: yPosition,
         theme: 'grid',
         styles: { fontSize: 9 },
         headStyles: { fillColor: [54, 90, 106], textColor: [255, 255, 255] },
       });
 
-      // Agregar nueva página para gráficas
+
       doc.addPage();
       yPosition = 10;
 
-      // Capturar y agregar gráficas
+
       const canvases = [
-        this.fichasPorEstadoCanvas,
-        this.fichasPorMesCanvas,
-        this.tendenciaMensualCanvas,
+        this.reportsByStateCanvas,
+        this.reportsByMonthCanvas,
+        this.monthlyTrendCanvas,
       ];
 
       const chartTitles = [
@@ -431,7 +431,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
         const canvasElement = canvas.nativeElement;
 
         try {
-          // Prefer html2canvas capture to avoid potential cross-origin/tainted-canvas issues
+
           const captured = await html2canvas(canvasElement, {
             backgroundColor: '#ffffff',
             scale: 2,
@@ -449,7 +449,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
           doc.addImage(imgData, 'PNG', 10, yPosition, imgWidth, imgHeight);
           yPosition += imgHeight + 10;
         } catch (err) {
-          // Log detailed error and write a placeholder in the PDF
+
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(10);
           doc.text(
@@ -463,71 +463,71 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
         chartIndex++;
       }
 
-      // Descargar PDF
-      const fecha = new Date().toISOString().split('T')[0].replace(/-/g, '-');
-      doc.save(`estadisticas_${fecha}.pdf`);
+
+      const date = new Date().toISOString().split('T')[0].replace(/-/g, '-');
+      doc.save(`estadisticas_${date}.pdf`);
     } catch (error) {
       alert('Error al exportar el PDF. Por favor, intente nuevamente.');
     }
   }
 
-  exportarExcel(): void {
+  exportExcel(): void {
     try {
       let csv = 'REPORTE DE ESTADÍSTICAS\n';
       csv += `Generado: ${new Date().toLocaleDateString('es-ES')}\n`;
       csv += '=====================================\n\n';
 
-      // Resumen
-      csv += 'RESUMEN DE ESTADÍSTICAS\n';
-      csv += `Total de Fichas,${this.estadisticasResumen.totalFichas}\n`;
-      csv += `Fichas Hoy,${this.estadisticasResumen.fichasHoy}\n`;
-      csv += `Fichas Esta Semana,${this.estadisticasResumen.fichasSemana}\n`;
-      csv += `Fichas Este Mes,${this.estadisticasResumen.fichasMes}\n`;
-      csv += `Promedio Mensual,${this.estadisticasResumen.promedioMensual.toFixed(2)}\n`;
-      csv += `Crecimiento Mensual,${this.estadisticasResumen.crecimientoMensual.toFixed(2)}%\n\n`;
 
-      // Fichas por Estado
+      csv += 'RESUMEN DE ESTADÍSTICAS\n';
+      csv += `Total de Fichas,${this.statisticsSummary.totalReports}\n`;
+      csv += `Fichas Hoy,${this.statisticsSummary.reportsToday}\n`;
+      csv += `Fichas Esta Semana,${this.statisticsSummary.reportsThisWeek}\n`;
+      csv += `Fichas Este Mes,${this.statisticsSummary.reportsThisMonth}\n`;
+      csv += `Promedio Mensual,${this.statisticsSummary.monthlyAverage.toFixed(2)}\n`;
+      csv += `Crecimiento Mensual,${this.statisticsSummary.monthlyGrowth.toFixed(2)}%\n\n`;
+
+
       csv += 'FICHAS POR ESTADO\n';
       csv += 'Estado,Cantidad\n';
-      this.fichasPorEstado.labels.forEach((label, index) => {
-        csv += `${label},${this.fichasPorEstado.data[index]}\n`;
+      this.reportsByState.labels.forEach((label, index) => {
+        csv += `${label},${this.reportsByState.data[index]}\n`;
       });
       csv += '\n';
 
-      // Fichas por Mes
+
       csv += 'FICHAS POR MES\n';
       csv += 'Mes,Cantidad\n';
-      this.fichasPorMes.labels.forEach((label, index) => {
-        csv += `${label},${this.fichasPorMes.data[index]}\n`;
+      this.reportsByMonth.labels.forEach((label, index) => {
+        csv += `${label},${this.reportsByMonth.data[index]}\n`;
       });
       csv += '\n';
 
-      // Tendencia Mensual
+
       csv += 'TENDENCIA COMPARATIVA\n';
       csv += 'Mes';
-      this.tendenciaMensual.datasets.forEach((dataset) => {
+      this.monthlyTrend.datasets.forEach((dataset) => {
         csv += `,${dataset.label}`;
       });
       csv += '\n';
 
-      if (this.tendenciaMensual.labels.length > 0) {
-        this.tendenciaMensual.labels.forEach((label, index) => {
+      if (this.monthlyTrend.labels.length > 0) {
+        this.monthlyTrend.labels.forEach((label, index) => {
           csv += label;
-          this.tendenciaMensual.datasets.forEach((dataset) => {
+          this.monthlyTrend.datasets.forEach((dataset) => {
             csv += `,${dataset.data[index]}`;
           });
           csv += '\n';
         });
       }
 
-      // Crear blob y descargar
+
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
 
-      const fecha = new Date().toISOString().split('T')[0].replace(/-/g, '-');
+      const date = new Date().toISOString().split('T')[0].replace(/-/g, '-');
       link.setAttribute('href', url);
-      link.setAttribute('download', `estadisticas_${fecha}.csv`);
+      link.setAttribute('download', `estadisticas_${date}.csv`);
       link.style.visibility = 'hidden';
 
       document.body.appendChild(link);

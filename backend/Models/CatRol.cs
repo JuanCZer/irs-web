@@ -8,11 +8,11 @@ namespace Backend.Models
     {
         [Key]
         [Column("id_cat_rol")]
-        public int IdCatRol { get; set; }
+        public int RoleCategoryId { get; set; }
 
         [Column("rol")]
         [Required]
         [MaxLength(100)]
-        public string NombreRol { get; set; } = string.Empty;
+        public string RoleName { get; set; } = string.Empty;
     }
 }

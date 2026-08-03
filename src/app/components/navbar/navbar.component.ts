@@ -12,8 +12,8 @@ import { filter, Subscription } from 'rxjs';
   styleUrl: './navbar.component.less',
 })
 export class NavbarComponent implements OnDestroy {
-  sidebarActive = true; // Empezar con sidebar abierto
-  sidebarCollapsed = false; // Nueva propiedad para colapsar
+  sidebarActive = true;
+  sidebarCollapsed = false;
   submenuOpen: { [key: string]: boolean } = {};
   isMobile = false;
   private routerSubscription = new Subscription();
@@ -36,9 +36,9 @@ export class NavbarComponent implements OnDestroy {
     );
   }
 
-  get esRolDespacho(): boolean {
-    const usuario = this.authService.currentUserValue;
-    return usuario?.idRol === 6;
+  get isDispatchRole(): boolean {
+    const user = this.authService.currentUserValue;
+    return user?.roleId === 6;
   }
 
   @HostListener('window:resize')
@@ -63,11 +63,11 @@ export class NavbarComponent implements OnDestroy {
     if (this.isMobile) {
       this.sidebarActive = !this.sidebarActive;
     } else {
-      // En desktop, colapsar/expandir
+
       this.sidebarCollapsed = !this.sidebarCollapsed;
-      // Notificar al servicio
+
       this.navbarService.setSidebarCollapsed(this.sidebarCollapsed);
-      // Cerrar todos los submenus al colapsar
+
       if (this.sidebarCollapsed) {
         this.submenuOpen = {};
       }
@@ -75,46 +75,46 @@ export class NavbarComponent implements OnDestroy {
   }
 
   toggleSubmenu(menu: string) {
-    // Cerrar otros submenus cuando se abre uno nuevo
+
     const wasOpen = this.submenuOpen[menu];
 
-    // Cerrar todos los submenus
+
     Object.keys(this.submenuOpen).forEach((key) => {
       this.submenuOpen[key] = false;
     });
 
-    // Abrir el submenu seleccionado (o cerrarlo si ya estaba abierto)
+
     this.submenuOpen[menu] = !wasOpen;
 
-    // Si el sidebar está colapsado, expandirlo al abrir un submenu
+
     if (this.sidebarCollapsed && this.submenuOpen[menu]) {
       this.sidebarCollapsed = false;
     }
   }
 
-  /**
-   * Handle clicks on submenu toggles so that when the sidebar is collapsed
-   * it behaves like `toggleSidebar()` (expands) and then opens the submenu.
-   */
+
+
+
+
   handleSubmenuClick(event: MouseEvent, menu: string) {
     event.preventDefault();
-    // If collapsed, expand and open the submenu
+
     if (this.sidebarCollapsed) {
       this.sidebarCollapsed = false;
       this.navbarService.setSidebarCollapsed(this.sidebarCollapsed);
-      // open the submenu
-      // close others first
+
+
       Object.keys(this.submenuOpen).forEach(
         (key) => (this.submenuOpen[key] = false),
       );
-      // small delay to allow CSS/layout update (next tick)
+
       setTimeout(() => {
         this.submenuOpen[menu] = true;
       }, 10);
       return;
     }
 
-    // Default behaviour when not collapsed
+
     this.toggleSubmenu(menu);
   }
 
@@ -155,7 +155,7 @@ export class NavbarComponent implements OnDestroy {
     }
   }
 
-  cerrarSesion() {
+  logOut() {
     this.closeSidebarOnMobile();
     this.authService.logout();
   }

@@ -4,24 +4,24 @@
     <p class="subtitle">Fichas guardadas como borrador</p>
   </div>
 
-  <!-- Buscador -->
-  <div class="search-section" *ngIf="!cargando && borradores.length > 0">
+
+  <div class="search-section" *ngIf="!loading && drafts.length > 0">
     <div class="search-box">
       <input
         type="text"
-        [(ngModel)]="buscarTexto"
-        (keyup.enter)="buscar()"
+        [(ngModel)]="searchText"
+        (keyup.enter)="search()"
         placeholder="Buscar por delegación, sector, prioridad, condición..."
         class="search-input"
       />
-      <button class="btn-search" (click)="buscar()">🔍 Buscar</button>
-      <button class="btn-clear" (click)="limpiarBusqueda()" *ngIf="buscarTexto">
+      <button class="btn-search" (click)="search()">🔍 Buscar</button>
+      <button class="btn-clear" (click)="clearSearch()" *ngIf="searchText">
         ✖️ Limpiar
       </button>
     </div>
   </div>
 
-  <div *ngIf="cargando" class="loading">
+  <div *ngIf="loading" class="loading">
     <p>Cargando borradores...</p>
   </div>
 
@@ -29,21 +29,21 @@
     <p>{{ error }}</p>
   </div>
 
-  <div *ngIf="!cargando && !error && borradores.length === 0" class="no-data">
+  <div *ngIf="!loading && !error && drafts.length === 0" class="no-data">
     <p>No hay borradores disponibles</p>
   </div>
 
   <div
     *ngIf="
-      !cargando && !error && borradoresFiltrados.length === 0 && buscarTexto
+      !loading && !error && filteredDrafts.length === 0 && searchText
     "
     class="no-data"
   >
-    <p>No se encontraron resultados para "{{ buscarTexto }}"</p>
+    <p>No se encontraron resultados para "{{ searchText }}"</p>
   </div>
 
   <div
-    *ngIf="!cargando && !error && borradoresFiltrados.length > 0"
+    *ngIf="!loading && !error && filteredDrafts.length > 0"
     class="table-responsive"
   >
     <table class="fichas-table">
@@ -62,55 +62,55 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let borrador of borradoresPaginados">
+        <tr *ngFor="let draft of paginatedDrafts">
           <td data-label="Abrir/Eliminar" class="action-buttons">
             <button
               class="btn-open"
-              (click)="abrirBorrador(borrador.id)"
+              (click)="openDraft(draft.id)"
               title="Abrir borrador"
             >
               <i class="fi fi-rr-edit"></i>
             </button>
             <button
               class="btn-delete"
-              (click)="eliminarBorrador(borrador.id)"
+              (click)="deleteDraft(draft.id)"
               title="Eliminar borrador"
             >
               <i class="fi fi-rr-trash-xmark"></i>
             </button>
           </td>
           <td data-label="Fecha Elaboración">
-            {{ borrador.fechaElaboracion }}
+            {{ draft.creationDate }}
           </td>
-          <td data-label="Fecha Suceso">{{ borrador.fechaSuceso }}</td>
-          <td data-label="Hora Suceso">{{ borrador.horaSuceso }}</td>
-          <td data-label="Estado">{{ borrador.estado }}</td>
-          <td data-label="Prioridad">{{ borrador.prioridad }}</td>
-          <td data-label="Sector">{{ borrador.sector }}</td>
-          <td data-label="Asistentes">{{ borrador.asistentes }}</td>
-          <td data-label="Estado Actual">{{ borrador.estadoActual }}</td>
-          <td data-label="Borrador usuario">{{ borrador.borradorUsuario }}</td>
+          <td data-label="Fecha Suceso">{{ draft.eventDate }}</td>
+          <td data-label="Hora Suceso">{{ draft.eventTime }}</td>
+          <td data-label="Estado">{{ draft.state }}</td>
+          <td data-label="Prioridad">{{ draft.priority }}</td>
+          <td data-label="Sector">{{ draft.sector }}</td>
+          <td data-label="Asistentes">{{ draft.attendees }}</td>
+          <td data-label="Estado Actual">{{ draft.currentStatus }}</td>
+          <td data-label="Borrador usuario">{{ draft.draftUser }}</td>
         </tr>
       </tbody>
     </table>
   </div>
 
   <app-pagination
-    *ngIf="!cargando"
-    [currentPage]="paginaActual"
-    [pageSize]="registrosPorPagina"
-    [totalItems]="borradoresFiltrados.length"
+    *ngIf="!loading"
+    [currentPage]="currentPage"
+    [pageSize]="recordsPerPage"
+    [totalItems]="filteredDrafts.length"
     itemLabel="borradores"
     singularItemLabel="borrador"
-    (pageChange)="irAPagina($event)"
+    (pageChange)="goToPage($event)"
   ></app-pagination>
 </div>
 
-<!-- Modal para ver/editar ficha -->
+
 <app-modal-fichas-consulta
-  [mostrarModal]="mostrarModal"
-  [fichaSeleccionada]="fichaSeleccionada"
-  [cargandoFicha]="cargandoFicha"
-  (cerrar)="cerrarModal()"
-  (validarYGuardar)="validarYGuardar()"
+  [showModal]="showModal"
+  [selectedReport]="selectedReport"
+  [reportLoading]="reportLoading"
+  (close)="closeModal()"
+  (validateAndSave)="validateAndSave()"
 ></app-modal-fichas-consulta>

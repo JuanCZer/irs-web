@@ -2,50 +2,50 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 
 export interface AuditoriaEvento {
-  idAuditoria: number;
-  idUsuario?: number;
-  usuario: string;
-  nombreCompleto?: string;
-  rol?: string;
-  accion: string;
-  modulo: string;
-  descripcion: string;
-  metodoHttp?: string;
-  ruta?: string;
-  entidad?: string;
-  idEntidad?: string;
-  direccionIp?: string;
-  codigoEstado: number;
-  exitoso: boolean;
-  fechaHora: string;
-  detalles?: string;
+  auditId: number;
+  userId?: number;
+  user: string;
+  fullName?: string;
+  role?: string;
+  action: string;
+  module: string;
+  description: string;
+  httpMethod?: string;
+  path?: string;
+  entity?: string;
+  entityId?: string;
+  ipAddress?: string;
+  statusCode: number;
+  successful: boolean;
+  dateTime: string;
+  details?: string;
 }
 
 export interface AuditoriaResumen {
-  totalEventos: number;
-  eventosExitosos: number;
-  eventosConError: number;
-  usuariosDistintos: number;
+  totalEvents: number;
+  successfulEvents: number;
+  failedEvents: number;
+  distinctUsers: number;
 }
 
 export interface AuditoriaPagina {
-  elementos: AuditoriaEvento[];
-  resumen: AuditoriaResumen;
-  pagina: number;
-  tamanoPagina: number;
-  totalPaginas: number;
+  items: AuditoriaEvento[];
+  summary: AuditoriaResumen;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 export interface AuditoriaFiltros {
-  busqueda?: string;
-  idUsuario?: number;
-  modulo?: string;
-  accion?: string;
-  exitoso?: boolean;
-  fechaInicio?: string;
-  fechaFin?: string;
-  pagina: number;
-  tamanoPagina: number;
+  search?: string;
+  userId?: number;
+  module?: string;
+  action?: string;
+  successful?: boolean;
+  startDate?: string;
+  endDate?: string;
+  page: number;
+  pageSize: number;
 }
 
 @Injectable({
@@ -56,30 +56,30 @@ export class AuditoriaService {
 
   constructor(private api: ApiService) {}
 
-  async consultar(filtros: AuditoriaFiltros): Promise<AuditoriaPagina> {
-    const parametros = new URLSearchParams();
-    parametros.set('pagina', filtros.pagina.toString());
-    parametros.set('tamanoPagina', filtros.tamanoPagina.toString());
+  async query(filters: AuditoriaFiltros): Promise<AuditoriaPagina> {
+    const parameters = new URLSearchParams();
+    parameters.set('page', filters.page.toString());
+    parameters.set('pageSize', filters.pageSize.toString());
 
-    if (filtros.busqueda) parametros.set('busqueda', filtros.busqueda.trim());
-    if (filtros.idUsuario)
-      parametros.set('idUsuario', filtros.idUsuario.toString());
-    if (filtros.modulo) parametros.set('modulo', filtros.modulo);
-    if (filtros.accion) parametros.set('accion', filtros.accion);
-    if (filtros.exitoso !== undefined)
-      parametros.set('exitoso', filtros.exitoso.toString());
-    if (filtros.fechaInicio)
-      parametros.set(
-        'fechaInicio',
-        this.convertirInicioDelDiaLocalAISO(filtros.fechaInicio),
+    if (filters.search) parameters.set('search', filters.search.trim());
+    if (filters.userId)
+      parameters.set('userId', filters.userId.toString());
+    if (filters.module) parameters.set('module', filters.module);
+    if (filters.action) parameters.set('action', filters.action);
+    if (filters.successful !== undefined)
+      parameters.set('successful', filters.successful.toString());
+    if (filters.startDate)
+      parameters.set(
+        'startDate',
+        this.convertLocalStartOfDayToIso(filters.startDate),
       );
-    if (filtros.fechaFin)
-      parametros.set(
-        'fechaFin',
-        this.convertirInicioDelDiaLocalAISO(filtros.fechaFin),
+    if (filters.endDate)
+      parameters.set(
+        'endDate',
+        this.convertLocalStartOfDayToIso(filters.endDate),
       );
 
-    const response = await this.api.fetch(`${this.apiUrl}?${parametros}`);
+    const response = await this.api.fetch(`${this.apiUrl}?${parameters}`);
     if (!response.ok) {
       if (response.status === 403)
         throw new Error('Solo los administradores pueden consultar la bitácora.');
@@ -91,20 +91,20 @@ export class AuditoriaService {
     return response.json();
   }
 
-  async registrarNavegacion(ruta: string): Promise<void> {
+  async logNavigation(path: string): Promise<void> {
     try {
-      await this.api.fetch(`${this.apiUrl}/eventos`, {
+      await this.api.fetch(`${this.apiUrl}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ruta }),
+        body: JSON.stringify({ path }),
       });
     } catch {
-      // Un fallo de auditoría no debe impedir la navegación del usuario.
+
     }
   }
 
-  private convertirInicioDelDiaLocalAISO(fecha: string): string {
-    const [anio, mes, dia] = fecha.split('-').map(Number);
-    return new Date(anio, mes - 1, dia).toISOString();
+  private convertLocalStartOfDayToIso(date: string): string {
+    const [year, month, day] = date.split('-').map(Number);
+    return new Date(year, month - 1, day).toISOString();
   }
 }

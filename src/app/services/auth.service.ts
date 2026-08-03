@@ -4,20 +4,20 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
 export interface LoginCredentials {
-  usuario: string;
+  user: string;
   password: string;
 }
 
 export interface UsuarioAutenticado {
-  idUsuario: number;
-  nombre?: string;
-  app?: string;
-  apm?: string;
+  userId: number;
+  name?: string;
+  firstSurname?: string;
+  secondSurname?: string;
   alias?: string;
-  usuario: string;
-  idRol?: number;
-  nombreRol?: string;
-  ultimoAcceso?: string;
+  user: string;
+  roleId?: number;
+  roleName?: string;
+  lastAccess?: string;
 }
 
 @Injectable({
@@ -26,7 +26,7 @@ export interface UsuarioAutenticado {
 export class AuthService {
   private readonly apiUrl = 'https://localhost:5001/api/auth';
   private readonly currentUserSubject: BehaviorSubject<UsuarioAutenticado | null>;
-  private validacionEnCurso: Promise<boolean> | null = null;
+  private validationInProgress: Promise<boolean> | null = null;
   readonly currentUser: Observable<UsuarioAutenticado | null>;
 
   constructor(
@@ -56,14 +56,14 @@ export class AuthService {
     return this.currentUserSubject.value !== null;
   }
 
-  async validarSesion(): Promise<boolean> {
-    if (this.validacionEnCurso) return this.validacionEnCurso;
+  async validateSession(): Promise<boolean> {
+    if (this.validationInProgress) return this.validationInProgress;
 
-    this.validacionEnCurso = this.validarSesionInterna();
+    this.validationInProgress = this.validateSessionInternal();
     try {
-      return await this.validacionEnCurso;
+      return await this.validationInProgress;
     } finally {
-      this.validacionEnCurso = null;
+      this.validationInProgress = null;
     }
   }
 
@@ -81,59 +81,59 @@ export class AuthService {
       throw new Error(errorData.error || 'Error al iniciar sesión');
     }
 
-    const usuario: UsuarioAutenticado = await response.json();
-    this.establecerUsuario(usuario);
-    return usuario;
+    const user: UsuarioAutenticado = await response.json();
+    this.setUser(user);
+    return user;
   }
 
   async logout(): Promise<void> {
     try {
       await this.api.fetch(`${this.apiUrl}/logout`, { method: 'POST' });
     } catch {
-      // La sesión local debe cerrarse aunque el servidor no esté disponible.
+
     } finally {
-      this.limpiarSesionLocal();
+      this.clearLocalSession();
       await this.router.navigate(['/login']);
     }
   }
 
-  getNombreCompleto(): string {
+  getFullName(): string {
     const user = this.currentUserValue;
     if (!user) return 'Usuario';
 
-    const partes = [user.nombre, user.app, user.apm].filter(
-      (parte) => parte && parte.trim() !== '',
+    const nameParts = [user.name, user.firstSurname, user.secondSurname].filter(
+      (part) => part && part.trim() !== '',
     );
-    return partes.length > 0 ? partes.join(' ') : user.usuario;
+    return nameParts.length > 0 ? nameParts.join(' ') : user.user;
   }
 
   isAdmin(): boolean {
-    return this.currentUserValue?.nombreRol?.toUpperCase() === 'ADMIN';
+    return this.currentUserValue?.roleName?.toUpperCase() === 'ADMIN';
   }
 
-  private async validarSesionInterna(): Promise<boolean> {
+  private async validateSessionInternal(): Promise<boolean> {
     try {
       const response = await this.api.fetch(`${this.apiUrl}/me`);
       if (!response.ok) {
-        this.limpiarSesionLocal();
+        this.clearLocalSession();
         return false;
       }
 
-      const usuario: UsuarioAutenticado = await response.json();
-      this.establecerUsuario(usuario);
+      const user: UsuarioAutenticado = await response.json();
+      this.setUser(user);
       return true;
     } catch {
-      this.limpiarSesionLocal();
+      this.clearLocalSession();
       return false;
     }
   }
 
-  private establecerUsuario(usuario: UsuarioAutenticado): void {
-    localStorage.setItem('currentUser', JSON.stringify(usuario));
-    this.currentUserSubject.next(usuario);
+  private setUser(user: UsuarioAutenticado): void {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    this.currentUserSubject.next(user);
   }
 
-  private limpiarSesionLocal(): void {
+  private clearLocalSession(): void {
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
   }

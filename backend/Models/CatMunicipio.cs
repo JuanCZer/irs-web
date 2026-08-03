@@ -8,16 +8,16 @@ public class CatMunicipio
 {
     [Key]
     [Column("id_municipio")]
-    public int IdCatMunicipio { get; set; }
-    
+    public int MunicipalityCategoryId { get; set; }
+
     [Column("municipio")]
     [MaxLength(255)]
-    public string Municipio { get; set; } = string.Empty;
-    
+    public string Municipality { get; set; } = string.Empty;
+
     [Column("id_delegacion")]
-    public int? IdDelegacion { get; set; }
-    
-    // Navigation Property hacia Delegación
-    [ForeignKey("IdDelegacion")]
-    public virtual CatDelegacion? CatDelegacion { get; set; }
+    public int? DelegationId { get; set; }
+
+
+    [ForeignKey(nameof(DelegationId))]
+    public virtual CatDelegacion? Delegation { get; set; }
 }

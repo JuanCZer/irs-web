@@ -1,5 +1,5 @@
 <div class="perfil-container">
-  <!-- Encabezado -->
+
   <div class="header-section">
     <div class="header-content">
       <i class="fi fi-rr-circle-user user-icon"></i>
@@ -11,7 +11,7 @@
   </div>
 
   <div class="content-grid">
-    <!-- Columna izquierda: Información del usuario -->
+
     <div class="info-card">
       <div class="card-header">
         <i class="fi fi-rr-id-card-clip-alt"></i>
@@ -20,47 +20,47 @@
       <div class="card-body">
         <div class="info-item">
           <label><i class="fi fi-rr-user"></i> Nombre Completo:</label>
-          <span>{{ nombreCompleto }}</span>
+          <span>{{ fullName }}</span>
         </div>
         <div class="info-item">
           <label><i class="fi fi-rr-tags"></i> Usuario:</label>
-          <span>{{ usuario?.usuario || "N/A" }}</span>
+          <span>{{ user?.user || "N/A" }}</span>
         </div>
         <div class="info-item">
           <label><i class="fi fi-rr-user-shield"></i> Rol:</label>
-          <span>{{ usuario?.nombreRol || "Sin rol" }}</span>
+          <span>{{ user?.roleName || "Sin rol" }}</span>
         </div>
         <div class="info-item">
           <label><i class="fi fi-rr-hastag"></i> ID Usuario:</label>
-          <span>{{ usuario?.idUsuario || "N/A" }}</span>
+          <span>{{ user?.userId || "N/A" }}</span>
         </div>
         <div class="info-item">
           <label><i class="fi fi-rr-clock-three"></i> Último Acceso:</label>
-          <span>{{ ultimoAccesoFormateado }}</span>
+          <span>{{ formattedLastAccess }}</span>
         </div>
       </div>
     </div>
 
-    <!-- Columna derecha: Cambio de contraseña -->
+
     <div class="password-card">
       <div class="card-header">
         <i class="fi fi-rr-key"></i>
         <h2>Cambiar contraseña</h2>
       </div>
       <div class="card-body">
-        <!-- Mensajes -->
-        <div *ngIf="mensajeError" class="alert alert-error">
+
+        <div *ngIf="errorMessage" class="alert alert-error">
           <i class="fi fi-rr-circle-exclamation-check"></i>
-          {{ mensajeError }}
+          {{ errorMessage }}
         </div>
-        <div *ngIf="mensajeExito" class="alert alert-success">
+        <div *ngIf="successMessage" class="alert alert-success">
           <i class="fi fi-rr-check-circle"></i>
-          {{ mensajeExito }}
+          {{ successMessage }}
         </div>
 
-        <!-- Formulario -->
-        <form (ngSubmit)="cambiarPassword()" class="password-form">
-          <!-- Nueva contraseña -->
+
+        <form (ngSubmit)="changePassword()" class="password-form">
+
           <div class="form-group">
             <label for="passwordNueva">
               <i class="fi fi-rr-key"></i>
@@ -68,10 +68,10 @@
             </label>
             <div class="input-wrapper">
               <input
-                [type]="mostrarPasswordNueva ? 'text' : 'password'"
+                [type]="showNewPassword ? 'text' : 'password'"
                 id="passwordNueva"
                 class="form-control"
-                [(ngModel)]="cambioPassword.passwordNueva"
+                [(ngModel)]="passwordChange.newPassword"
                 name="passwordNueva"
                 placeholder="Ingresa tu nueva contraseña"
                 required
@@ -79,73 +79,73 @@
               <button
                 type="button"
                 class="toggle-password"
-                (click)="toggleMostrarPassword('nueva')"
+                (click)="togglePassword('nueva')"
                 [attr.aria-label]="
-                  mostrarPasswordNueva
+                  showNewPassword
                     ? 'Ocultar nueva contraseña'
                     : 'Mostrar nueva contraseña'
                 "
-                [attr.aria-pressed]="mostrarPasswordNueva"
+                [attr.aria-pressed]="showNewPassword"
               >
                 <i
                   [class]="
-                    mostrarPasswordNueva ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
+                    showNewPassword ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
                   "
                 ></i>
               </button>
             </div>
 
-            <!-- Requisitos de contraseña -->
+
             <div
               class="password-requirements"
-              *ngIf="cambioPassword.passwordNueva"
+              *ngIf="passwordChange.newPassword"
             >
               <p class="requirements-title">Requisitos de seguridad:</p>
               <ul class="requirements-list">
-                <li [class.valid]="validacionPassword.longitudMinima">
+                <li [class.valid]="passwordValidation.minimumLength">
                   <i
                     [class]="
-                      validacionPassword.longitudMinima
+                      passwordValidation.minimumLength
                         ? 'fi fi-rr-check-circle'
                         : 'fi fi-rr-circle-xmark'
                     "
                   ></i>
                   Mínimo 8 caracteres
                 </li>
-                <li [class.valid]="validacionPassword.tieneMayuscula">
+                <li [class.valid]="passwordValidation.tieneMayuscula">
                   <i
                     [class]="
-                      validacionPassword.tieneMayuscula
+                      passwordValidation.tieneMayuscula
                         ? 'fi fi-rr-check-circle'
                         : 'fi fi-rr-circle-xmark'
                     "
                   ></i>
                   Al menos una mayúscula
                 </li>
-                <li [class.valid]="validacionPassword.tieneMinuscula">
+                <li [class.valid]="passwordValidation.tieneMinuscula">
                   <i
                     [class]="
-                      validacionPassword.tieneMinuscula
+                      passwordValidation.tieneMinuscula
                         ? 'fi fi-rr-check-circle'
                         : 'fi fi-rr-circle-xmark'
                     "
                   ></i>
                   Al menos una minúscula
                 </li>
-                <li [class.valid]="validacionPassword.tieneNumero">
+                <li [class.valid]="passwordValidation.hasNumber">
                   <i
                     [class]="
-                      validacionPassword.tieneNumero
+                      passwordValidation.hasNumber
                         ? 'fi fi-rr-check-circle'
                         : 'fi fi-rr-circle-xmark'
                     "
                   ></i>
                   Al menos un número
                 </li>
-                <li [class.valid]="validacionPassword.tieneCaracterEspecial">
+                <li [class.valid]="passwordValidation.hasSpecialCharacter">
                   <i
                     [class]="
-                      validacionPassword.tieneCaracterEspecial
+                      passwordValidation.hasSpecialCharacter
                         ? 'fi fi-rr-check-circle'
                         : 'fi fi-rr-circle-xmark'
                     "
@@ -156,7 +156,7 @@
             </div>
           </div>
 
-          <!-- Confirmar contraseña -->
+
           <div class="form-group">
             <label for="passwordConfirmar">
               <i class="fi fi-rr-check-double"></i>
@@ -164,10 +164,10 @@
             </label>
             <div class="input-wrapper">
               <input
-                [type]="mostrarPasswordConfirmar ? 'text' : 'password'"
+                [type]="showPasswordConfirmation ? 'text' : 'password'"
                 id="passwordConfirmar"
                 class="form-control"
-                [(ngModel)]="cambioPassword.passwordConfirmar"
+                [(ngModel)]="passwordChange.confirmPassword"
                 name="passwordConfirmar"
                 placeholder="Confirma tu nueva contraseña"
                 required
@@ -175,41 +175,41 @@
               <button
                 type="button"
                 class="toggle-password"
-                (click)="toggleMostrarPassword('confirmar')"
+                (click)="togglePassword('confirmar')"
                 [attr.aria-label]="
-                  mostrarPasswordConfirmar
+                  showPasswordConfirmation
                     ? 'Ocultar confirmación de contraseña'
                     : 'Mostrar confirmación de contraseña'
                 "
-                [attr.aria-pressed]="mostrarPasswordConfirmar"
+                [attr.aria-pressed]="showPasswordConfirmation"
               >
                 <i
                   [class]="
-                    mostrarPasswordConfirmar ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
+                    showPasswordConfirmation ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
                   "
                 ></i>
               </button>
             </div>
             <div
-              *ngIf="cambioPassword.passwordConfirmar && !passwordsCoinciden"
+              *ngIf="passwordChange.confirmPassword && !passwordsMatch"
               class="error-hint"
             >
               <i class="fi fi-rr-triangle-warning"></i>
               Las contraseñas no coinciden
             </div>
-            <div *ngIf="passwordsCoinciden" class="success-hint">
+            <div *ngIf="passwordsMatch" class="success-hint">
               <i class="fi fi-rr-check-circle"></i>
               Las contraseñas coinciden
             </div>
           </div>
 
-          <!-- Botones -->
+
           <div class="form-actions">
             <button
               type="button"
               class="btn btn-secondary"
-              (click)="cancelar()"
-              [disabled]="cargando"
+              (click)="cancel()"
+              [disabled]="loading"
             >
               <i class="fi fi-rr-cross-small"></i>
               Cancelar
@@ -217,12 +217,12 @@
             <button
               type="submit"
               class="btn btn-primary"
-              [disabled]="!passwordValida || !passwordsCoinciden || cargando"
+              [disabled]="!passwordValid || !passwordsMatch || loading"
             >
               <i
-                [class]="cargando ? 'fi fi-rr-spinner fa-spin' : 'fi fi-rr-disk'"
+                [class]="loading ? 'fi fi-rr-spinner fa-spin' : 'fi fi-rr-disk'"
               ></i>
-              {{ cargando ? "Guardando..." : "Cambiar Contraseña" }}
+              {{ loading ? "Guardando..." : "Cambiar Contraseña" }}
             </button>
           </div>
         </form>

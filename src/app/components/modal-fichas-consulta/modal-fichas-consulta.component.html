@@ -1,32 +1,32 @@
-<!-- Modal para ver/editar ficha -->
-<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>
-        📋 Ficha Informativa{{ modoSoloLectura ? " (Solo Lectura)" : "" }} - ID:
-        {{ fichaSeleccionada?.id }}
+        📋 Ficha Informativa{{ readOnlyMode ? " (Solo Lectura)" : "" }} - ID:
+        {{ selectedReport?.id }}
       </h2>
-      <button class="btn-close-modal" (click)="cerrarModal()">✖</button>
+      <button class="btn-close-modal" (click)="closeModal()">✖</button>
     </div>
 
-    <div class="modal-body" *ngIf="cargandoFicha">
+    <div class="modal-body" *ngIf="reportLoading">
       <p class="cargando-ficha">Cargando información de la ficha...</p>
     </div>
 
     <div
       class="modal-body"
-      [class.solo-lectura]="modoSoloLectura"
-      *ngIf="!cargandoFicha && fichaSeleccionada"
+      [class.solo-lectura]="readOnlyMode"
+      *ngIf="!reportLoading && selectedReport"
     >
       <div class="ficha-grid">
-        <!-- Sección 1: Información General -->
+
         <div class="ficha-section">
           <h3>📍 Información General</h3>
           <div class="ficha-field">
             <label>Cédula:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.cedula"
+              [(ngModel)]="selectedReport.certificateNumber"
               placeholder="Ingrese cédula"
             />
           </div>
@@ -34,7 +34,7 @@
             <label>Delegación:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.delegacion"
+              [(ngModel)]="selectedReport.delegation"
               placeholder="Ingrese delegación"
             />
           </div>
@@ -42,7 +42,7 @@
             <label>Municipio:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.municipio"
+              [(ngModel)]="selectedReport.municipality"
               placeholder="Ingrese municipio"
             />
           </div>
@@ -50,7 +50,7 @@
             <label>Lugar:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.lugar"
+              [(ngModel)]="selectedReport.place"
               placeholder="Ingrese lugar"
             />
           </div>
@@ -58,7 +58,7 @@
             <label>Dirección:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.direccion"
+              [(ngModel)]="selectedReport.address"
               placeholder="Ingrese dirección"
             />
           </div>
@@ -66,7 +66,7 @@
             <label>Latitud:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.latitud"
+              [(ngModel)]="selectedReport.latitude"
               placeholder="Ingrese latitud"
             />
           </div>
@@ -74,40 +74,40 @@
             <label>Longitud:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.longitud"
+              [(ngModel)]="selectedReport.longitude"
               placeholder="Ingrese longitud"
             />
           </div>
         </div>
 
-        <!-- Sección 2: Fecha y Hora del Suceso -->
+
         <div class="ficha-section">
           <h3>🕐 Fecha y Hora del Suceso</h3>
           <div class="ficha-field">
             <label>Fecha del Suceso:</label>
-            <input type="date" [(ngModel)]="fichaSeleccionada.fechaSuceso" />
+            <input type="date" [(ngModel)]="selectedReport.eventDate" />
           </div>
           <div class="ficha-field">
             <label>Hora Inicio:</label>
             <input
               type="time"
-              [(ngModel)]="fichaSeleccionada.horaSucesoInicio"
+              [(ngModel)]="selectedReport.eventStartTime"
             />
           </div>
           <div class="ficha-field">
             <label>Hora Fin:</label>
-            <input type="time" [(ngModel)]="fichaSeleccionada.horaSucesoFin" />
+            <input type="time" [(ngModel)]="selectedReport.eventEndTime" />
           </div>
         </div>
 
-        <!-- Sección 3: Clasificación -->
+
         <div class="ficha-section">
           <h3>🏷️ Clasificación</h3>
           <div class="ficha-field">
             <label>Sector:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.sector"
+              [(ngModel)]="selectedReport.sector"
               placeholder="Ingrese sector"
             />
           </div>
@@ -115,7 +115,7 @@
             <label>Subsector:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.subsector"
+              [(ngModel)]="selectedReport.subsector"
               placeholder="Ingrese subsector"
             />
           </div>
@@ -123,7 +123,7 @@
             <label>Prioridad:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.prioridad"
+              [(ngModel)]="selectedReport.priority"
               placeholder="Ingrese prioridad"
             />
           </div>
@@ -131,7 +131,7 @@
             <label>Condición:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.condicion"
+              [(ngModel)]="selectedReport.condition"
               placeholder="Ingrese condición"
             />
           </div>
@@ -139,54 +139,54 @@
             <label>Número de Asistentes:</label>
             <input
               type="number"
-              [(ngModel)]="fichaSeleccionada.numAsistentes"
+              [(ngModel)]="selectedReport.attendeeCount"
               placeholder="0"
             />
           </div>
         </div>
 
-        <!-- Sección 4: Elaboración y Recepción -->
+
         <div class="ficha-section">
           <h3>📅 Elaboración y Recepción</h3>
           <div class="ficha-field">
             <label>Fecha Elaboración:</label>
             <input
               type="date"
-              [(ngModel)]="fichaSeleccionada.fechaElaboracion"
+              [(ngModel)]="selectedReport.creationDate"
             />
           </div>
           <div class="ficha-field">
             <label>Hora Elaboración:</label>
             <input
               type="time"
-              [(ngModel)]="fichaSeleccionada.horaElaboracion"
+              [(ngModel)]="selectedReport.creationTime"
             />
           </div>
           <div class="ficha-field">
             <label>Fecha Recepción:</label>
-            <input type="date" [(ngModel)]="fichaSeleccionada.fechaRecepcion" />
+            <input type="date" [(ngModel)]="selectedReport.receptionDate" />
           </div>
           <div class="ficha-field">
             <label>Hora Recepción:</label>
-            <input type="time" [(ngModel)]="fichaSeleccionada.horaRecepcion" />
+            <input type="time" [(ngModel)]="selectedReport.receptionTime" />
           </div>
           <div class="ficha-field">
             <label>Folio Interno:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.folioInterno"
+              [(ngModel)]="selectedReport.internalReference"
               placeholder="Ingrese folio"
             />
           </div>
         </div>
 
-        <!-- Sección 5: Descripción -->
+
         <div class="ficha-section full-width">
           <h3>📝 Descripción</h3>
           <div class="ficha-field">
             <label>Información:</label>
             <textarea
-              [(ngModel)]="fichaSeleccionada.informacion"
+              [(ngModel)]="selectedReport.information"
               rows="4"
               placeholder="Ingrese información"
             ></textarea>
@@ -194,7 +194,7 @@
           <div class="ficha-field">
             <label>Asunto:</label>
             <textarea
-              [(ngModel)]="fichaSeleccionada.asunto"
+              [(ngModel)]="selectedReport.subject"
               rows="4"
               placeholder="Ingrese asunto"
             ></textarea>
@@ -202,7 +202,7 @@
           <div class="ficha-field">
             <label>Hechos:</label>
             <textarea
-              [(ngModel)]="fichaSeleccionada.hechos"
+              [(ngModel)]="selectedReport.facts"
               rows="4"
               placeholder="Ingrese hechos"
             ></textarea>
@@ -210,21 +210,21 @@
           <div class="ficha-field">
             <label>Acuerdos:</label>
             <textarea
-              [(ngModel)]="fichaSeleccionada.acuerdos"
+              [(ngModel)]="selectedReport.agreements"
               rows="4"
               placeholder="Ingrese acuerdos"
             ></textarea>
           </div>
         </div>
 
-        <!-- Sección 6: Responsables -->
+
         <div class="ficha-section">
           <h3>👥 Responsables</h3>
           <div class="ficha-field">
             <label>ID Usuario:</label>
             <input
               type="number"
-              [(ngModel)]="fichaSeleccionada.idUsuario"
+              [(ngModel)]="selectedReport.userId"
               placeholder="0"
             />
           </div>
@@ -232,7 +232,7 @@
             <label>ID Informó:</label>
             <input
               type="number"
-              [(ngModel)]="fichaSeleccionada.idInformo"
+              [(ngModel)]="selectedReport.reporterId"
               placeholder="0"
             />
           </div>
@@ -240,7 +240,7 @@
             <label>ID Autorizó:</label>
             <input
               type="number"
-              [(ngModel)]="fichaSeleccionada.idAutorizo"
+              [(ngModel)]="selectedReport.authorizerId"
               placeholder="0"
             />
           </div>
@@ -248,7 +248,7 @@
             <label>Estado Actual:</label>
             <input
               type="number"
-              [(ngModel)]="fichaSeleccionada.idEstadoActual"
+              [(ngModel)]="selectedReport.currentStatusId"
               placeholder="0"
             />
           </div>
@@ -256,7 +256,7 @@
             <label>Activo:</label>
             <input
               type="number"
-              [(ngModel)]="fichaSeleccionada.activo"
+              [(ngModel)]="selectedReport.active"
               placeholder="0"
             />
           </div>
@@ -264,20 +264,20 @@
             <label>Visto:</label>
             <input
               type="number"
-              [(ngModel)]="fichaSeleccionada.visto"
+              [(ngModel)]="selectedReport.seen"
               placeholder="0"
             />
           </div>
         </div>
 
-        <!-- Sección 7: Información Adicional -->
+
         <div class="ficha-section">
           <h3>📌 Información Adicional</h3>
           <div class="ficha-field">
             <label>Motivo Cancelación:</label>
             <input
               type="text"
-              [(ngModel)]="fichaSeleccionada.motivoCancelacion"
+              [(ngModel)]="selectedReport.cancellationReason"
               placeholder="Ingrese motivo de cancelación"
             />
           </div>
@@ -285,7 +285,7 @@
             <label>ID Ficha Anterior:</label>
             <input
               type="number"
-              [(ngModel)]="fichaSeleccionada.idFichaAnterior"
+              [(ngModel)]="selectedReport.previousReportId"
               placeholder="0"
             />
           </div>
@@ -293,7 +293,7 @@
             <label>Fecha Validación:</label>
             <input
               type="datetime-local"
-              [(ngModel)]="fichaSeleccionada.fechaValidacion"
+              [(ngModel)]="selectedReport.validationDate"
             />
           </div>
         </div>
@@ -301,14 +301,14 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn-cancelar" (click)="cerrarModal()">
-        {{ modoSoloLectura ? "Cerrar" : "Cancelar" }}
+      <button class="btn-cancelar" (click)="closeModal()">
+        {{ readOnlyMode ? "Cerrar" : "Cancelar" }}
       </button>
       <button
-        *ngIf="!modoSoloLectura"
+        *ngIf="!readOnlyMode"
         class="btn-validar"
-        (click)="onValidarYGuardar()"
-        [disabled]="cargandoFicha"
+        (click)="onValidateAndSave()"
+        [disabled]="reportLoading"
       >
         ✅ Validar y Guardar
       </button>

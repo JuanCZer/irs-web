@@ -4,17 +4,17 @@ namespace IRS.API.Hubs;
 
 public class FichaHub : Hub
 {
-    public async Task NotificarFichaCreada(object ficha)
+    public async Task NotifyReportCreated(object report)
     {
-        await Clients.All.SendAsync("FichaCreada", ficha);
+        await Clients.All.SendAsync("FichaCreada", report);
     }
 
-    public async Task NotificarFichaActualizada(object ficha)
+    public async Task NotifyReportUpdated(object report)
     {
-        await Clients.All.SendAsync("FichaActualizada", ficha);
+        await Clients.All.SendAsync("FichaActualizada", report);
     }
 
-    public async Task NotificarFichaEliminada(int id)
+    public async Task NotifyReportDeleted(int id)
     {
         await Clients.All.SendAsync("FichaEliminada", id);
     }

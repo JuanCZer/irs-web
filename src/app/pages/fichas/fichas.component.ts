@@ -7,26 +7,26 @@ import { environment } from '../../environment/environment.local';
 import { CatalogosService, CatCondicion, CatInformacion, CatPrioridad, CatSector, CatSubsector } from '../../services/catalogos.service';
 
 interface FichaInformativa {
-  estado: string;
-  lugar: string;
-  latitud: number | null;
-  longitud: number | null;
-  direccion: string;
+  state: string;
+  place: string;
+  latitude: number | null;
+  longitude: number | null;
+  address: string;
   sector: string;
   subsector: string;
-  horaInicioSuceso: string;
-  horaFinSuceso: string;
-  fechaSuceso: string;
-  numeroAsistentes: number | null;
-  prioridad: string;
-  condicionEvento: string;
-  informacion: string;
-  asunto: string;
-  hechos: string;
-  acuerdos: string;
-  informo: string;
-  fechaRecepcion: string;
-  horaRecepcion: string;
+  eventStartTime: string;
+  eventEndTime: string;
+  eventDate: string;
+  attendeeCount: number | null;
+  priority: string;
+  eventCondition: string;
+  information: string;
+  subject: string;
+  facts: string;
+  agreements: string;
+  reporter: string;
+  receptionDate: string;
+  receptionTime: string;
 }
 
 @Component({
@@ -41,30 +41,30 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
   private marker!: mapboxgl.Marker;
   private readonly MAPBOX_TOKEN = environment.mapboxToken;
 
-  ficha: FichaInformativa = {
-    estado: '',
-    lugar: '',
-    latitud: null,
-    longitud: null,
-    direccion: '',
+  report: FichaInformativa = {
+    state: '',
+    place: '',
+    latitude: null,
+    longitude: null,
+    address: '',
     sector: '',
     subsector: '',
-    horaInicioSuceso: '',
-    horaFinSuceso: '',
-    fechaSuceso: this.obtenerFechaActual(),
-    numeroAsistentes: null,
-    prioridad: '',
-    condicionEvento: '',
-    informacion: '',
-    asunto: '',
-    hechos: '',
-    acuerdos: '',
-    informo: '',
-    fechaRecepcion: this.obtenerFechaActual(),
-    horaRecepcion: this.obtenerHoraActual(),
+    eventStartTime: '',
+    eventEndTime: '',
+    eventDate: this.getCurrentDate(),
+    attendeeCount: null,
+    priority: '',
+    eventCondition: '',
+    information: '',
+    subject: '',
+    facts: '',
+    agreements: '',
+    reporter: '',
+    receptionDate: this.getCurrentDate(),
+    receptionTime: this.getCurrentTime(),
   };
 
-  estadosMexico = [
+  mexicanStates = [
     'Aguascalientes',
     'Baja California',
     'Baja California Sur',
@@ -99,126 +99,126 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
     'Zacatecas',
   ];
 
-  sectores: CatSector[] = [];
-  subsectores: CatSubsector[] = [];
-  prioridades: CatPrioridad[] = [];
-  condicionesEvento: CatCondicion[] = [];
-  tiposInformacion: CatInformacion[] = [];
+  sectors: CatSector[] = [];
+  subsectors: CatSubsector[] = [];
+  priorities: CatPrioridad[] = [];
+  eventConditions: CatCondicion[] = [];
+  informationTypes: CatInformacion[] = [];
 
-  informantes: string[] = ['Policía', 'Ciudadano', 'Medio de Comunicación', 'Otro'];
+  informants: string[] = ['Policía', 'Ciudadano', 'Medio de Comunicación', 'Otro'];
 
-  mensajeExito = '';
-  mensajeError = '';
+  successMessage = '';
+  errorMessage = '';
 
   constructor(
     private router: Router,
-    private catalogosService: CatalogosService,
+    private catalogsService: CatalogosService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.cargarBorradorSiExiste();
-    await this.cargarSectores();
-    await this.cargarPrioridad();
-    await this.cargarCondicionEvento();
-    await this.cargarInformacion();
+    this.loadDraftIfPresent();
+    await this.loadSectors();
+    await this.loadPriorities();
+    await this.loadEventConditions();
+    await this.loadInformation();
   }
 
-  async cargarSectores() {
+  async loadSectors() {
     try {
-      this.sectores = await this.catalogosService.obtenerSectores();
-      console.log('Sectores cargados:', this.sectores);
+      this.sectors = await this.catalogsService.getSectors();
+      console.log('Sectores cargados:', this.sectors);
     } catch (error) {
-      this.mensajeError =
+      this.errorMessage =
         'Error al cargar el catálogo de sectores. Por favor, recargue la página.';
     }
   }
 
-  async cargarSubsector() {
+  async loadSubsectors() {
     try {
-      this.subsectores =
-        await this.catalogosService.obtenerSubsectoresPorSector(
-          this.sectores.find((s) => s.sector === this.ficha.sector)
-            ?.idCatSector!,
+      this.subsectors =
+        await this.catalogsService.getSubsectorsBySector(
+          this.sectors.find((s) => s.sector === this.report.sector)
+            ?.sectorCategoryId!,
         );
     } catch (error) {
-      this.mensajeError =
+      this.errorMessage =
         'Error al cargar el catálogo de subsectores. Por favor, recargue la página.';
     }
   }
 
-  async cargarPrioridad() {
+  async loadPriorities() {
     try {
-      this.prioridades = await this.catalogosService.obtenerPrioridades();
+      this.priorities = await this.catalogsService.getPriorities();
     } catch (error) {
-      this.mensajeError =
+      this.errorMessage =
         'Error al cargar el catálogo de prioridades. Por favor, recargue la página.';
     }
   }
 
-  async cargarCondicionEvento() {
+  async loadEventConditions() {
     try {
-      this.condicionesEvento = await this.catalogosService.obtenerCondiciones();
+      this.eventConditions = await this.catalogsService.getConditions();
     } catch (error) {
-      this.mensajeError =
+      this.errorMessage =
         'Error al cargar el catálogo de condiciones del evento. Por favor, recargue la página.';
     }
   }
 
-  async cargarInformacion() {
+  async loadInformation() {
     try {
-      this.tiposInformacion =
-        await this.catalogosService.obtenerInformaciones();
+      this.informationTypes =
+        await this.catalogsService.getInformationItems();
     } catch (error) {
-      this.mensajeError =
+      this.errorMessage =
         'Error al cargar el catálogo de tipos de informantes. Por favor, recargue la página.';
     }
   }
 
-  private cargarBorradorSiExiste(): void {
-    // Verificar si hay un borrador para editar
-    const borradorId = localStorage.getItem('borrador_editar_id');
+  private loadDraftIfPresent(): void {
 
-    if (borradorId) {
-      // Cargar todos los borradores
-      const borradoresGuardados = localStorage.getItem('borradores_fichas');
+    const draftId = localStorage.getItem('borrador_editar_id');
 
-      if (borradoresGuardados) {
-        const borradores = JSON.parse(borradoresGuardados);
-        const borrador = borradores.find((b: any) => b.id === borradorId);
+    if (draftId) {
 
-        if (borrador && borrador.datosCompletos) {
-          // Cargar los datos completos del borrador en el formulario
-          this.ficha = { ...this.ficha, ...borrador.datosCompletos };
+      const savedDrafts = localStorage.getItem('borradores_fichas');
 
-          // Actualizar subsectores si hay un sector seleccionado
-          if (this.ficha.sector) {
-            this.onSectorChange(this.ficha.sector);
+      if (savedDrafts) {
+        const drafts = JSON.parse(savedDrafts);
+        const draft = drafts.find((b: any) => b.id === draftId);
+
+        if (draft && draft.completeData) {
+
+          this.report = { ...this.report, ...draft.completeData };
+
+
+          if (this.report.sector) {
+            this.onSectorChange(this.report.sector);
           }
 
-          // Si hay coordenadas, actualizar el mapa después de que se inicialice
-          if (this.ficha.latitud && this.ficha.longitud) {
+
+          if (this.report.latitude && this.report.longitude) {
             setTimeout(() => {
-              this.actualizarMarcadorMapa(
-                this.ficha.latitud!,
-                this.ficha.longitud!,
+              this.updateMapMarker(
+                this.report.latitude!,
+                this.report.longitude!,
               );
             }, 500);
           }
 
-          this.mensajeExito = 'Borrador cargado correctamente';
+          this.successMessage = 'Borrador cargado correctamente';
           setTimeout(() => {
-            this.mensajeExito = '';
+            this.successMessage = '';
           }, 3000);
         }
       }
 
-      // Limpiar el flag de localStorage
+
       localStorage.removeItem('borrador_editar_id');
     }
   }
 
   ngAfterViewInit(): void {
-    // Esperar a que el DOM esté completamente renderizado
+
     setTimeout(() => {
       this.initMap();
     }, 100);
@@ -231,10 +231,10 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initMap(): void {
-    // Configurar el token de Mapbox
+
     mapboxgl.accessToken = this.MAPBOX_TOKEN;
 
-    // Centro de México
+
     const centerLat = 23.6345;
     const centerLng = -102.5528;
 
@@ -245,9 +245,9 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
       zoom: 5,
     });
 
-    // Esperar a que el mapa esté completamente cargado
+
     this.map.on('load', () => {
-      // Crear marcador draggable con popup
+
       this.marker = new mapboxgl.Marker({
         draggable: true,
         color: '#466b7b',
@@ -256,7 +256,7 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
         .setLngLat([centerLng, centerLat])
         .addTo(this.map);
 
-      // Agregar popup al marcador
+
       const popup = new mapboxgl.Popup({
         offset: 25,
         closeButton: false,
@@ -265,36 +265,36 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
       );
       this.marker.setPopup(popup);
 
-      // Mostrar popup inicialmente
+
       setTimeout(() => {
         this.marker.togglePopup();
       }, 500);
 
-      // Actualizar coordenadas al arrastrar el marcador
+
       this.marker.on('dragend', () => {
         const lngLat = this.marker.getLngLat();
-        this.ficha.latitud = Number(lngLat.lat.toFixed(6));
-        this.ficha.longitud = Number(lngLat.lng.toFixed(6));
+        this.report.latitude = Number(lngLat.lat.toFixed(6));
+        this.report.longitude = Number(lngLat.lng.toFixed(6));
 
-        // Actualizar popup con las coordenadas
+
         popup.setHTML(
           `<strong>Ubicación seleccionada</strong><br/>` +
-            `Lat: ${this.ficha.latitud}<br/>` +
-            `Lng: ${this.ficha.longitud}`,
+            `Lat: ${this.report.latitude}<br/>` +
+            `Lng: ${this.report.longitude}`,
         );
       });
 
-      // Permitir click en el mapa para mover el marcador
+
       this.map.on('click', (e) => {
         this.marker.setLngLat(e.lngLat);
-        this.ficha.latitud = Number(e.lngLat.lat.toFixed(6));
-        this.ficha.longitud = Number(e.lngLat.lng.toFixed(6));
+        this.report.latitude = Number(e.lngLat.lat.toFixed(6));
+        this.report.longitude = Number(e.lngLat.lng.toFixed(6));
 
-        // Mostrar popup con las coordenadas
+
         popup.setHTML(
-          `<strong>Ubicación seleccionada</strong><br/>` +
-            `Lat: ${this.ficha.latitud}<br/>` +
-            `Lng: ${this.ficha.longitud}`,
+          `<strong>Ubicación selected</strong><br/>` +
+            `Lat: ${this.report.latitude}<br/>` +
+            `Lng: ${this.report.longitude}`,
         );
         const markerPopup = this.marker.getPopup();
         if (markerPopup && !markerPopup.isOpen()) {
@@ -303,30 +303,30 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     });
 
-    // Agregar controles de navegación
+
     this.map.addControl(new mapboxgl.NavigationControl());
   }
 
-  async onSectorChange(sectorSeleccionado: string | null): Promise<void> {
-  this.ficha.subsector = null as any;
-  this.subsectores = [];
+  async onSectorChange(selectedSector: string | null): Promise<void> {
+  this.report.subsector = null as any;
+  this.subsectors = [];
 
-  if (!sectorSeleccionado) return;
+  if (!selectedSector) return;
 
-  await this.cargarSubsector();
+  await this.loadSubsectors();
   }
 
-  actualizarMarcadorDesdeInput(): void {
-    if (this.ficha.latitud && this.ficha.longitud && this.marker && this.map) {
-      this.marker.setLngLat([this.ficha.longitud, this.ficha.latitud]);
+  updateMarkerFromInput(): void {
+    if (this.report.latitude && this.report.longitude && this.marker && this.map) {
+      this.marker.setLngLat([this.report.longitude, this.report.latitude]);
       this.map.flyTo({
-        center: [this.ficha.longitud, this.ficha.latitud],
+        center: [this.report.longitude, this.report.latitude],
         zoom: 12,
       });
     }
   }
 
-  private actualizarMarcadorMapa(lat: number, lng: number): void {
+  private updateMapMarker(lat: number, lng: number): void {
     if (this.marker && this.map) {
       this.marker.setLngLat([lng, lat]);
       this.map.flyTo({
@@ -334,11 +334,11 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
         zoom: 12,
       });
 
-      // Actualizar popup con las coordenadas
+
       const popup = this.marker.getPopup();
       if (popup) {
         popup.setHTML(
-          `<strong>Ubicación del borrador</strong><br/>` +
+          `<strong>Ubicación del draft</strong><br/>` +
             `Lat: ${lat}<br/>` +
             `Lng: ${lng}`,
         );
@@ -349,71 +349,71 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private obtenerFechaActual(): string {
-    const hoy = new Date();
-    const year = hoy.getFullYear();
-    const month = String(hoy.getMonth() + 1).padStart(2, '0');
-    const day = String(hoy.getDate()).padStart(2, '0');
+  private getCurrentDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 
-  private obtenerHoraActual(): string {
-    const ahora = new Date();
-    const hours = String(ahora.getHours()).padStart(2, '0');
-    const minutes = String(ahora.getMinutes()).padStart(2, '0');
+  private getCurrentTime(): string {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
     return `${hours}:${minutes}`;
   }
 
-  validarFormulario(): boolean {
-    if (!this.ficha.estado) {
-      this.mensajeError = 'El campo Estado es obligatorio';
+  validateForm(): boolean {
+    if (!this.report.state) {
+      this.errorMessage = 'El campo Estado es obligatorio';
       return false;
     }
-    if (!this.ficha.lugar) {
-      this.mensajeError = 'El campo Lugar es obligatorio';
+    if (!this.report.place) {
+      this.errorMessage = 'El campo Lugar es obligatorio';
       return false;
     }
-    if (!this.ficha.sector) {
-      this.mensajeError = 'El campo Sector es obligatorio';
+    if (!this.report.sector) {
+      this.errorMessage = 'El campo Sector es obligatorio';
       return false;
     }
-    if (!this.ficha.fechaSuceso) {
-      this.mensajeError = 'La Fecha del suceso es obligatoria';
+    if (!this.report.eventDate) {
+      this.errorMessage = 'La Fecha del suceso es obligatoria';
       return false;
     }
-    if (!this.ficha.prioridad) {
-      this.mensajeError = 'La Prioridad es obligatoria';
+    if (!this.report.priority) {
+      this.errorMessage = 'La Prioridad es obligatoria';
       return false;
     }
     return true;
   }
 
-  guardarBorrador(): void {
-    this.mensajeExito = 'Ficha guardada como borrador';
-    this.mensajeError = '';
+  saveDraft(): void {
+    this.successMessage = 'Ficha guardada como borrador';
+    this.errorMessage = '';
 
     setTimeout(() => {
-      this.mensajeExito = '';
+      this.successMessage = '';
     }, 3000);
   }
 
-  guardarYValidar(): void {
-    if (!this.validarFormulario()) {
+  saveAndValidate(): void {
+    if (!this.validateForm()) {
       setTimeout(() => {
-        this.mensajeError = '';
+        this.errorMessage = '';
       }, 5000);
       return;
     }
-    this.mensajeExito = 'Ficha guardada y validada correctamente';
-    this.mensajeError = '';
+    this.successMessage = 'Ficha guardada y validada correctamente';
+    this.errorMessage = '';
 
     setTimeout(() => {
-      this.mensajeExito = '';
-      this.limpiarFormulario();
+      this.successMessage = '';
+      this.clearForm();
     }, 3000);
   }
 
-  salir(): void {
+  exit(): void {
     if (
       confirm(
         '¿Está seguro de que desea salir? Los cambios no guardados se perderán.',
@@ -423,29 +423,29 @@ export class FichasComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  limpiarFormulario(): void {
-    this.ficha = {
-      estado: '',
-      lugar: '',
-      latitud: null,
-      longitud: null,
-      direccion: '',
+  clearForm(): void {
+    this.report = {
+      state: '',
+      place: '',
+      latitude: null,
+      longitude: null,
+      address: '',
       sector: '',
       subsector: '',
-      horaInicioSuceso: '',
-      horaFinSuceso: '',
-      fechaSuceso: this.obtenerFechaActual(),
-      numeroAsistentes: null,
-      prioridad: '',
-      condicionEvento: '',
-      informacion: '',
-      asunto: '',
-      hechos: '',
-      acuerdos: '',
-      informo: '',
-      fechaRecepcion: this.obtenerFechaActual(),
-      horaRecepcion: this.obtenerHoraActual(),
+      eventStartTime: '',
+      eventEndTime: '',
+      eventDate: this.getCurrentDate(),
+      attendeeCount: null,
+      priority: '',
+      eventCondition: '',
+      information: '',
+      subject: '',
+      facts: '',
+      agreements: '',
+      reporter: '',
+      receptionDate: this.getCurrentDate(),
+      receptionTime: this.getCurrentTime(),
     };
-    this.subsectores = [];
+    this.subsectors = [];
   }
 }

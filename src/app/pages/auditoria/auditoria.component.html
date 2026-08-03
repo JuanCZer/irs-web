@@ -5,7 +5,7 @@
       <button
         type="button"
         class="btn-action"
-        (click)="cargarEventos()"
+        (click)="loadEvents()"
       >
         <i class="fi fi-rr-refresh"></i>
         Actualizar
@@ -16,57 +16,57 @@
   <section class="summary-grid" aria-label="Resumen de actividad">
     <article class="summary-card">
       <i class="fi fi-rr-list-check"></i>
-      <div><span>Total de eventos</span><strong>{{ resumen.totalEventos }}</strong></div>
+      <div><span>Total de eventos</span><strong>{{ summary.totalEvents }}</strong></div>
     </article>
     <article class="summary-card success">
       <i class="fi fi-rr-check-circle"></i>
-      <div><span>Exitosos</span><strong>{{ resumen.eventosExitosos }}</strong></div>
+      <div><span>Exitosos</span><strong>{{ summary.successfulEvents }}</strong></div>
     </article>
     <article class="summary-card danger">
       <i class="fi fi-rr-triangle-warning"></i>
-      <div><span>Con error</span><strong>{{ resumen.eventosConError }}</strong></div>
+      <div><span>Con error</span><strong>{{ summary.failedEvents }}</strong></div>
     </article>
     <article class="summary-card info">
       <i class="fi fi-rr-users"></i>
-      <div><span>Usuarios distintos</span><strong>{{ resumen.usuariosDistintos }}</strong></div>
+      <div><span>Usuarios distintos</span><strong>{{ summary.distinctUsers }}</strong></div>
     </article>
   </section>
 
-  <form class="filters-card" (ngSubmit)="aplicarFiltros()">
+  <form class="filters-card" (ngSubmit)="applyFilters()">
     <div class="field search-field">
       <label for="busqueda">Buscar</label>
       <input
         id="busqueda"
         name="busqueda"
         type="search"
-        [(ngModel)]="filtros.busqueda"
+        [(ngModel)]="filters.search"
         placeholder="Usuario, acción o descripción"
       />
     </div>
     <div class="field">
       <label for="usuario">Usuario</label>
-      <select id="usuario" name="usuario" [(ngModel)]="filtros.idUsuario">
+      <select id="usuario" name="usuario" [(ngModel)]="filters.userId">
         <option [ngValue]="undefined">Todos</option>
-        <option *ngFor="let usuario of usuarios" [ngValue]="usuario.idUsuario">
-          {{ usuario.usuario }}
+        <option *ngFor="let user of users" [ngValue]="user.userId">
+          {{ user.user }}
         </option>
       </select>
     </div>
     <div class="field">
       <label for="modulo">Módulo</label>
-      <select id="modulo" name="modulo" [(ngModel)]="filtros.modulo">
+      <select id="modulo" name="modulo" [(ngModel)]="filters.module">
         <option value="">Todos</option>
-        <option *ngFor="let modulo of modulos" [value]="modulo">
-          {{ formatearCodigo(modulo) }}
+        <option *ngFor="let module of modules" [value]="module">
+          {{ formatCode(module) }}
         </option>
       </select>
     </div>
     <div class="field">
       <label for="accion">Acción</label>
-      <select id="accion" name="accion" [(ngModel)]="filtros.accion">
+      <select id="accion" name="accion" [(ngModel)]="filters.action">
         <option value="">Todas</option>
-        <option *ngFor="let accion of acciones" [value]="accion">
-          {{ formatearCodigo(accion) }}
+        <option *ngFor="let action of actions" [value]="action">
+          {{ formatCode(action) }}
         </option>
       </select>
     </div>
@@ -75,8 +75,8 @@
       <select
         id="resultado"
         name="resultado"
-        [ngModel]="filtros.exitoso === undefined ? '' : filtros.exitoso.toString()"
-        (ngModelChange)="cambiarResultado($event)"
+        [ngModel]="filters.successful === undefined ? '' : filters.successful.toString()"
+        (ngModelChange)="changeResult($event)"
       >
         <option value="">Todos</option>
         <option value="true">Exitoso</option>
@@ -85,17 +85,17 @@
     </div>
     <div class="field">
       <label for="fechaInicio">Desde</label>
-      <input id="fechaInicio" name="fechaInicio" type="date" [(ngModel)]="filtros.fechaInicio" />
+      <input id="fechaInicio" name="fechaInicio" type="date" [(ngModel)]="filters.startDate" />
     </div>
     <div class="field">
       <label for="fechaFin">Hasta</label>
-      <input id="fechaFin" name="fechaFin" type="date" [(ngModel)]="filtros.fechaFin" />
+      <input id="fechaFin" name="fechaFin" type="date" [(ngModel)]="filters.endDate" />
     </div>
     <div class="filter-actions">
       <button type="submit" class="primary-button">
         <i class="fi fi-rr-filter"></i> Aplicar
       </button>
-      <button type="button" class="secondary-button" (click)="limpiarFiltros()">
+      <button type="button" class="secondary-button" (click)="clearFilters()">
         Limpiar
       </button>
     </div>
@@ -106,14 +106,14 @@
   </div>
 
   <section class="table-container" aria-live="polite">
-    <div *ngIf="cargando" class="state-message">
+    <div *ngIf="loading" class="state-message">
       <i class="fi fi-rr-spinner fa-spin"></i> Cargando actividad…
     </div>
-    <div *ngIf="!cargando && eventos.length === 0" class="state-message">
+    <div *ngIf="!loading && events.length === 0" class="state-message">
       No hay eventos que coincidan con los filtros seleccionados.
     </div>
 
-    <div class="table-responsive" *ngIf="!cargando && eventos.length > 0">
+    <div class="table-responsive" *ngIf="!loading && events.length > 0">
       <table class="auditoria-table">
         <thead>
           <tr>
@@ -128,37 +128,37 @@
         </thead>
         <tbody>
           <tr
-            *ngFor="let evento of eventos; trackBy: trackByEvento"
+            *ngFor="let event of events; trackBy: trackByEvent"
             class="data-row"
           >
             <td class="date-cell" data-label="Fecha y hora">
-              {{ evento.fechaHora | date: "dd/MM/yyyy HH:mm:ss" }}
+              {{ event.dateTime | date: "dd/MM/yyyy HH:mm:ss" }}
             </td>
             <td data-label="Usuario">
               <div class="cell-content user-cell">
-                <strong>{{ evento.usuario }}</strong>
-                <small>{{ evento.nombreCompleto || "Sin nombre" }}</small>
-                <span class="role-badge">{{ evento.rol || "Sin rol" }}</span>
+                <strong>{{ event.user }}</strong>
+                <small>{{ event.fullName || "Sin nombre" }}</small>
+                <span class="role-badge">{{ event.role || "Sin rol" }}</span>
               </div>
             </td>
             <td data-label="Módulo">
               <span class="module-badge">
-                {{ formatearCodigo(evento.modulo) }}
+                {{ formatCode(event.module) }}
               </span>
             </td>
-            <td data-label="Acción">{{ formatearCodigo(evento.accion) }}</td>
+            <td data-label="Acción">{{ formatCode(event.action) }}</td>
             <td class="description-cell" data-label="Descripción">
               <div class="cell-content">
-                {{ evento.descripcion }}
+                {{ event.description }}
               </div>
             </td>
             <td data-label="Resultado">
-              <span class="status-badge" [class.error]="!evento.exitoso">
-                {{ evento.exitoso ? "Exitoso" : "Error" }} · {{ evento.codigoEstado }}
+              <span class="status-badge" [class.error]="!event.successful">
+                {{ event.successful ? "Exitoso" : "Error" }} · {{ event.statusCode }}
               </span>
             </td>
             <td data-label="Origen">
-              {{ evento.direccionIp || "No disponible" }}
+              {{ event.ipAddress || "No disponible" }}
             </td>
           </tr>
         </tbody>
@@ -167,11 +167,11 @@
   </section>
 
   <app-pagination
-    [currentPage]="filtros.pagina"
-    [pageSize]="filtros.tamanoPagina"
-    [totalItems]="resumen.totalEventos"
+    [currentPage]="filters.page"
+    [pageSize]="filters.pageSize"
+    [totalItems]="summary.totalEvents"
     itemLabel="eventos"
     singularItemLabel="evento"
-    (pageChange)="cambiarPagina($event)"
+    (pageChange)="changePage($event)"
   />
 </div>

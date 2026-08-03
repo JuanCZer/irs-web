@@ -10,134 +10,134 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Services
 {
-    public class SesionService : ISesionService
+    public class SessionService : ISesionService
     {
         private readonly IRSDbContext _context;
         private readonly IConfiguration _configuration;
 
-        public SesionService(IRSDbContext context, IConfiguration configuration)
+        public SessionService(IRSDbContext context, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
         }
 
-        public async Task<TokenSesionDTO> CrearSesionAsync(
-            UsuarioDTO usuario,
-            string? direccionIp,
-            string? agenteUsuario)
+        public async Task<TokenSesionDTO> CreateSessionAsync(
+            UsuarioDTO user,
+            string? ipAddress,
+            string? userAgent)
         {
-            var ahora = DateTimeOffset.UtcNow;
-            var horasExpiracion = _configuration.GetValue<int?>("Jwt:HorasExpiracion") ?? 8;
-            var expiracion = ahora.AddHours(Math.Clamp(horasExpiracion, 1, 24));
-            var idSesion = Guid.NewGuid();
+            var now = DateTimeOffset.UtcNow;
+            var expirationHours = _configuration.GetValue<int?>("Jwt:HorasExpiracion") ?? 8;
+            var expiration = now.AddHours(Math.Clamp(expirationHours, 1, 24));
+            var sessionId = Guid.NewGuid();
             var jti = Guid.NewGuid().ToString("N");
 
             _context.Set<SesionUsuario>().Add(new SesionUsuario
             {
-                IdSesion = idSesion,
-                IdUsuario = usuario.IdUsuario,
+                SessionId = sessionId,
+                UserId = user.UserId,
                 Jti = jti,
-                FechaInicio = ahora,
-                FechaExpiracion = expiracion,
-                FechaUltimoAcceso = ahora,
-                DireccionIp = direccionIp,
-                AgenteUsuario = agenteUsuario,
-                Revocada = false
+                StartDate = now,
+                ExpirationDate = expiration,
+                LastAccessDate = now,
+                IpAddress = ipAddress,
+                UserAgent = userAgent,
+                Revoked = false
             });
 
             await _context.SaveChangesAsync();
 
             var claims = new List<Claim>
             {
-                new(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
-                new(ClaimTypes.Name, usuario.Usuario),
-                new(ClaimTypes.Role, usuario.NombreRol?.ToUpperInvariant() ?? "SIN_ROL"),
+                new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new(ClaimTypes.Name, user.User),
+                new(ClaimTypes.Role, user.RoleName?.ToUpperInvariant() ?? "SIN_ROL"),
                 new(JwtRegisteredClaimNames.Jti, jti),
-                new("sid", idSesion.ToString())
+                new("sid", sessionId.ToString())
             };
 
-            var llave = _configuration["Jwt:Key"]
+            var key = _configuration["Jwt:Key"]
                 ?? throw new InvalidOperationException("La llave JWT no está configurada");
-            var credenciales = new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(llave)),
+            var credentials = new SigningCredentials(
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                 SecurityAlgorithms.HmacSha256);
 
             var jwt = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                notBefore: ahora.UtcDateTime,
-                expires: expiracion.UtcDateTime,
-                signingCredentials: credenciales);
+                notBefore: now.UtcDateTime,
+                expires: expiration.UtcDateTime,
+                signingCredentials: credentials);
 
             return new TokenSesionDTO
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(jwt),
-                IdSesion = idSesion,
-                FechaExpiracion = expiracion
+                SessionId = sessionId,
+                ExpirationDate = expiration
             };
         }
 
-        public async Task<bool> ValidarSesionAsync(Guid idSesion, string jti, int idUsuario, string rol)
+        public async Task<bool> ValidateSessionAsync(Guid sessionId, string jti, int userId, string role)
         {
-            var ahora = DateTimeOffset.UtcNow;
-            var sesion = await _context.Set<SesionUsuario>()
-                .Include(s => s.Usuario)
-                .ThenInclude(u => u.Rol)
+            var now = DateTimeOffset.UtcNow;
+            var session = await _context.Set<SesionUsuario>()
+                .Include(s => s.User)
+                .ThenInclude(u => u.Role)
                 .FirstOrDefaultAsync(s =>
-                    s.IdSesion == idSesion &&
-                    s.IdUsuario == idUsuario &&
+                    s.SessionId == sessionId &&
+                    s.UserId == userId &&
                     s.Jti == jti);
 
-            if (sesion == null || sesion.Revocada ||
-                sesion.FechaExpiracion <= ahora || sesion.Usuario.Status != 1 ||
-                !string.Equals(sesion.Usuario.Rol?.NombreRol, rol, StringComparison.OrdinalIgnoreCase))
+            if (session == null || session.Revoked ||
+                session.ExpirationDate <= now || session.User.Status != 1 ||
+                !string.Equals(session.User.Role?.RoleName, role, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
 
-            if (sesion.FechaUltimoAcceso < ahora.AddMinutes(-5))
+            if (session.LastAccessDate < now.AddMinutes(-5))
             {
-                sesion.FechaUltimoAcceso = ahora;
+                session.LastAccessDate = now;
                 await _context.SaveChangesAsync();
             }
 
             return true;
         }
 
-        public async Task RevocarSesionAsync(Guid idSesion, string motivo)
+        public async Task RevokeSessionAsync(Guid sessionId, string reason)
         {
-            var sesion = await _context.Set<SesionUsuario>()
-                .FirstOrDefaultAsync(s => s.IdSesion == idSesion && !s.Revocada);
+            var session = await _context.Set<SesionUsuario>()
+                .FirstOrDefaultAsync(s => s.SessionId == sessionId && !s.Revoked);
 
-            if (sesion == null) return;
+            if (session == null) return;
 
-            sesion.Revocada = true;
-            sesion.FechaRevocacion = DateTimeOffset.UtcNow;
-            sesion.MotivoRevocacion = motivo;
+            session.Revoked = true;
+            session.RevocationDate = DateTimeOffset.UtcNow;
+            session.RevocationReason = reason;
             await _context.SaveChangesAsync();
         }
 
-        public async Task RevocarOtrasSesionesAsync(
-            int idUsuario,
-            Guid? idSesionActual,
-            string motivo)
+        public async Task RevokeOtherSessionsAsync(
+            int userId,
+            Guid? currentSessionId,
+            string reason)
         {
-            var sesiones = await _context.Set<SesionUsuario>()
+            var sessions = await _context.Set<SesionUsuario>()
                 .Where(s =>
-                    s.IdUsuario == idUsuario &&
-                    !s.Revocada &&
-                    (!idSesionActual.HasValue || s.IdSesion != idSesionActual.Value))
+                    s.UserId == userId &&
+                    !s.Revoked &&
+                    (!currentSessionId.HasValue || s.SessionId != currentSessionId.Value))
                 .ToListAsync();
 
-            if (sesiones.Count == 0) return;
+            if (sessions.Count == 0) return;
 
-            var ahora = DateTimeOffset.UtcNow;
-            foreach (var sesion in sesiones)
+            var now = DateTimeOffset.UtcNow;
+            foreach (var session in sessions)
             {
-                sesion.Revocada = true;
-                sesion.FechaRevocacion = ahora;
-                sesion.MotivoRevocacion = motivo;
+                session.Revoked = true;
+                session.RevocationDate = now;
+                session.RevocationReason = reason;
             }
 
             await _context.SaveChangesAsync();
