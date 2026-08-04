@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Backend.Models;
 
 namespace IRS.API.Models
 {
@@ -37,6 +38,6 @@ namespace IRS.API.Models
         public virtual CatMedidaSeguridad? SecurityMeasure { get; set; }
 
         [ForeignKey(nameof(UserId))]
-        public virtual int? User { get; set; }
+        public virtual User? User { get; set; }
     }
 }

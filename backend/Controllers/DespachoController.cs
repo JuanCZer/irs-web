@@ -171,8 +171,20 @@ public class DespachoController : ControllerBase
         try
         {
             var dispatchReports = await _dispatchService.GetDroneReportsAsync();
-            var selectedDrafts =
-                await _dispatchService.GetDroneMeasureDraftsAsync(userId);
+            var selectedDrafts = new List<DispatchMeasureDraft>();
+            try
+            {
+                selectedDrafts =
+                    await _dispatchService.GetDroneMeasureDraftsAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                // Los borradores son una fuente complementaria: una falla en
+                // su almacenamiento no debe ocultar fichas ya validadas.
+                _logger.LogWarning(
+                    ex,
+                    "No fue posible recuperar borradores de medidas para drones");
+            }
 
             var response = dispatchReports.Select(fd =>
             {

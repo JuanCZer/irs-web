@@ -24,6 +24,7 @@ export class DronesComponent implements OnInit, OnDestroy {
   searchTerm = '';
   loading = false;
   errorMessage = '';
+  syncWarning = '';
   private readonly subscriptions = new Subscription();
 
   constructor(
@@ -87,9 +88,11 @@ export class DronesComponent implements OnInit, OnDestroy {
   async loadDrones(): Promise<void> {
     this.loading = true;
     this.errorMessage = '';
+    this.syncWarning = '';
 
     try {
       this.drones = await this.dronesService.getDroneDashboard();
+      this.syncWarning = this.dronesService.syncWarning;
 
       if (this.selectedDrone) {
         this.selectedDrone =

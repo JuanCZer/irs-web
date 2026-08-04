@@ -236,13 +236,31 @@
   align-items: center;
   gap: 9px;
   padding: 10px 22px;
-  color: #52636b;
-  background: #f7f9fa;
+  color: var(--irs-text-muted);
+  background: var(--irs-surface-muted);
   border-bottom: 1px solid var(--irs-border);
   font-size: 0.78rem;
 
   i {
     color: var(--irs-steel-700);
+  }
+}
+
+.sync-warning {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 22px;
+  background: var(--irs-warning-soft);
+  color: var(--irs-warning);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--irs-warning) 34%, var(--irs-border));
+  font-size: 0.78rem;
+
+  i {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
   }
 }
 

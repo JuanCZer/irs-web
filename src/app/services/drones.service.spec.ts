@@ -76,6 +76,48 @@ describe('DronesService', () => {
     expect(drones[0].status).toBe('selected');
   });
 
+  it('conserva la ficha local cuando el backend de drones falla', async () => {
+    const api = {
+      fetch: () =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify({
+              message: 'Error al obtener la operación de drones',
+            }),
+            {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' },
+            },
+          ),
+        ),
+    } as ApiService;
+    const dispatchService = new DespachoService({} as ApiService);
+    dispatchService.saveMeasuresDraft(26, {
+      measures: [1],
+      measureNames: [DRONE_SECURITY_MEASURE],
+      comment: '',
+      updatedAt: '2026-08-03T13:00:00Z',
+      report: {
+        reportId: 26,
+        referenceNumber: 'F-26',
+        eventDate: '2026-08-03',
+        delegation: 'Delegación de prueba',
+        municipality: 'Municipio de prueba',
+        place: 'Lugar de prueba',
+        priority: 'Alta',
+        sector: 'Sector 1',
+        subject: 'Atención de incidente',
+      },
+    });
+    const service = new DronesService(api, dispatchService);
+
+    const drones = await service.getDroneDashboard();
+
+    expect(drones.length).toBe(1);
+    expect(drones[0].linkedReport.reportId).toBe(26);
+    expect(service.syncWarning).toContain('pendiente de sincronizarse');
+  });
+
   function createReport(
     reportId: number,
     securityMeasure: string,

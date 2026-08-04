@@ -70,6 +70,11 @@
       </span>
     </div>
 
+    <div *ngIf="syncWarning" class="sync-warning" role="status">
+      <i class="fi fi-rr-cloud-exclamation" aria-hidden="true"></i>
+      <span>{{ syncWarning }}</span>
+    </div>
+
     <div *ngIf="loading" class="panel-state" role="status">
       <i class="fi fi-rr-spinner fa-spin" aria-hidden="true"></i>
       <strong>Cargando operación de drones…</strong>

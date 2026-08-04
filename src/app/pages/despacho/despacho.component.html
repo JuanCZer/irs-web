@@ -2,35 +2,193 @@
   <div class="page-header">
     <h1>
       <i class="fi fi-rr-briefcase"></i>
-      Despacho - Fichas Confluidas
+      Despacho - Fichas Concluidas
     </h1>
     <p class="subtitle">
-      Gestión de medidas de seguridad para fichas en estado confluido
+      Gestión de medidas de seguridad para fichas en estado concluido
     </p>
   </div>
 
 
-  <div *ngIf="error" class="error-message">
+  <div *ngIf="error" class="error-message" role="alert">
     <i class="fi fi-rr-circle-exclamation-check"></i>
     {{ error }}
   </div>
 
 
-  <div *ngIf="loading" class="loading-message">
+  <div *ngIf="loading" class="loading-message" role="status">
     <i class="fi fi-rr-spinner fa-spin"></i>
     Cargando fichas...
   </div>
 
 
-  <div *ngIf="!loading && !error" class="info-section">
-    <p>
-      Total de fichas concluidas: <strong>{{ reports.length }}</strong>
+  <section
+    *ngIf="!loading && !error"
+    class="dispatch-filters filters-section"
+    aria-labelledby="dispatch-filters-title"
+  >
+    <div class="filters-heading">
+      <div>
+        <h2 id="dispatch-filters-title">
+          <i class="fi fi-rr-filter" aria-hidden="true"></i>
+          Filtrar fichas
+        </h2>
+        <p>La fecha corresponde al día en que ocurrió el suceso.</p>
+      </div>
+
+      <span *ngIf="activeFilterCount > 0" class="active-filters-badge">
+        {{ activeFilterCount }}
+        {{ activeFilterCount === 1 ? 'filtro activo' : 'filtros activos' }}
+      </span>
+    </div>
+
+    <div class="filters-grid">
+      <div class="filter-field filter-field--search">
+        <label for="dispatch-search">Buscar</label>
+        <div class="search-control">
+          <i class="fi fi-rr-search" aria-hidden="true"></i>
+          <input
+            id="dispatch-search"
+            type="search"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onFiltersChange()"
+            placeholder="Folio, asunto, lugar, municipio..."
+            autocomplete="off"
+          />
+        </div>
+      </div>
+
+      <div class="filter-field">
+        <label for="dispatch-start-date">Fecha desde</label>
+        <input
+          id="dispatch-start-date"
+          type="date"
+          [(ngModel)]="startDate"
+          (ngModelChange)="onFiltersChange()"
+          [attr.aria-invalid]="dateRangeError ? 'true' : null"
+          aria-describedby="dispatch-date-hint"
+        />
+      </div>
+
+      <div class="filter-field">
+        <label for="dispatch-end-date">Fecha hasta</label>
+        <input
+          id="dispatch-end-date"
+          type="date"
+          [(ngModel)]="endDate"
+          (ngModelChange)="onFiltersChange()"
+          [attr.aria-invalid]="dateRangeError ? 'true' : null"
+          aria-describedby="dispatch-date-hint"
+        />
+      </div>
+
+      <div class="filter-field">
+        <label for="dispatch-priority">Prioridad</label>
+        <select
+          id="dispatch-priority"
+          [(ngModel)]="priorityFilter"
+          (ngModelChange)="onFiltersChange()"
+        >
+          <option value="">Todas las prioridades</option>
+          <option *ngFor="let priority of availablePriorities" [value]="priority">
+            {{ priority }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="dispatch-delegation">Delegación</label>
+        <select
+          id="dispatch-delegation"
+          [(ngModel)]="delegationFilter"
+          (ngModelChange)="onFiltersChange()"
+        >
+          <option value="">Todas las delegaciones</option>
+          <option
+            *ngFor="let delegation of availableDelegations"
+            [value]="delegation"
+          >
+            {{ delegation }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="dispatch-sector">Sector</label>
+        <select
+          id="dispatch-sector"
+          [(ngModel)]="sectorFilter"
+          (ngModelChange)="onFiltersChange()"
+        >
+          <option value="">Todos los sectores</option>
+          <option *ngFor="let sector of availableSectors" [value]="sector">
+            {{ sector }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="dispatch-measures">Medidas</label>
+        <select
+          id="dispatch-measures"
+          [(ngModel)]="measureFilter"
+          (ngModelChange)="onFiltersChange()"
+        >
+          <option value="all">Todas las fichas</option>
+          <option value="selected">Con medidas seleccionadas</option>
+          <option value="unselected">Sin medidas seleccionadas</option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button
+          type="button"
+          class="btn-clear-filters"
+          [disabled]="!hasActiveFilters"
+          (click)="clearFilters()"
+        >
+          <i class="fi fi-rr-eraser" aria-hidden="true"></i>
+          Limpiar filtros
+        </button>
+      </div>
+    </div>
+
+    <p id="dispatch-date-hint" class="filter-hint">
+      Puedes indicar una sola fecha para mantener abierto el otro extremo del rango.
     </p>
+
+    <p *ngIf="dateRangeError" class="filter-error" role="alert">
+      <i class="fi fi-rr-triangle-warning" aria-hidden="true"></i>
+      {{ dateRangeError }}
+    </p>
+  </section>
+
+
+  <div
+    *ngIf="!loading && !error"
+    id="dispatch-results-summary"
+    class="info-section results-summary"
+    role="status"
+  >
+    <p>
+      Mostrando <strong>{{ filteredReports.length }}</strong> de
+      <strong>{{ reports.length }}</strong> fichas concluidas
+    </p>
+    <span *ngIf="hasActiveFilters && !dateRangeError">
+      Los filtros se aplican automáticamente.
+    </span>
   </div>
 
 
-  <div *ngIf="!loading && !error && reports.length > 0" class="table-container">
+  <div
+    *ngIf="!loading && !error && filteredReports.length > 0"
+    class="table-container"
+    [attr.aria-busy]="loading"
+  >
     <table class="fichas-table">
+      <caption class="sr-only">
+        Fichas concluidas disponibles para gestión de Despacho
+      </caption>
       <thead>
         <tr>
           <th>Folio</th>
@@ -45,8 +203,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let report of paginatedReports">
-          <td>
+        <tr *ngFor="let report of paginatedReports; trackBy: trackByReportId">
+          <td data-label="Folio">
             <div style="display: flex; align-items: center; gap: 10px">
               <button
                 type="button"
@@ -60,11 +218,11 @@
               <strong>{{ report.referenceNumber }}</strong>
             </div>
           </td>
-          <td>{{ report.eventDate }}</td>
-          <td>{{ report.delegation }}</td>
-          <td>{{ report.municipality }}</td>
-          <td>{{ report.place }}</td>
-          <td>
+          <td data-label="Fecha del suceso">{{ report.eventDate }}</td>
+          <td data-label="Delegación">{{ report.delegation }}</td>
+          <td data-label="Municipio">{{ report.municipality }}</td>
+          <td data-label="Lugar">{{ report.place }}</td>
+          <td data-label="Prioridad">
             <span
               class="badge-prioridad"
               [ngClass]="getPriorityClass(report.priority)"
@@ -72,9 +230,9 @@
               {{ report.priority }}
             </span>
           </td>
-          <td>{{ report.sector }}</td>
-          <td class="asunto-cell">{{ report.subject }}</td>
-          <td>
+          <td data-label="Sector">{{ report.sector }}</td>
+          <td data-label="Asunto" class="asunto-cell">{{ report.subject }}</td>
+          <td data-label="Acciones">
             <div class="acciones-container table-actions-group">
               <button
                 type="button"
@@ -112,14 +270,32 @@
 
   <div *ngIf="!loading && !error && reports.length === 0" class="empty-message">
     <i class="fi fi-rr-inbox"></i>
-    <p>No hay fichas en estado confluido</p>
+    <p>No hay fichas en estado concluido</p>
+  </div>
+
+  <div
+    *ngIf="
+      !loading &&
+      !error &&
+      reports.length > 0 &&
+      filteredReports.length === 0 &&
+      !dateRangeError
+    "
+    class="empty-message filtered-empty-message"
+  >
+    <i class="fi fi-rr-search-alt"></i>
+    <p>No encontramos fichas que coincidan con los filtros.</p>
+    <button type="button" class="btn-clear-filters" (click)="clearFilters()">
+      <i class="fi fi-rr-eraser" aria-hidden="true"></i>
+      Mostrar todas
+    </button>
   </div>
 
   <app-pagination
-    *ngIf="!loading"
+    *ngIf="!loading && !error && filteredReports.length > 0"
     [currentPage]="currentPage"
     [pageSize]="reportsPerPage"
-    [totalItems]="reports.length"
+    [totalItems]="filteredReports.length"
     itemLabel="fichas"
     singularItemLabel="ficha"
     (pageChange)="changePage($event)"

@@ -60,6 +60,7 @@ export interface DroneRecord {
 @Injectable({ providedIn: 'root' })
 export class DronesService {
   private readonly apiUrl = 'https://localhost:5001/api/despacho/drones';
+  syncWarning = '';
 
   constructor(
     private api: ApiService,
@@ -73,38 +74,58 @@ export class DronesService {
    * esas fichas y el inventario/telemetría real de la aeronave.
    */
   async getDroneDashboard(): Promise<DroneRecord[]> {
-    const response = await this.api.fetch(`${this.apiUrl}/fichas`);
+    this.syncWarning = '';
+    const localDraftDrones = this.getSelectedDraftDrones();
 
-    if (!response.ok) {
-      let message = 'No fue posible cargar la operación de drones';
-      try {
-        const error = await response.json();
-        message = error.message || message;
-      } catch {
-        // La respuesta puede no contener JSON.
+    try {
+      const response = await this.api.fetch(`${this.apiUrl}/fichas`);
+
+      if (!response.ok) {
+        let message = 'No fue posible cargar la operación de drones';
+        try {
+          const error = await response.json();
+          message = error.message || message;
+        } catch {
+          // La respuesta puede no contener JSON.
+        }
+        throw new Error(message);
       }
-      throw new Error(message);
-    }
 
-    const reports: DroneLinkedReport[] = await response.json();
-    const validatedDrones = reports
-      .filter(
-        (report) =>
-          report.securityMeasure?.trim().toLocaleLowerCase() ===
-          DRONE_SECURITY_MEASURE.toLocaleLowerCase(),
-      )
-      .map((report) =>
-        this.toPendingDrone(report, report.pendingValidation === true),
+      const reports: DroneLinkedReport[] = await response.json();
+      const validatedDrones = reports
+        .filter(
+          (report) =>
+            report.securityMeasure?.trim().toLocaleLowerCase() ===
+            DRONE_SECURITY_MEASURE.toLocaleLowerCase(),
+        )
+        .map((report) =>
+          this.toPendingDrone(report, report.pendingValidation === true),
+        );
+
+      const validatedReportIds = new Set(
+        validatedDrones.map((drone) => drone.linkedReport.reportId),
       );
+      const selectedDraftDrones =
+        this.getSelectedDraftDrones(validatedReportIds);
 
-    const validatedReportIds = new Set(
-      validatedDrones.map((drone) => drone.linkedReport.reportId),
-    );
-    const selectedDraftDrones = this.dispatchService
+      return this.sortDrones([...validatedDrones, ...selectedDraftDrones]);
+    } catch (error) {
+      if (localDraftDrones.length === 0) throw error;
+
+      this.syncWarning =
+        'La selección se muestra desde este dispositivo, pero sigue pendiente de sincronizarse con el servidor.';
+      return this.sortDrones(localDraftDrones);
+    }
+  }
+
+  private getSelectedDraftDrones(
+    excludedReportIds = new Set<number>(),
+  ): DroneRecord[] {
+    return this.dispatchService
       .getAllMeasuresDrafts()
       .filter(
         ({ reportId, draft }) =>
-          !validatedReportIds.has(reportId) &&
+          !excludedReportIds.has(reportId) &&
           draft.measureNames?.some(
             (measure) =>
               measure.trim().toLocaleLowerCase() ===
@@ -112,8 +133,10 @@ export class DronesService {
           ),
       )
       .map(({ reportId, draft }) => this.toDraftDrone(reportId, draft));
+  }
 
-    return [...validatedDrones, ...selectedDraftDrones].sort(
+  private sortDrones(drones: DroneRecord[]): DroneRecord[] {
+    return drones.sort(
       (left, right) =>
         new Date(right.lastActivity || 0).getTime() -
         new Date(left.lastActivity || 0).getTime(),

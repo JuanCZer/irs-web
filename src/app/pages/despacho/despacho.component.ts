@@ -30,6 +30,8 @@ interface FichaDespacho {
   subject: string;
 }
 
+type MeasureFilter = 'all' | 'selected' | 'unselected';
+
 @Component({
   selector: 'app-despacho',
   standalone: true,
@@ -47,6 +49,15 @@ export class DespachoComponent implements OnInit {
   reports: FichaDespacho[] = [];
   loading = false;
   error = '';
+
+
+  searchTerm = '';
+  startDate = '';
+  endDate = '';
+  priorityFilter = '';
+  delegationFilter = '';
+  sectorFilter = '';
+  measureFilter: MeasureFilter = 'all';
 
 
   showMeasuresModal = false;
@@ -130,11 +141,122 @@ export class DespachoComponent implements OnInit {
   get paginatedReports(): FichaDespacho[] {
     const start = (this.currentPage - 1) * this.reportsPerPage;
     const end = start + this.reportsPerPage;
-    return this.reports.slice(start, end);
+    return this.filteredReports.slice(start, end);
   }
 
   get totalPages(): number {
-    return Math.ceil(this.reports.length / this.reportsPerPage);
+    return Math.ceil(this.filteredReports.length / this.reportsPerPage);
+  }
+
+  get filteredReports(): FichaDespacho[] {
+    if (this.dateRangeError) {
+      return [];
+    }
+
+    const searchTerms = this.normalizeSearchValue(this.searchTerm)
+      .split(/\s+/)
+      .filter(Boolean);
+
+    return this.reports.filter((report) => {
+      const searchableText = this.normalizeSearchValue(
+        [
+          report.referenceNumber,
+          report.subject,
+          report.delegation,
+          report.municipality,
+          report.place,
+          report.priority,
+          report.sector,
+        ].join(' '),
+      );
+      const matchesSearch = searchTerms.every((term) =>
+        searchableText.includes(term),
+      );
+      const eventDate = report.eventDate?.slice(0, 10) ?? '';
+      const matchesStartDate =
+        !this.startDate || (!!eventDate && eventDate >= this.startDate);
+      const matchesEndDate =
+        !this.endDate || (!!eventDate && eventDate <= this.endDate);
+      const matchesPriority = this.matchesSelectedValue(
+        report.priority,
+        this.priorityFilter,
+      );
+      const matchesDelegation = this.matchesSelectedValue(
+        report.delegation,
+        this.delegationFilter,
+      );
+      const matchesSector = this.matchesSelectedValue(
+        report.sector,
+        this.sectorFilter,
+      );
+      const savedMeasureCount =
+        this.measureFilter === 'all'
+          ? 0
+          : this.getSavedMeasureCount(report.reportId);
+      const matchesMeasures =
+        this.measureFilter === 'all' ||
+        (this.measureFilter === 'selected' && savedMeasureCount > 0) ||
+        (this.measureFilter === 'unselected' && savedMeasureCount === 0);
+
+      return (
+        matchesSearch &&
+        matchesStartDate &&
+        matchesEndDate &&
+        matchesPriority &&
+        matchesDelegation &&
+        matchesSector &&
+        matchesMeasures
+      );
+    });
+  }
+
+  get availablePriorities(): string[] {
+    return this.getUniqueValues('priority');
+  }
+
+  get availableDelegations(): string[] {
+    return this.getUniqueValues('delegation');
+  }
+
+  get availableSectors(): string[] {
+    return this.getUniqueValues('sector');
+  }
+
+  get dateRangeError(): string {
+    return this.startDate && this.endDate && this.startDate > this.endDate
+      ? 'La fecha inicial no puede ser posterior a la fecha final.'
+      : '';
+  }
+
+  get hasActiveFilters(): boolean {
+    return this.activeFilterCount > 0;
+  }
+
+  get activeFilterCount(): number {
+    return [
+      this.searchTerm.trim(),
+      this.startDate,
+      this.endDate,
+      this.priorityFilter,
+      this.delegationFilter,
+      this.sectorFilter,
+      this.measureFilter === 'all' ? '' : this.measureFilter,
+    ].filter(Boolean).length;
+  }
+
+  onFiltersChange(): void {
+    this.currentPage = 1;
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.startDate = '';
+    this.endDate = '';
+    this.priorityFilter = '';
+    this.delegationFilter = '';
+    this.sectorFilter = '';
+    this.measureFilter = 'all';
+    this.currentPage = 1;
   }
 
   changePage(page: number): void {
@@ -260,6 +382,10 @@ export class DespachoComponent implements OnInit {
     return this.dispatchService.getMeasuresDraft(reportId)?.measures.length ?? 0;
   }
 
+  trackByReportId(_index: number, report: FichaDespacho): number {
+    return report.reportId;
+  }
+
   getPriorityClass(priority: string): string {
     switch (priority?.toLowerCase()) {
       case 'alta':
@@ -271,5 +397,35 @@ export class DespachoComponent implements OnInit {
       default:
         return '';
     }
+  }
+
+  private getUniqueValues(
+    property: 'priority' | 'delegation' | 'sector',
+  ): string[] {
+    return [
+      ...new Set(
+        this.reports
+          .map((report) => report[property]?.trim())
+          .filter((value): value is string => !!value && value !== 'N/A'),
+      ),
+    ].sort((first, second) =>
+      first.localeCompare(second, 'es-MX', { sensitivity: 'base' }),
+    );
+  }
+
+  private matchesSelectedValue(value: string, selectedValue: string): boolean {
+    return (
+      !selectedValue ||
+      this.normalizeSearchValue(value) ===
+        this.normalizeSearchValue(selectedValue)
+    );
+  }
+
+  private normalizeSearchValue(value: string): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('es-MX')
+      .trim();
   }
 }
