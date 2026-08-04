@@ -3,10 +3,18 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h2>
-        📋 Ficha Informativa{{ readOnlyMode ? " (Solo Lectura)" : "" }} - ID:
-        {{ selectedReport?.id }}
+        <i class="fi fi-rr-memo-circle-check" aria-hidden="true"></i>
+        <span>Ficha informativa{{ readOnlyMode ? " · Solo lectura" : "" }}</span>
+        <small class="modal-reference">ID {{ selectedReport?.id }}</small>
       </h2>
-      <button class="btn-close-modal" (click)="closeModal()">✖</button>
+      <button
+        type="button"
+        class="btn-close-modal"
+        (click)="closeModal()"
+        aria-label="Cerrar modal"
+      >
+        <i class="fi fi-rr-cross-small" aria-hidden="true"></i>
+      </button>
     </div>
 
     <div class="modal-body" *ngIf="reportLoading">
@@ -21,7 +29,7 @@
       <div class="ficha-grid">
 
         <div class="ficha-section">
-          <h3>📍 Información General</h3>
+          <h3><i class="fi fi-rr-marker" aria-hidden="true"></i> Información general</h3>
           <div class="ficha-field">
             <label>Cédula:</label>
             <input
@@ -82,7 +90,7 @@
 
 
         <div class="ficha-section">
-          <h3>🕐 Fecha y Hora del Suceso</h3>
+          <h3><i class="fi fi-rr-clock" aria-hidden="true"></i> Fecha y hora del suceso</h3>
           <div class="ficha-field">
             <label>Fecha del Suceso:</label>
             <input type="date" [(ngModel)]="selectedReport.eventDate" />
@@ -102,7 +110,7 @@
 
 
         <div class="ficha-section">
-          <h3>🏷️ Clasificación</h3>
+          <h3><i class="fi fi-rr-tags" aria-hidden="true"></i> Clasificación</h3>
           <div class="ficha-field">
             <label>Sector:</label>
             <input
@@ -147,7 +155,7 @@
 
 
         <div class="ficha-section">
-          <h3>📅 Elaboración y Recepción</h3>
+          <h3><i class="fi fi-rr-calendar" aria-hidden="true"></i> Elaboración y recepción</h3>
           <div class="ficha-field">
             <label>Fecha Elaboración:</label>
             <input
@@ -182,7 +190,7 @@
 
 
         <div class="ficha-section full-width">
-          <h3>📝 Descripción</h3>
+          <h3><i class="fi fi-rr-document" aria-hidden="true"></i> Descripción</h3>
           <div class="ficha-field">
             <label>Información:</label>
             <textarea
@@ -219,7 +227,7 @@
 
 
         <div class="ficha-section">
-          <h3>👥 Responsables</h3>
+          <h3><i class="fi fi-rr-users" aria-hidden="true"></i> Responsables</h3>
           <div class="ficha-field">
             <label>ID Usuario:</label>
             <input
@@ -272,7 +280,7 @@
 
 
         <div class="ficha-section">
-          <h3>📌 Información Adicional</h3>
+          <h3><i class="fi fi-rr-info" aria-hidden="true"></i> Información adicional</h3>
           <div class="ficha-field">
             <label>Motivo Cancelación:</label>
             <input
@@ -301,16 +309,19 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn-cancelar" (click)="closeModal()">
+      <button type="button" class="btn-cancelar" (click)="closeModal()">
+        <i class="fi fi-rr-cross-small" aria-hidden="true"></i>
         {{ readOnlyMode ? "Cerrar" : "Cancelar" }}
       </button>
       <button
+        type="button"
         *ngIf="!readOnlyMode"
         class="btn-validar"
         (click)="onValidateAndSave()"
         [disabled]="reportLoading"
       >
-        ✅ Validar y Guardar
+        <i class="fi fi-rr-check-circle" aria-hidden="true"></i>
+        Validar y guardar
       </button>
     </div>
   </div>

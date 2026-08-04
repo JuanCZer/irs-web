@@ -99,7 +99,7 @@
       <table class="fichas-table">
         <thead>
           <tr>
-            <th>Ver Ficha</th>
+            <th>Acciones</th>
             <th>Fecha Elaboración</th>
             <th>Folio</th>
             <th>Fecha de Suceso</th>
@@ -120,9 +120,14 @@
           </tr>
           <tr *ngFor="let report of paginatedReports" class="data-row">
             <td class="action-cell" data-label="Ver Ficha">
-              <button class="btn-ver-ficha" (click)="viewReport(report.id)">
-                <i class="fi fi-rr-eye"></i>
-                Ver
+              <button
+                type="button"
+                class="btn-ver-ficha table-action table-action--view table-action--labeled"
+                (click)="viewReport(report.id)"
+                aria-label="Ver detalle de la ficha"
+              >
+                <i class="fi fi-rr-eye" aria-hidden="true"></i>
+                <span>Ver</span>
               </button>
             </td>
             <td data-label="Fecha Elaboración">{{ report.creationDate }}</td>

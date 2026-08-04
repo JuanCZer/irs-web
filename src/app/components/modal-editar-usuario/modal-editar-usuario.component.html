@@ -2,8 +2,19 @@
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>✏️ Editar Usuario - ID: {{ selectedUser?.userId }}</h2>
-      <button class="btn-close-modal" (click)="closeModal()">✖</button>
+      <h2>
+        <i class="fi fi-rr-user-pen" aria-hidden="true"></i>
+        <span>Editar usuario</span>
+        <small class="modal-reference">ID {{ selectedUser?.userId }}</small>
+      </h2>
+      <button
+        type="button"
+        class="btn-close-modal"
+        (click)="closeModal()"
+        aria-label="Cerrar modal"
+      >
+        <i class="fi fi-rr-cross-small" aria-hidden="true"></i>
+      </button>
     </div>
 
     <div class="modal-body" *ngIf="userLoading">
@@ -14,7 +25,7 @@
       <div class="usuario-grid">
 
         <div class="usuario-section">
-          <h3>👤 Información Personal</h3>
+          <h3><i class="fi fi-rr-user" aria-hidden="true"></i> Información personal</h3>
 
           <div class="usuario-field">
             <label>Nombre:</label>
@@ -55,7 +66,7 @@
 
 
         <div class="usuario-section">
-          <h3>🔐 Credenciales</h3>
+          <h3><i class="fi fi-rr-lock" aria-hidden="true"></i> Credenciales</h3>
 
           <div class="usuario-field">
             <label>Usuario:</label>
@@ -109,7 +120,7 @@
 
 
         <div class="usuario-section">
-          <h3>📊 Información Adicional</h3>
+          <h3><i class="fi fi-rr-chart-histogram" aria-hidden="true"></i> Información adicional</h3>
 
           <div class="usuario-field readonly">
             <label>Fecha de Creación:</label>
@@ -151,13 +162,18 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn-cancelar" (click)="closeModal()">Cancelar</button>
+      <button type="button" class="btn-cancelar" (click)="closeModal()">
+        <i class="fi fi-rr-cross-small" aria-hidden="true"></i>
+        Cancelar
+      </button>
       <button
+        type="button"
         class="btn-guardar"
         (click)="onSave()"
         [disabled]="userLoading"
       >
-        💾 Guardar Cambios
+        <i class="fi fi-rr-disk" aria-hidden="true"></i>
+        Guardar cambios
       </button>
     </div>
   </div>

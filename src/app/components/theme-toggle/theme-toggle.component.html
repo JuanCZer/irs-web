@@ -1,0 +1,27 @@
+<button
+  type="button"
+  class="theme-toggle"
+  role="switch"
+  [class.is-dark]="isDark"
+  [attr.aria-checked]="isDark"
+  [attr.aria-label]="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+  [title]="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+  (click)="toggleTheme()"
+>
+  <span class="theme-icon" aria-hidden="true">
+    <i
+      class="fi"
+      [class.fi-rr-sun]="!isDark"
+      [class.fi-rr-moon]="isDark"
+    ></i>
+  </span>
+
+  <span class="theme-copy" aria-hidden="true">
+    <small>Apariencia</small>
+    <strong>{{ isDark ? 'Oscuro' : 'Claro' }}</strong>
+  </span>
+
+  <span class="switch-track" aria-hidden="true">
+    <span class="switch-thumb"></span>
+  </span>
+</button>

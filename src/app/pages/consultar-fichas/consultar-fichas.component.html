@@ -35,7 +35,7 @@
       <table class="fichas-table">
         <thead>
           <tr>
-            <th>Ver Ficha</th>
+            <th>Acciones</th>
             <th>Fecha Elaboración</th>
             <th>Folio</th>
             <th>Fecha de Suceso</th>
@@ -57,11 +57,13 @@
           <tr *ngFor="let report of filteredReports">
             <td class="action-cell" data-label="Ver Ficha">
               <button
-                class="btn-ver"
+                type="button"
+                class="btn-ver table-action table-action--view"
                 (click)="viewReportDetails(report)"
                 title="Ver detalle"
+                aria-label="Ver detalle de la ficha"
               >
-                <i class="fi fi-rr-eye"></i>
+                <i class="fi fi-rr-eye" aria-hidden="true"></i>
               </button>
             </td>
             <td data-label="Fecha Elaboración">

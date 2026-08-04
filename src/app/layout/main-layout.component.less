@@ -40,7 +40,7 @@
   justify-content: space-between;
   gap: 24px;
   padding: 0 32px;
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--irs-surface);
   border-bottom: 1px solid var(--irs-border);
 }
 
@@ -96,7 +96,7 @@
 
 .header-actions {
   flex: 0 0 auto;
-  gap: 22px;
+  gap: 16px;
 }
 
 .session-status {
@@ -109,7 +109,7 @@
     width: 7px;
     height: 7px;
     background: var(--irs-success);
-    border: 2px solid #d8e7de;
+    border: 2px solid var(--irs-success-soft);
     border-radius: 50%;
     box-sizing: content-box;
   }
@@ -158,7 +158,7 @@
     height: 36px;
     place-items: center;
     flex: 0 0 auto;
-    background: var(--irs-navy-800);
+    background: var(--irs-primary-action);
     color: #fff;
     border-radius: 6px;
     font-size: 0.72rem;
@@ -220,6 +220,7 @@
 
   .main-header {
     min-height: 64px;
+    gap: 10px;
     padding: 0 16px 0 68px;
   }
 
@@ -235,7 +236,7 @@
     }
 
     .context-title {
-      max-width: 42vw;
+      max-width: 34vw;
       font-size: 0.92rem;
     }
   }
@@ -243,6 +244,10 @@
   .session-status,
   .user-copy {
     display: none !important;
+  }
+
+  .header-actions {
+    gap: 9px;
   }
 
   .user-info {
@@ -265,6 +270,6 @@
 
 @media (max-width: 420px) {
   .header-context .context-title {
-    max-width: 48vw;
+    max-width: 32vw;
   }
 }

@@ -6,11 +6,18 @@ import { NavbarComponent } from '../components/navbar/navbar.component';
 import { AuthService } from '../services/auth.service';
 import { NavbarService } from '../services/navbar.service';
 import { AuditoriaService } from '../services/auditoria.service';
+import { ThemeToggleComponent } from '../components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, NavbarComponent, CommonModule],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    NavbarComponent,
+    CommonModule,
+    ThemeToggleComponent,
+  ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.less',
 })

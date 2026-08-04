@@ -119,9 +119,13 @@
               <span class="activity-date">{{ formatDateTime(drone.lastActivity) }}</span>
             </td>
             <td data-label="Histórico de dron">
-              <button type="button" class="history-button" (click)="selectDrone(drone)">
+              <button
+                type="button"
+                class="history-button table-action table-action--view table-action--labeled"
+                (click)="selectDrone(drone)"
+              >
                 <i class="fi fi-rr-time-past" aria-hidden="true"></i>
-                Ver histórico
+                <span>Ver histórico</span>
               </button>
             </td>
           </tr>

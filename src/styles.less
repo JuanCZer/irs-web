@@ -3,6 +3,83 @@
 
 :root {
   color-scheme: light;
+
+  // Identidad visual IRS
+  --irs-navy-950: #101a22;
+  --irs-navy-900: #15252f;
+  --irs-navy-800: #203642;
+  --irs-steel-700: #365a6a;
+  --irs-steel-600: #466b7b;
+  --irs-brass-500: #806b42;
+  --irs-primary-action: #365a6a;
+  --irs-primary-action-hover: #466b7b;
+
+  // Colores semánticos del tema claro
+  --irs-canvas: #f3f5f6;
+  --irs-surface: #ffffff;
+  --irs-surface-muted: #f7f9f9;
+  --irs-surface-raised: #ffffff;
+  --irs-surface-hover: #edf2f4;
+  --irs-field: #ffffff;
+  --irs-field-disabled: #edf1f2;
+  --irs-text: #1c2b34;
+  --irs-text-muted: #5c6d76;
+  --irs-text-subtle: #74838b;
+  --irs-border: #d8e0e3;
+  --irs-border-strong: #b9c6cc;
+  --irs-accent-soft: #e7eef1;
+  --irs-accent-text: #365a6a;
+  --irs-toggle-track: #cbd5d9;
+  --irs-success: #356a4e;
+  --irs-success-soft: #dfece4;
+  --irs-warning: #85671f;
+  --irs-warning-soft: #f8efd7;
+  --irs-danger: #8b3e43;
+  --irs-danger-soft: #f7e7e8;
+  --irs-info-soft: #e5eff3;
+  --irs-table-header: #edf1f3;
+  --irs-table-hover: #f5f7f7;
+  --irs-radius: 7px;
+  --irs-shadow: 0 1px 3px rgba(17, 30, 38, 0.08);
+  --irs-shadow-raised: 0 16px 42px rgba(13, 24, 31, 0.18);
+  --irs-focus: 0 0 0 3px rgba(70, 107, 123, 0.2);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --irs-steel-700: #9bc0ce;
+  --irs-steel-600: #7fa6b5;
+  --irs-brass-500: #c0a66c;
+
+  // La misma paleta institucional, ajustada para contraste AA sobre fondos oscuros.
+  --irs-canvas: #10171c;
+  --irs-surface: #172128;
+  --irs-surface-muted: #1c282f;
+  --irs-surface-raised: #213038;
+  --irs-surface-hover: #26363f;
+  --irs-field: #1d2a31;
+  --irs-field-disabled: #26333a;
+  --irs-text: #e8eef1;
+  --irs-text-muted: #abb8be;
+  --irs-text-subtle: #8f9fa7;
+  --irs-border: #34454e;
+  --irs-border-strong: #52646d;
+  --irs-accent-soft: #233741;
+  --irs-accent-text: #9bc0ce;
+  --irs-toggle-track: #40515a;
+  --irs-success: #62a27c;
+  --irs-success-soft: #1c392a;
+  --irs-warning: #dab961;
+  --irs-warning-soft: #3c321c;
+  --irs-danger: #e08086;
+  --irs-danger-soft: #402428;
+  --irs-info-soft: #203641;
+  --irs-table-header: #202e35;
+  --irs-table-hover: #213038;
+  --irs-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+  --irs-shadow-raised: 0 18px 48px rgba(0, 0, 0, 0.42);
+  --irs-focus: 0 0 0 3px rgba(123, 166, 182, 0.3);
 }
 
 *,
@@ -34,6 +111,9 @@ body {
   line-height: 1.5;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
 }
 
 button,
@@ -82,7 +162,7 @@ ul {
 }
 
 :focus-visible {
-  outline: 2px solid var(--irs-steel-600);
+  outline: 2px solid var(--irs-accent-text);
   outline-offset: 2px;
 }
 
@@ -149,7 +229,7 @@ ul {
     box-shadow: none !important;
 
     &:focus {
-      border-color: var(--irs-steel-600) !important;
+      border-color: var(--irs-accent-text) !important;
       box-shadow: var(--irs-focus) !important;
       outline: none;
     }
@@ -175,12 +255,12 @@ ul {
     color: var(--irs-text);
 
     thead {
-      background: #edf1f3 !important;
+      background: var(--irs-table-header) !important;
       background-image: none !important;
     }
 
     th {
-      color: #33434d !important;
+      color: var(--irs-text) !important;
       font-size: 0.75rem !important;
       font-weight: 650 !important;
       letter-spacing: 0.035em;
@@ -196,7 +276,7 @@ ul {
       transition: background-color 150ms ease !important;
 
       &:hover {
-        background: #f5f7f7 !important;
+        background: var(--irs-table-hover) !important;
         transform: none !important;
       }
     }
@@ -261,10 +341,10 @@ ul {
       .btn-page.active,
       .btn-page-number.active
     ) {
-    background: var(--irs-steel-700) !important;
+    background: var(--irs-primary-action) !important;
     background-image: none !important;
     color: #fff !important;
-    border-color: var(--irs-steel-700) !important;
+    border-color: var(--irs-primary-action) !important;
     border-radius: 5px !important;
     box-shadow: none !important;
   }
@@ -278,7 +358,7 @@ ul {
     ) {
     background: var(--irs-surface) !important;
     background-image: none !important;
-    color: #41535d !important;
+      color: var(--irs-text) !important;
     border: 1px solid var(--irs-border-strong) !important;
     border-radius: 5px !important;
     box-shadow: none !important;
@@ -339,6 +419,512 @@ app-main-layout .content-wrapper :where(.modal-overlay) {
 
   :where(h2, h3, i) {
     color: var(--irs-text) !important;
+  }
+}
+
+// Capa de compatibilidad para las pantallas heredadas que aún usan colores fijos.
+// Mantiene formularios, tablas, tarjetas y modales legibles en el tema oscuro.
+:root[data-theme="dark"] {
+  body :where(input, select, textarea) {
+    background-color: var(--irs-field);
+    color: var(--irs-text);
+    border-color: var(--irs-border-strong);
+
+    &::placeholder {
+      color: var(--irs-text-subtle);
+      opacity: 1;
+    }
+
+    &:disabled {
+      background-color: var(--irs-field-disabled);
+      color: var(--irs-text-muted);
+    }
+  }
+
+  body :where(select option) {
+    background: var(--irs-surface-raised);
+    color: var(--irs-text);
+  }
+
+  .main-content {
+    :where(
+        .despacho-container,
+        .mapa-fichas-container,
+        .fichas-container,
+        .borradores-container,
+        .consultar-fichas-container,
+        .consultar-todas-fichas-container
+      ) {
+      background-color: var(--irs-canvas) !important;
+    }
+
+    :where(
+        .seccion-card,
+        .info-card,
+        .password-card,
+        .stat-card,
+        .chart-card,
+        .ficha-card,
+        .usuario-form,
+        .table-container,
+        .filters-section,
+        .filter-section,
+        .filtros-container,
+        .search-section,
+        .info-section,
+        .loading-message,
+        .empty-message,
+        .modal-content
+      ) {
+      background: var(--irs-surface) !important;
+      color: var(--irs-text) !important;
+      border-color: var(--irs-border) !important;
+    }
+
+    :where(
+        .form-section,
+        .ficha-info,
+        .info-group,
+        .access-notice,
+        .modal-body,
+        .modal-footer,
+        .details-section,
+        .card-body
+      ) {
+      background-color: var(--irs-surface-muted) !important;
+      color: var(--irs-text) !important;
+      border-color: var(--irs-border) !important;
+    }
+
+    :where(input, select, textarea, .form-control, .search-input, .date-input) {
+      background: var(--irs-field) !important;
+      color: var(--irs-text) !important;
+    }
+
+    :where(h1, h2, h3, h4, label, .card-title, .section-title, .field-label) {
+      color: var(--irs-text) !important;
+    }
+
+    :where(.subtitle, .description, .helper-text, .empty-message, .loading-message) {
+      color: var(--irs-text-muted) !important;
+    }
+
+    :where(table, table td, table th) {
+      color: var(--irs-text) !important;
+      border-color: var(--irs-border) !important;
+    }
+
+    :where(table tbody tr) {
+      background: var(--irs-surface) !important;
+
+      &:nth-child(even) {
+        background: var(--irs-surface-muted) !important;
+      }
+
+      &:hover {
+        background: var(--irs-table-hover) !important;
+      }
+    }
+
+    :where(.btn-secondary, .btn-cancelar, .btn-clear, .btn-limpiar-filtros) {
+      background: var(--irs-surface-raised) !important;
+      color: var(--irs-text) !important;
+      border-color: var(--irs-border-strong) !important;
+    }
+
+    :where(.alert-success, .success-message) {
+      background: var(--irs-success-soft) !important;
+      color: var(--irs-success) !important;
+      border-color: color-mix(in srgb, var(--irs-success) 42%, transparent) !important;
+    }
+
+    :where(.alert-warning, .warning-message) {
+      background: var(--irs-warning-soft) !important;
+      color: var(--irs-warning) !important;
+      border-color: color-mix(in srgb, var(--irs-warning) 42%, transparent) !important;
+    }
+
+    :where(.alert-error, .error-message) {
+      background: var(--irs-danger-soft) !important;
+      color: var(--irs-danger) !important;
+      border-color: color-mix(in srgb, var(--irs-danger) 42%, transparent) !important;
+    }
+  }
+
+  :where(.modal-content) {
+    background: var(--irs-surface) !important;
+    color: var(--irs-text) !important;
+  }
+
+  ::selection {
+    background: rgba(139, 182, 198, 0.32);
+  }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--irs-text);
+  box-shadow: 0 0 0 1000px var(--irs-field) inset !important;
+  transition: background-color 9999s ease-out;
+}
+
+// Acciones consistentes dentro de tablas
+.main-content :where(.table-actions-group) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.main-content :where(.table-action) {
+  --table-action-color: var(--irs-accent-text);
+  --table-action-bg: var(--irs-accent-soft);
+
+  display: inline-flex !important;
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  padding: 0 !important;
+  background: var(--irs-surface-raised) !important;
+  background-image: none !important;
+  color: var(--table-action-color) !important;
+  border: 1px solid var(--irs-border-strong) !important;
+  border-radius: 7px !important;
+  box-shadow: 0 1px 2px rgba(15, 27, 34, 0.08) !important;
+  cursor: pointer;
+  font-size: 0.78rem !important;
+  font-weight: 650 !important;
+  line-height: 1 !important;
+  white-space: nowrap;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease !important;
+
+  > i {
+    display: grid;
+    width: 16px;
+    height: 16px;
+    place-items: center;
+    flex: 0 0 auto;
+    margin: 0 !important;
+    color: inherit !important;
+    font-size: 14px !important;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--table-action-bg) !important;
+    color: var(--table-action-color) !important;
+    border-color: color-mix(
+      in srgb,
+      var(--table-action-color) 52%,
+      var(--irs-border)
+    ) !important;
+    box-shadow: 0 2px 7px rgba(15, 27, 34, 0.14) !important;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--table-action-color) !important;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    background: var(--irs-field-disabled) !important;
+    color: var(--irs-text-subtle) !important;
+    border-color: var(--irs-border) !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    opacity: 0.72;
+  }
+
+  &.table-action--labeled {
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0 12px !important;
+  }
+
+  &.table-action--edit {
+    --table-action-color: var(--irs-warning);
+    --table-action-bg: var(--irs-warning-soft);
+  }
+
+  &.table-action--delete {
+    --table-action-color: var(--irs-danger);
+    --table-action-bg: var(--irs-danger-soft);
+  }
+
+  &.table-action--confirm {
+    --table-action-color: var(--irs-success);
+    --table-action-bg: var(--irs-success-soft);
+  }
+
+  .selection-count {
+    display: grid;
+    min-width: 18px;
+    height: 18px;
+    place-items: center;
+    padding: 0 5px;
+    background: var(--table-action-color) !important;
+    color: var(--irs-surface) !important;
+    border-radius: 999px;
+    font-size: 0.62rem;
+    font-weight: 750;
+  }
+}
+
+.main-content :where(td.action-cell, td.acciones-cell) {
+  text-align: center;
+  white-space: nowrap;
+}
+
+// Sistema visual compartido por todos los modales
+:where(.modal-overlay .modal-content) {
+  overflow: hidden;
+  background: var(--irs-surface) !important;
+  color: var(--irs-text) !important;
+  border: 1px solid var(--irs-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--irs-shadow-raised) !important;
+}
+
+:where(.modal-content .modal-header) {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 20px !important;
+  background: var(--irs-surface) !important;
+  color: var(--irs-text) !important;
+  border-bottom: 1px solid var(--irs-border) !important;
+  border-top: 3px solid var(--irs-brass-500) !important;
+
+  h2 {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 9px;
+    margin: 0 !important;
+    color: var(--irs-text) !important;
+    font-size: clamp(1rem, 2vw, 1.2rem) !important;
+    font-weight: 650 !important;
+    letter-spacing: -0.015em;
+
+    > i {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      place-items: center;
+      flex: 0 0 auto;
+      background: var(--irs-accent-soft);
+      color: var(--irs-accent-text) !important;
+      border-radius: 6px;
+      font-size: 15px !important;
+    }
+
+    .modal-reference {
+      padding: 3px 7px;
+      color: var(--irs-text-muted);
+      border: 1px solid var(--irs-border);
+      border-radius: 4px;
+      font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      font-size: 0.65rem;
+      font-weight: 650;
+      letter-spacing: 0.025em;
+      white-space: nowrap;
+    }
+  }
+}
+
+:where(.modal-content .btn-close, .modal-content .btn-close-modal) {
+  display: grid !important;
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  place-items: center !important;
+  flex: 0 0 auto;
+  padding: 0 !important;
+  background: var(--irs-surface-muted) !important;
+  color: var(--irs-text-muted) !important;
+  border: 1px solid var(--irs-border) !important;
+  border-radius: 7px !important;
+  cursor: pointer;
+  font-size: 15px !important;
+
+  &:hover {
+    background: var(--irs-danger-soft) !important;
+    color: var(--irs-danger) !important;
+    border-color: color-mix(in srgb, var(--irs-danger) 42%, transparent) !important;
+  }
+
+  i {
+    display: grid;
+    place-items: center;
+    margin: 0 !important;
+  }
+}
+
+:where(.modal-content .modal-body) {
+  background: var(--irs-surface) !important;
+  color: var(--irs-text) !important;
+  scrollbar-color: var(--irs-border-strong) transparent;
+}
+
+:where(.modal-content .modal-footer) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px !important;
+  background: var(--irs-surface-muted) !important;
+  border-top: 1px solid var(--irs-border) !important;
+}
+
+:where(.modal-content .modal-footer button) {
+  display: inline-flex !important;
+  min-height: 40px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 9px 15px !important;
+  border-radius: 7px !important;
+  cursor: pointer;
+  font-size: 0.8rem !important;
+  font-weight: 650 !important;
+  box-shadow: none !important;
+
+  i {
+    display: grid;
+    place-items: center;
+    margin: 0 !important;
+  }
+}
+
+:where(.modal-content .modal-footer .btn-cancelar) {
+  background: var(--irs-surface-raised) !important;
+  color: var(--irs-text) !important;
+  border: 1px solid var(--irs-border-strong) !important;
+
+  &:hover {
+    background: var(--irs-surface-hover) !important;
+  }
+}
+
+:where(
+    .modal-content .modal-footer .btn-guardar,
+    .modal-content .modal-footer .btn-aplicar,
+    .modal-content .modal-footer .btn-validar
+  ) {
+  background: var(--irs-primary-action) !important;
+  color: #fff !important;
+  border: 1px solid var(--irs-primary-action) !important;
+
+  &:hover:not(:disabled) {
+    background: var(--irs-primary-action-hover) !important;
+    border-color: var(--irs-primary-action-hover) !important;
+  }
+
+  &:disabled {
+    background: var(--irs-field-disabled) !important;
+    color: var(--irs-text-subtle) !important;
+    border-color: var(--irs-border) !important;
+    cursor: not-allowed;
+  }
+}
+
+:where(
+    .modal-content .ficha-info,
+    .modal-content .usuario-section,
+    .modal-content .ficha-section,
+    .modal-content .medidas-section,
+    .modal-content .comentario-section,
+    .modal-content .resumen-section,
+    .modal-content .upload-section,
+    .modal-content .detalle-section
+  ) {
+  background: var(--irs-surface-muted) !important;
+  color: var(--irs-text) !important;
+  border-color: var(--irs-border) !important;
+  box-shadow: none !important;
+}
+
+:where(.modal-content h3, .modal-content h4) {
+  color: var(--irs-text) !important;
+
+  > i {
+    color: var(--irs-accent-text) !important;
+  }
+}
+
+:where(.modal-content label, .modal-content .label) {
+  color: var(--irs-text-muted) !important;
+}
+
+:where(.modal-content .value, .modal-content .value-text) {
+  color: var(--irs-text) !important;
+}
+
+:where(.modal-content input, .modal-content select, .modal-content textarea) {
+  background: var(--irs-field) !important;
+  color: var(--irs-text) !important;
+  border-color: var(--irs-border-strong) !important;
+
+  &:focus {
+    border-color: var(--irs-accent-text) !important;
+    box-shadow: var(--irs-focus) !important;
+    outline: none;
+  }
+
+  &:read-only,
+  &:disabled {
+    background: var(--irs-field-disabled) !important;
+    color: var(--irs-text-muted) !important;
+  }
+}
+
+:where(
+    .modal-content .dropzone,
+    .modal-content .archivo-item,
+    .modal-content .medida-checkbox,
+    .modal-content .info-item,
+    .modal-content .info-item-full
+  ) {
+  background: var(--irs-surface-raised) !important;
+  color: var(--irs-text) !important;
+  border-color: var(--irs-border) !important;
+}
+
+:where(.modal-content .dropzone:hover, .modal-content .dropzone.dragging) {
+  background: var(--irs-accent-soft) !important;
+  border-color: var(--irs-accent-text) !important;
+}
+
+@media (max-width: 600px) {
+  :where(.modal-content .modal-header) {
+    min-height: 60px;
+    padding: 12px 14px !important;
+
+    h2 .modal-reference {
+      display: none;
+    }
+  }
+
+  :where(.modal-content .modal-footer) {
+    align-items: stretch;
+    flex-direction: column-reverse;
+    padding: 12px 14px !important;
+
+    button {
+      width: 100%;
+    }
   }
 }
 :where(.success, .estado-activo, .prioridad-baja) {

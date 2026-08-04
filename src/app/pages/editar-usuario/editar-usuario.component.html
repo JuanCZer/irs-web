@@ -70,20 +70,24 @@
           </tr>
           <tr *ngFor="let user of paginatedUsers" class="data-row">
             <td class="action-cell">
-              <div class="action-buttons">
+              <div class="action-buttons table-actions-group">
                 <button
-                  class="btn-action-table btn-editar"
+                  type="button"
+                  class="btn-action-table btn-editar table-action table-action--edit"
                   (click)="openEditModal(user.userId)"
                   title="Editar usuario"
+                  aria-label="Editar usuario"
                 >
-                  <i class="fi fi-rr-pencil"></i>
+                  <i class="fi fi-rr-pencil" aria-hidden="true"></i>
                 </button>
                 <button
-                  class="btn-action-table btn-eliminar"
+                  type="button"
+                  class="btn-action-table btn-eliminar table-action table-action--delete"
                   (click)="deleteUser(user.userId, user.user)"
                   title="Eliminar usuario"
+                  aria-label="Eliminar usuario"
                 >
-                  <i class="fi fi-rr-trash"></i>
+                  <i class="fi fi-rr-trash" aria-hidden="true"></i>
                 </button>
               </div>
             </td>

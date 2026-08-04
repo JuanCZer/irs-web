@@ -49,7 +49,7 @@
     <table class="fichas-table">
       <thead>
         <tr>
-          <th>Abrir/Eliminar</th>
+          <th>Acciones</th>
           <th>Fecha Elaboración</th>
           <th>Fecha Suceso</th>
           <th>Hora Suceso</th>
@@ -63,21 +63,27 @@
       </thead>
       <tbody>
         <tr *ngFor="let draft of paginatedDrafts">
-          <td data-label="Abrir/Eliminar" class="action-buttons">
-            <button
-              class="btn-open"
-              (click)="openDraft(draft.id)"
-              title="Abrir borrador"
-            >
-              <i class="fi fi-rr-edit"></i>
-            </button>
-            <button
-              class="btn-delete"
-              (click)="deleteDraft(draft.id)"
-              title="Eliminar borrador"
-            >
-              <i class="fi fi-rr-trash-xmark"></i>
-            </button>
+          <td data-label="Acciones" class="action-cell">
+            <div class="table-actions-group">
+              <button
+                type="button"
+                class="btn-open table-action table-action--edit"
+                (click)="openDraft(draft.id)"
+                title="Abrir borrador"
+                aria-label="Abrir borrador"
+              >
+                <i class="fi fi-rr-edit" aria-hidden="true"></i>
+              </button>
+              <button
+                type="button"
+                class="btn-delete table-action table-action--delete"
+                (click)="deleteDraft(draft.id)"
+                title="Eliminar borrador"
+                aria-label="Eliminar borrador"
+              >
+                <i class="fi fi-rr-trash-xmark" aria-hidden="true"></i>
+              </button>
+            </div>
           </td>
           <td data-label="Fecha Elaboración">
             {{ draft.creationDate }}
