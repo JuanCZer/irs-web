@@ -20,9 +20,13 @@
         placeholder="Buscar por delegación, sector, prioridad, condición..."
         class="search-input"
       />
-      <button class="btn-search" (click)="search()">🔍 Buscar</button>
+      <button class="btn-search" (click)="search()">
+        <i class="fi fi-rr-search" aria-hidden="true"></i>
+        Buscar
+      </button>
       <button class="btn-clear" (click)="clearSearch()" *ngIf="searchText">
-        ✖️ Limpiar
+        <i class="fi fi-rr-cross-small" aria-hidden="true"></i>
+        Limpiar
       </button>
     </div>
   </div>

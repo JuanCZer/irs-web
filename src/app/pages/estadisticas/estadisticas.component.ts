@@ -5,6 +5,7 @@ import {
   ElementRef,
   ViewChild,
   OnDestroy,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';
@@ -12,6 +13,7 @@ import { EstadisticasService } from '../../services/estadisticas.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import 'jspdf-autotable';
+import { ThemeService } from '../../services/theme.service';
 
 
 Chart.register(...registerables);
@@ -60,7 +62,18 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
     monthlyGrowth: 0,
   };
 
-  constructor(private statisticsService: EstadisticasService) {}
+  constructor(
+    private statisticsService: EstadisticasService,
+    private themeService: ThemeService,
+  ) {
+    effect(() => {
+      this.themeService.theme();
+
+      if (!this.loading && this.charts.length > 0) {
+        queueMicrotask(() => this.updateCharts());
+      }
+    });
+  }
 
   async ngOnInit(): Promise<void> {
 
@@ -109,6 +122,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
   private createReportsByStateChart(): void {
     const ctx = this.reportsByStateCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
+    const colors = this.getChartThemeColors();
 
     const chart = new Chart(ctx, {
       type: 'bar',
@@ -139,6 +153,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
         ],
       },
       options: {
+        color: colors.text,
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
@@ -148,12 +163,21 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
           title: {
             display: true,
             text: 'Fichas por Estado',
+            color: colors.text,
             font: { size: 16, weight: 'bold' },
           },
         },
         scales: {
+          x: {
+            ticks: { color: colors.text },
+            grid: { color: colors.grid },
+            border: { color: colors.border },
+          },
           y: {
             beginAtZero: true,
+            ticks: { color: colors.text },
+            grid: { color: colors.grid },
+            border: { color: colors.border },
           },
         },
       },
@@ -165,6 +189,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
   private createReportsByMonthChart(): void {
     const ctx = this.reportsByMonthCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
+    const colors = this.getChartThemeColors();
 
 
     const currentYear = new Date().getFullYear();
@@ -190,22 +215,33 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
         ],
       },
       options: {
+        color: colors.text,
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
             display: true,
+            labels: { color: colors.text },
           },
           title: {
             display: true,
             text: `Fichas por Mes del Año ${currentYear}`,
+            color: colors.text,
             font: { size: 16, weight: 'bold' },
           },
         },
         scales: {
+          x: {
+            ticks: { color: colors.text },
+            grid: { color: colors.grid },
+            border: { color: colors.border },
+          },
           y: {
             min: 10,
             max: maxYAxis,
+            ticks: { color: colors.text },
+            grid: { color: colors.grid },
+            border: { color: colors.border },
           },
         },
       },
@@ -217,6 +253,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
   private createMonthlyTrendChart(): void {
     const ctx = this.monthlyTrendCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
+    const colors = this.getChartThemeColors();
 
     const chart = new Chart(ctx, {
       type: 'line',
@@ -242,21 +279,32 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
         ],
       },
       options: {
+        color: colors.text,
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
             display: true,
+            labels: { color: colors.text },
           },
           title: {
             display: true,
             text: 'Tendencia Comparativa',
+            color: colors.text,
             font: { size: 16, weight: 'bold' },
           },
         },
         scales: {
+          x: {
+            ticks: { color: colors.text },
+            grid: { color: colors.grid },
+            border: { color: colors.border },
+          },
           y: {
             beginAtZero: true,
+            ticks: { color: colors.text },
+            grid: { color: colors.grid },
+            border: { color: colors.border },
           },
         },
       },
@@ -276,6 +324,16 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.charts.forEach((chart) => chart.destroy());
     this.charts = [];
     this.createCharts();
+  }
+
+  private getChartThemeColors(): {
+    text: string;
+    grid: string;
+    border: string;
+  } {
+    return this.themeService.theme() === 'dark'
+      ? { text: '#ffffff', grid: 'rgba(255, 255, 255, 0.16)', border: '#52646d' }
+      : { text: '#1c2b34', grid: 'rgba(28, 43, 52, 0.12)', border: '#b9c6cc' };
   }
 
   async exportPdf(): Promise<void> {
@@ -433,7 +491,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit, OnDestroy {
         try {
 
           const captured = await html2canvas(canvasElement, {
-            backgroundColor: '#ffffff',
+            backgroundColor:
+              this.themeService.theme() === 'dark' ? '#172128' : '#ffffff',
             scale: 2,
           });
           const imgData = captured.toDataURL('image/png');

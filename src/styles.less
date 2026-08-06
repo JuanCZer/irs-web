@@ -48,7 +48,7 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --irs-steel-700: #9bc0ce;
+  --irs-steel-700: #ffffff;
   --irs-steel-600: #7fa6b5;
   --irs-brass-500: #c0a66c;
 
@@ -60,13 +60,13 @@
   --irs-surface-hover: #26363f;
   --irs-field: #1d2a31;
   --irs-field-disabled: #26333a;
-  --irs-text: #e8eef1;
-  --irs-text-muted: #abb8be;
-  --irs-text-subtle: #8f9fa7;
+  --irs-text: #ffffff;
+  --irs-text-muted: #ffffff;
+  --irs-text-subtle: #ffffff;
   --irs-border: #34454e;
   --irs-border-strong: #52646d;
   --irs-accent-soft: #233741;
-  --irs-accent-text: #9bc0ce;
+  --irs-accent-text: #ffffff;
   --irs-toggle-track: #40515a;
   --irs-success: #62a27c;
   --irs-success-soft: #1c392a;
@@ -1025,6 +1025,12 @@ input:-webkit-autofill:focus {
   color: var(--irs-text) !important;
 }
 
+:where(.modal-content .value-text) {
+  background: var(--irs-field) !important;
+  color: var(--irs-text) !important;
+  border: 1px solid var(--irs-border) !important;
+}
+
 :where(.modal-content input, .modal-content select, .modal-content textarea) {
   background: var(--irs-field) !important;
   color: var(--irs-text) !important;
@@ -1087,6 +1093,422 @@ input:-webkit-autofill:focus {
 }
 
 :where(.error, .estado-inactivo, .prioridad-alta) {
+}
+
+// Cobertura final del tema oscuro.
+// Los componentes heredados declaran colores claros de forma local; esta capa
+// normaliza todas sus superficies y garantiza texto blanco con contraste alto.
+:root[data-theme="dark"] {
+  body {
+    color: #fff;
+  }
+
+  :where(
+      app-main-layout .main-header,
+      app-main-layout .main-content,
+      app-navbar,
+      app-login,
+      app-theme-toggle,
+      app-pagination,
+      .modal-content
+    ) {
+    color: #fff !important;
+
+    :where(
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        span,
+        small,
+        strong,
+        label,
+        legend,
+        dt,
+        dd,
+        th,
+        td,
+        li,
+        a,
+        button,
+        input,
+        select,
+        textarea,
+        option,
+        .label,
+        .value,
+        .value-text,
+        .message,
+        .alert,
+        .no-data,
+        .state-message,
+        .loading-message,
+        .empty-message,
+        .cargando-message,
+        .sin-fichas
+      ) {
+      color: #fff !important;
+    }
+
+    :where(i, .fi) {
+      color: #fff !important;
+    }
+  }
+
+  body :where(input, select, textarea) {
+    background: var(--irs-field) !important;
+    color: #fff !important;
+    border-color: var(--irs-border-strong) !important;
+    caret-color: #fff;
+
+    &::placeholder {
+      color: #fff !important;
+      opacity: 0.78;
+    }
+
+    &:read-only,
+    &:disabled {
+      background: var(--irs-field-disabled) !important;
+      color: #fff !important;
+      opacity: 0.72;
+    }
+  }
+
+  app-main-layout .main-content {
+    .irs-page-header {
+      border-left: 3px solid var(--irs-brass-500) !important;
+    }
+
+    .table-action .selection-count {
+      color: var(--irs-navy-950) !important;
+    }
+
+    :where(
+        .home-page,
+        .fichas-container,
+        .borradores-container,
+        .consultar-fichas-container,
+        .consultar-todas-fichas-container,
+        .mapa-page,
+        .mapa-fichas-container,
+        .estadisticas-container,
+        .perfil-container,
+        .despacho-container,
+        .drones-page,
+        .auditoria-container,
+        .registrar-usuario-container,
+        .editar-usuario-container
+      ) {
+      color: #fff !important;
+      background-color: transparent !important;
+    }
+
+    :where(
+        .irs-page-header,
+        .status-panel,
+        .summary-card,
+        .filters-card,
+        .filters-section,
+        .dispatch-filters,
+        .search-section,
+        .table-container,
+        .seccion-card,
+        .usuario-form,
+        .info-card,
+        .password-card,
+        .stat-card,
+        .chart-card,
+        .ficha-card,
+        .fichas-section,
+        .fleet-panel,
+        .history-panel,
+        .flight-card,
+        .flight-content,
+        .info-section,
+        .detalle-section,
+        .panel-state
+      ) {
+      color: #fff !important;
+      background: var(--irs-surface) !important;
+      background-image: none !important;
+      border-color: var(--irs-border) !important;
+    }
+
+    :where(
+        .estado-badge,
+        .seccion-recepcion,
+        .filtros-container,
+        .chart-header,
+        .card-header,
+        .card-body,
+        .context-note,
+        .day-search,
+        .day-divider,
+        .date-stepper,
+        .route-preview,
+        .route-placeholder,
+        .linked-report,
+        .map-caption,
+        .no-flights,
+        .filtered-empty-message,
+        .irs-page-header__context
+      ) {
+      color: #fff !important;
+      background: var(--irs-surface-muted) !important;
+      background-image: none !important;
+      border-color: var(--irs-border) !important;
+    }
+
+    :where(
+        table,
+        table thead,
+        table tbody,
+        table tr,
+        table th,
+        table td
+      ) {
+      color: #fff !important;
+      border-color: var(--irs-border) !important;
+    }
+
+    :where(table thead, table th) {
+      background: var(--irs-table-header) !important;
+      background-image: none !important;
+    }
+
+    :where(table tbody tr) {
+      background: var(--irs-surface) !important;
+
+      &:nth-child(even) {
+        background: var(--irs-surface-muted) !important;
+      }
+
+      &:hover {
+        background: var(--irs-table-hover) !important;
+      }
+    }
+
+    :where(td[data-label]::before) {
+      color: #fff !important;
+    }
+
+    :where(
+        .btn-borrador,
+        .btn-clear,
+        .btn-cancelar,
+        .btn-secondary,
+        .secondary-button,
+        .btn-limpiar-filtros,
+        .history-button,
+        .close-history,
+        .date-stepper button,
+        .panel-state button
+      ) {
+      color: #fff !important;
+      background: var(--irs-surface-raised) !important;
+      background-image: none !important;
+      border-color: var(--irs-border-strong) !important;
+    }
+
+    :where(
+        .badge,
+        .badge-nuevo,
+        .badge-rol,
+        .badge-estado,
+        .badge-prioridad,
+        .role-badge,
+        .module-badge,
+        .status-badge,
+        .status-pill,
+        .flight-status,
+        .report-badge,
+        .active-filters-badge
+      ) {
+      color: #fff !important;
+      background: var(--irs-surface-raised) !important;
+      border-color: var(--irs-border-strong) !important;
+    }
+
+    :where(
+        .message.success,
+        .alert-success,
+        .success-message,
+        .status-badge:not(.error),
+        .estado-activo,
+        .estado-finalizado,
+        .prioridad-baja
+      ) {
+      color: #fff !important;
+      background: var(--irs-success-soft) !important;
+    }
+
+    :where(
+        .message.error,
+        .alert-error,
+        .error-message,
+        .status-badge.error,
+        .estado-inactivo,
+        .estado-cancelado,
+        .prioridad-alta,
+        .prioridad-urgente,
+        .prioridad-critica,
+        .prioridad-crítica
+      ) {
+      color: #fff !important;
+      background: var(--irs-danger-soft) !important;
+    }
+
+    :where(
+        .alert-warning,
+        .warning-message,
+        .sync-warning,
+        .integration-state,
+        .estado-pendiente,
+        .prioridad-media
+      ) {
+      color: #fff !important;
+      background: var(--irs-warning-soft) !important;
+    }
+
+    :where(
+        .integration-icon,
+        .summary-icon,
+        .drone-symbol,
+        .empty-illustration,
+        .radar-rings
+      ) {
+      color: #fff !important;
+      background: var(--irs-accent-soft) !important;
+      border-color: var(--irs-border) !important;
+    }
+
+    .route-preview {
+      svg path {
+        stroke: var(--irs-border-strong) !important;
+      }
+
+      svg polyline {
+        stroke: #fff !important;
+      }
+    }
+
+    :where(
+        .table-responsive,
+        .table-scroll,
+        .fichas-list-container,
+        .filtros-container,
+        .modal-body
+      ) {
+      scrollbar-color: var(--irs-border-strong) transparent;
+    }
+
+    :where(*::-webkit-scrollbar-track) {
+      background: transparent !important;
+    }
+
+    :where(*::-webkit-scrollbar-thumb) {
+      background: var(--irs-border-strong) !important;
+    }
+  }
+
+  app-pagination {
+    :where(.pagination, .pagination__summary, .pagination__ellipsis) {
+      color: #fff !important;
+    }
+
+    .pagination__button {
+      color: #fff !important;
+      background: var(--irs-surface-raised) !important;
+      border-color: var(--irs-border-strong) !important;
+
+      &--active {
+        color: #fff !important;
+        background: var(--irs-primary-action) !important;
+        border-color: var(--irs-primary-action-hover) !important;
+      }
+
+      &:disabled {
+        color: #fff !important;
+        background: var(--irs-field-disabled) !important;
+        border-color: var(--irs-border) !important;
+        opacity: 0.55;
+      }
+    }
+  }
+
+  :where(.modal-content) {
+    :where(
+        .ficha-section,
+        .usuario-section,
+        .medidas-section,
+        .comentario-section,
+        .resumen-section,
+        .upload-section,
+        .ficha-info,
+        .usuario-field,
+        .ficha-field,
+        .info-item,
+        .archivo-item,
+        .medida-checkbox,
+        .dropzone
+      ) {
+      color: #fff !important;
+      background: var(--irs-surface-muted) !important;
+      border-color: var(--irs-border) !important;
+    }
+
+    :where(.alert-warning, .alert-error, .alert-success) {
+      color: #fff !important;
+    }
+  }
+
+  :where(app-navbar, app-login) {
+    :where(h1, h2, h3, p, span, small, strong, label, a, button) {
+      color: #fff !important;
+    }
+  }
+
+  // Mapbox conserva deliberadamente su tema claro, incluso dentro del dark theme.
+  .mapboxgl-map {
+    color: #333 !important;
+
+    :where(p, span, small, strong, label, a, button, i) {
+      color: #333 !important;
+    }
+  }
+
+  .mapboxgl-popup-content,
+  .mapboxgl-ctrl-group,
+  .mapboxgl-ctrl-attrib {
+    color: #333 !important;
+    background: #fff !important;
+  }
+
+  .mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+    border-bottom-color: #fff !important;
+  }
+
+  .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
+    border-top-color: #fff !important;
+  }
+
+  .mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+    border-right-color: #fff !important;
+  }
+
+  .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+    border-left-color: #fff !important;
+  }
+
+  .mapboxgl-ctrl-icon {
+    filter: none !important;
+  }
+
 }
 
 @media (max-width: 768px) {
