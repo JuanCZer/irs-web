@@ -51,7 +51,9 @@ public sealed class ApiRequestValidationMiddleware
         }
 
         var origin = context.Request.Headers.Origin.ToString().TrimEnd('/');
-        if (!string.IsNullOrWhiteSpace(origin) && !_allowedOrigins.Contains(origin))
+        if (!string.IsNullOrWhiteSpace(origin) &&
+            !_allowedOrigins.Contains(origin) &&
+            !IsSameOrigin(context.Request, origin))
         {
             _logger.LogWarning(
                 "Solicitud rechazada por origen no autorizado a {Path}",
@@ -82,6 +84,39 @@ public sealed class ApiRequestValidationMiddleware
 
         await _next(context);
     }
+
+    private static bool IsSameOrigin(HttpRequest request, string origin)
+    {
+        if (!Uri.TryCreate(origin, UriKind.Absolute, out var originUri) ||
+            (originUri.Scheme != Uri.UriSchemeHttp &&
+             originUri.Scheme != Uri.UriSchemeHttps) ||
+            originUri.AbsolutePath != "/" ||
+            !string.IsNullOrEmpty(originUri.Query) ||
+            !string.IsNullOrEmpty(originUri.Fragment))
+        {
+            return false;
+        }
+
+        var originPort = originUri.IsDefaultPort
+            ? GetDefaultPort(originUri.Scheme)
+            : originUri.Port;
+        var requestPort = request.Host.Port ?? GetDefaultPort(request.Scheme);
+
+        return string.Equals(
+                   originUri.Scheme,
+                   request.Scheme,
+                   StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(
+                   originUri.Host,
+                   request.Host.Host,
+                   StringComparison.OrdinalIgnoreCase) &&
+               originPort == requestPort;
+    }
+
+    private static int GetDefaultPort(string scheme) =>
+        string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+            ? 443
+            : 80;
 
     private static Task RejectAsync(HttpContext context, int status, string detail)
     {

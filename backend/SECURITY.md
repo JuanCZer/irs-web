@@ -50,6 +50,18 @@ frontend HTTP y la API HTTPS tienen esquemas distintos; producción debe usar
 incorpora otro cliente web, debe respetar este contrato. Los clientes no
 navegador también deben enviar el encabezado.
 
+## Pruebas locales con Swagger
+
+Swagger UI sólo se publica cuando `ASPNETCORE_ENVIRONMENT=Development`. Su botón
+`Authorize` acepta un JWT Bearer sin el prefijo `Bearer`. El token debe haber sido
+creado por `/api/auth/login`, porque además de validar la firma la API comprueba
+que `sid` y `jti` correspondan a una sesión activa en la base de datos.
+
+Swagger agrega automáticamente `X-IRS-Request: 1` a las operaciones de escritura.
+También es posible ejecutar el login desde Swagger y continuar mediante la cookie
+`HttpOnly` que recibe el navegador. No se debe habilitar Swagger públicamente ni
+persistir el JWT en el navegador en ambientes compartidos.
+
 ## Controles implementados
 
 - autenticación obligatoria por defecto y autorización administrativa explícita;

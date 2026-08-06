@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.RateLimiting;
 using Backend.Configuration;
 using Backend.Middleware;
+using Backend.Security;
 using Backend.Services;
 using IRS.API.Data;
 using IRS.API.Hubs;
@@ -17,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
@@ -84,7 +86,26 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    const string bearerScheme = "Bearer";
+
+    options.AddSecurityDefinition(bearerScheme, new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description =
+            "Pega únicamente el JWT, sin escribir el prefijo 'Bearer'. " +
+            "El token debe provenir de una sesión activa creada por /api/auth/login."
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference(bearerScheme, document)] = []
+    });
+    options.OperationFilter<SwaggerAuthorizeOperationFilter>();
+});
 builder.Services.AddProblemDetails(options =>
 {
     options.CustomizeProblemDetails = context =>
@@ -128,8 +149,14 @@ builder.Services
             OnMessageReceived = context =>
             {
                 var cookieName = builder.Configuration["Jwt:CookieName"]!;
-                if (context.Request.Cookies.TryGetValue(cookieName, out var token))
+                var hasAuthorizationHeader =
+                    context.Request.Headers.ContainsKey("Authorization");
+
+                if (!hasAuthorizationHeader &&
+                    context.Request.Cookies.TryGetValue(cookieName, out var token))
+                {
                     context.Token = token;
+                }
 
                 return Task.CompletedTask;
             },
@@ -279,7 +306,17 @@ if (!app.Environment.IsDevelopment())
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.DisplayRequestDuration();
+        options.UseRequestInterceptor(
+            "(request) => { " +
+            "const method = (request.method || 'GET').toUpperCase(); " +
+            "if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) { " +
+            $"request.headers['{security.AntiForgeryHeaderName}'] = " +
+            $"'{security.AntiForgeryHeaderValue}'; " +
+            "} return request; }");
+    });
 }
 
 app.UseHttpsRedirection();
