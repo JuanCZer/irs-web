@@ -4,9 +4,13 @@ namespace IRS.API.Interfaces;
 
 public interface IDespachoService
 {
-  Task<DispatchReport> CreateDispatchReportAsync(DispatchReport dispatchReport);
+  Task<List<DispatchReport>> CreateDispatchReportsAsync(
+    int reportId,
+    IReadOnlyCollection<int> securityMeasureIds,
+    string comment,
+    string evidence,
+    int userId);
   Task<List<DispatchReport>> GetByReportIdAsync(int reportId);
-  Task<DispatchReport?> GetByIdAsync(int dispatchReportId);
   Task<List<DispatchReport>> GetDroneReportsAsync();
   Task<List<DispatchMeasureDraft>> GetMeasureDraftsAsync(int userId);
   Task<List<DispatchMeasureDraft>> GetDroneMeasureDraftsAsync(int userId);
@@ -15,5 +19,4 @@ public interface IDespachoService
     int userId,
     IReadOnlyCollection<int> securityMeasureIds,
     string comment);
-  Task DeleteMeasureDraftAsync(int reportId, int userId);
 }

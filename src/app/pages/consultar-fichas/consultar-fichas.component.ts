@@ -35,7 +35,7 @@ export class ConsultarFichasComponent implements OnInit {
       this.cdr.detectChanges();
     } catch (error) {
       this.error =
-        'No se pudieron cargar las fichas del día. Verifica que el backend esté corriendo en https://localhost:5001';
+        'No se pudieron cargar las fichas del día. Verifica la disponibilidad del servidor.';
     } finally {
       this.loading = false;
     }

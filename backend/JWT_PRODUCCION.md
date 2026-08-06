@@ -1,6 +1,6 @@
 # Guía para publicar IRS en producción
 
-Última revisión: 23 de julio de 2026.
+Última revisión: 6 de agosto de 2026.
 
 Esta guía reúne los pasos para publicar el frontend Angular, la API ASP.NET Core, PostgreSQL, las sesiones JWT y la bitácora de auditoría.
 
@@ -8,22 +8,21 @@ Esta guía reúne los pasos para publicar el frontend Angular, la API ASP.NET Co
 
 - Las tablas `public.sesion_usuario` y `public.auditoria_evento` ya fueron creadas en la base de datos usada actualmente.
 - Si producción utiliza otra base de datos o un contenedor PostgreSQL nuevo, los scripts se deben ejecutar también allí. Una base nueva no recibe automáticamente las tablas ni los datos de la base local.
-- El JWT funciona localmente con la configuración de desarrollo.
-- El proyecto todavía necesita algunos cambios de configuración antes de poder publicarse. Están enumerados en la siguiente sección.
+- La configuración versionada ya no contiene la llave JWT ni la contraseña de PostgreSQL. Consulta `SECURITY.md` para configurar secretos locales y de producción.
+- El frontend ya consume endpoints relativos mediante `ApiService`. De forma predeterminada usa `/api` en el mismo host y `public/runtime-config.js` permite indicar otro origen durante el despliegue, sin recompilar Angular.
+- Los endpoints detallados de salud requieren rol `ADMIN` y ya no exponen excepciones, stack traces ni datos de conexión.
+- El proyecto todavía necesita configuración de infraestructura antes de poder publicarse. Está enumerada en la siguiente sección.
 
 ## Bloqueadores que deben resolverse antes de publicar
 
 No desplegar el proyecto públicamente hasta completar estos puntos:
 
-1. **Eliminar las URLs de localhost del frontend.** Los servicios Angular actualmente utilizan `https://localhost:5001`. En producción, `localhost` sería la computadora de cada visitante.
-2. **Centralizar la URL de la API.** La opción recomendada es que Angular use rutas relativas como `/api` y que Nginx o Traefik envíe esas solicitudes al contenedor de la API.
-3. **Configurar CORS para el dominio real.** `Program.cs` actualmente contiene únicamente orígenes locales. Si se usan dominios separados, debe permitirse solamente el dominio exacto del frontend.
-4. **Sacar la conexión PostgreSQL de `appsettings.json`.** Configurarla mediante `ConnectionStrings__DefaultConnection` y no guardar la contraseña de producción en Git.
-5. **Sacar la llave JWT de `appsettings.json`.** Configurarla mediante `Jwt__Key`.
-6. **Configurar encabezados reenviados.** Si Nginx, Traefik, Cloudflare o un balanceador termina HTTPS, ASP.NET Core debe procesar de forma segura `X-Forwarded-For` y `X-Forwarded-Proto` para reconocer la IP y el esquema originales.
-7. **Proteger los endpoints detallados de salud.** No publicar respuestas con cadenas de conexión, excepciones o `stackTrace`.
-8. **Crear los archivos de despliegue.** El repositorio todavía no contiene `Dockerfile`, `compose.yaml` ni configuración de Nginx/Traefik de producción.
-9. **Probar una compilación de producción completa** de Angular y .NET antes de subir la versión.
+1. **Configurar CORS para el dominio real.** Si se usan dominios separados, debe permitirse solamente el dominio exacto del frontend.
+2. **Inyectar secretos de producción.** Configurar `ConnectionStrings__DefaultConnection` y `Jwt__Key` mediante el almacén de secretos del proveedor, nunca en Git.
+3. **Configurar encabezados reenviados.** Si Nginx, Traefik, Cloudflare o un balanceador termina HTTPS, ASP.NET Core debe confiar solamente en las IP o redes conocidas de ese proxy.
+4. **Crear los archivos de despliegue.** El repositorio todavía no contiene `Dockerfile`, `compose.yaml` ni configuración de Nginx/Traefik de producción.
+5. **Probar una compilación de producción completa** de Angular y .NET antes de subir la versión.
+6. **Ejecutar pruebas de seguridad.** Realizar SAST, DAST y una prueba de penetración autenticada sobre el entorno final.
 
 ## Arquitectura recomendada
 
@@ -81,8 +80,8 @@ Esta ruta funciona con Hostinger, DigitalOcean, Hetzner, AWS, Azure, Google Clou
 
 Antes de contratar o configurar el servidor:
 
-1. Cambiar el frontend para consumir `/api` y `/hubs` mediante rutas relativas, o implementar correctamente `environment.prod.ts` con la URL pública.
-2. Agregar la sustitución de ambientes de Angular en `angular.json` si se eligen URLs distintas por ambiente.
+1. Mantener vacío `apiBaseUrl` en `public/runtime-config.js` cuando frontend y API se publiquen en el mismo dominio.
+2. Si se eligen dominios distintos, configurar en el archivo desplegado la base pública completa, por ejemplo `https://api.midominio.com/api`, y ajustar CORS y cookies en el backend.
 3. Configurar los orígenes CORS desde una variable de entorno del backend.
 4. Agregar `UseForwardedHeaders` al backend y confiar únicamente en el proxy interno conocido.
 5. Ocultar la información detallada de los endpoints de salud en producción.
@@ -436,7 +435,7 @@ PostgreSQL        -> Servicio administrado o VPS privado
 
 ## D.1. Publicar Angular
 
-1. Configurar `environment.prod.ts` con `https://api.midominio.com`.
+1. Configurar `apiBaseUrl` en `public/runtime-config.js` con `https://api.midominio.com/api`.
 2. Ejecutar `npm ci` y `npm run build`.
 3. Subir el contenido de `dist/irs-web/browser` a `public_html`.
 4. Configurar el fallback del router Angular.
@@ -493,8 +492,7 @@ También se puede separar el sistema en servicios administrados:
 
 Los pasos indispensables siguen siendo los mismos:
 
-- Eliminar localhost.
-- Configurar URL pública y CORS.
+- Configurar `runtime-config.js` y CORS para los dominios públicos.
 - Configurar `Jwt__Key` y conexión como secretos.
 - Crear o restaurar las tablas de producción.
 - Mantener HTTPS en frontend y API.
@@ -524,7 +522,7 @@ Los valores no secretos pueden permanecer en `appsettings.json`:
   "Issuer": "IRS.API",
   "Audience": "IRS.Web",
   "HorasExpiracion": 8,
-  "CookieName": "irs_access_token"
+  "CookieName": "__Host-irs_access_token"
 }
 ```
 
@@ -565,8 +563,8 @@ No considerar un respaldo como válido hasta haber probado su restauración.
 
 ## Código
 
-- [ ] Angular ya no contiene `localhost` en servicios de producción.
-- [ ] La API usa rutas relativas o `environment.prod.ts` correctamente.
+- [x] Angular ya no contiene `localhost` en sus servicios.
+- [x] La API se resuelve con rutas relativas y admite configuración en tiempo de despliegue.
 - [ ] CORS contiene únicamente los dominios reales.
 - [ ] ASP.NET Core procesa encabezados del proxy de confianza.
 - [ ] Los endpoints de salud no exponen secretos ni excepciones.

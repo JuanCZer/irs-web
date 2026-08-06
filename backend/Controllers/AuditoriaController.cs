@@ -34,10 +34,7 @@ namespace Backend.Controllers
             var userId = GetUserId();
             if (!userId.HasValue) return Unauthorized();
 
-            var path = string.IsNullOrWhiteSpace(navigationEvent.Path)
-                ? "/"
-                : navigationEvent.Path.Trim();
-            if (path.Length > 500) path = path[..500];
+            var path = NormalizeNavigationPath(navigationEvent.Path);
 
             await _auditService.LogAsync(userId, new RegistroAuditoriaDTO
             {
@@ -77,6 +74,21 @@ namespace Backend.Controllers
             if (path.StartsWith("/auditoria")) return "Bitácora de actividad";
             if (path.StartsWith("/perfil")) return "Seguridad de la cuenta";
             return path;
+        }
+
+        private static string NormalizeNavigationPath(string value)
+        {
+            var path = new string(value
+                .Where(character => !char.IsControl(character))
+                .ToArray())
+                .Trim();
+            if (!path.StartsWith('/') || path.StartsWith("//", StringComparison.Ordinal))
+                return "/";
+
+            var queryIndex = path.IndexOfAny(['?', '#']);
+            if (queryIndex >= 0) path = path[..queryIndex];
+
+            return path.Length <= 500 ? path : path[..500];
         }
     }
 }

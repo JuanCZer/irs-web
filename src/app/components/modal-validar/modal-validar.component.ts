@@ -18,6 +18,10 @@ export interface ValidarEvent {
   styleUrl: './modal-validar.component.less',
 })
 export class ModalValidarComponent {
+  private readonly maximumFiles = 5;
+  private readonly maximumBytesPerFile = 2 * 1024 * 1024;
+  private readonly maximumTotalBytes = 5 * 1024 * 1024;
+
   @Input() visible = false;
   @Input() reportReference = '';
   @Input() delegation = '';
@@ -92,7 +96,31 @@ export class ModalValidarComponent {
       alert('Solo se permiten archivos PNG.');
     }
 
-    pngFiles.forEach((file) => {
+    let totalBytes = this.selectedFiles.reduce(
+      (total, selected) => total + selected.file.size,
+      0,
+    );
+    const acceptedFiles: File[] = [];
+
+    for (const file of pngFiles) {
+      if (this.selectedFiles.length + acceptedFiles.length >= this.maximumFiles) {
+        alert('Solo se permiten hasta 5 archivos PNG.');
+        break;
+      }
+      if (file.size > this.maximumBytesPerFile) {
+        alert(`El archivo "${file.name}" supera el límite de 2 MB.`);
+        continue;
+      }
+      if (totalBytes + file.size > this.maximumTotalBytes) {
+        alert('La evidencia completa no puede superar 5 MB.');
+        break;
+      }
+
+      acceptedFiles.push(file);
+      totalBytes += file.size;
+    }
+
+    acceptedFiles.forEach((file) => {
       this.convertFilesToBase64(file);
     });
   }

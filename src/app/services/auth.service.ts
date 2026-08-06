@@ -25,7 +25,7 @@ export interface UsuarioAutenticado {
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly apiUrl = 'https://localhost:5001/api/auth';
+  private readonly apiUrl = 'auth';
   private readonly currentUserSubject: BehaviorSubject<UsuarioAutenticado | null>;
   private validationInProgress: Promise<boolean> | null = null;
   readonly currentUser: Observable<UsuarioAutenticado | null>;

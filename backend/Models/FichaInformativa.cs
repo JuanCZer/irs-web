@@ -54,6 +54,7 @@ namespace IRS.API.Models
         public string Subsector { get; set; } = string.Empty;
 
         [Column("num_asistentes")]
+        [Range(0, 10_000_000)]
         public int? AttendeeCount { get; set; }
 
         [Column("fecha_elaboracion")]
@@ -76,12 +77,15 @@ namespace IRS.API.Models
         public string Information { get; set; } = string.Empty;
 
         [Column("asunto")]
+        [MaxLength(1000)]
         public string Subject { get; set; } = string.Empty;
 
         [Column("hechos")]
+        [MaxLength(10000)]
         public string Facts { get; set; } = string.Empty;
 
         [Column("acuerdos")]
+        [MaxLength(10000)]
         public string Agreements { get; set; } = string.Empty;
 
         [Column("id_informo")]
@@ -107,6 +111,7 @@ namespace IRS.API.Models
         public string? CancellationReason { get; set; }
 
         [Column("activo")]
+        [Range(0, 10)]
         public int Active { get; set; } = 0;
 
         [Column("folio_interno")]
@@ -118,6 +123,7 @@ namespace IRS.API.Models
         public string Address { get; set; } = string.Empty;
 
         [Column("visto")]
+        [Range(0, 1)]
         public int Seen { get; set; } = 0;
 
         [Column("idfichaanterior")]

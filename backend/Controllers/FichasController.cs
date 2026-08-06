@@ -1,9 +1,11 @@
+using System.Globalization;
+using System.Security.Claims;
+using Backend.DTOs;
+using Backend.Exceptions;
 using IRS.API.DTOs;
+using IRS.API.Interfaces;
 using IRS.API.Models;
 using Microsoft.AspNetCore.Mvc;
-using Backend.DTOs;
-using IRS.API.Interfaces;
-using System.Security.Claims;
 
 namespace IRS.API.Controllers;
 
@@ -11,6 +13,7 @@ namespace IRS.API.Controllers;
 [Route("api/[controller]")]
 public class FichasController : ControllerBase
 {
+    private const int MaximumSearchLength = 200;
     private readonly IFichaService _reportService;
 
     public FichasController(IFichaService reportService)
@@ -18,229 +21,132 @@ public class FichasController : ControllerBase
         _reportService = reportService;
     }
 
-
-
-
     [HttpGet]
-    public async Task<ActionResult<List<FichasTodosDto>>> GetAll()
-    {
-        var reports = await _reportService.GetAllDtosAsync();
-        return Ok(reports);
-    }
+    public async Task<ActionResult<List<FichasTodosDto>>> GetAll() =>
+        Ok(await _reportService.GetAllDtosAsync());
 
-
-
-
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult> GetById(int id)
     {
         var report = await _reportService.GetByIdAsync(id);
-        if (report == null)
-            return NotFound(new { message = "Ficha no encontrada" });
-
-        return Ok(report);
+        return report == null
+            ? NotFound(new { message = "Ficha no encontrada" })
+            : Ok(report);
     }
-
-
-
 
     [HttpPost]
     public async Task<ActionResult> Create([FromBody] FichaInformativa report)
     {
-        try
-        {
-            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-                return Unauthorized();
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+            return Unauthorized();
 
-            report.UserId = userId;
-            var createdReport = await _reportService.CreateAsync(
-                report,
-                User.FindFirstValue(ClaimTypes.Name) ?? "Usuario");
-            HttpContext.Items["AuditoriaEntidadId"] = createdReport.Id;
-            return CreatedAtAction(nameof(GetById), new { id = createdReport.Id }, createdReport);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al crear la ficha", error = ex.Message });
-        }
+        if (report.Active is not (2 or 3))
+            return BadRequest(new { message = "El estado inicial de la ficha no es válido" });
+
+        report.Id = 0;
+        report.UserId = userId;
+        var createdReport = await _reportService.CreateAsync(
+            report,
+            User.FindFirstValue(ClaimTypes.Name) ?? "Usuario");
+
+        HttpContext.Items["AuditoriaEntidadId"] = createdReport.Id;
+        return CreatedAtAction(nameof(GetById), new { id = createdReport.Id }, createdReport);
     }
 
-
-
-
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<ActionResult> Update(int id, [FromBody] FichaInformativa report)
     {
         try
         {
+            report.Id = id;
             var updatedReport = await _reportService.UpdateAsync(id, report);
-            if (updatedReport == null)
-                return NotFound(new { message = "Ficha no encontrada" });
-
-            return Ok(updatedReport);
+            return updatedReport == null
+                ? NotFound(new { message = "Ficha no encontrada" })
+                : Ok(updatedReport);
         }
-        catch (Exception ex)
+        catch (ConflictException exception)
         {
-            return BadRequest(new { message = "Error al actualizar la ficha", error = ex.Message });
+            return Conflict(new { message = exception.Message });
         }
     }
 
-
-
-
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<ActionResult> Delete(int id)
     {
         var result = await _reportService.DeleteAsync(id);
-        if (!result)
-            return NotFound(new { message = "Ficha no encontrada" });
-
-        return Ok(new { message = "Ficha eliminada correctamente" });
+        return result
+            ? Ok(new { message = "Ficha eliminada correctamente" })
+            : NotFound(new { message = "Ficha no encontrada" });
     }
-
-
-
 
     [HttpGet("buscar")]
-    public async Task<ActionResult<List<FichaResponseDto>>> Search([FromQuery] string criteria)
+    public async Task<ActionResult<List<FichaResponseDto>>> Search([FromQuery] string? criteria)
     {
-        var reports = await _reportService.SearchAsync(criteria);
-        return Ok(reports);
+        if (criteria?.Length > MaximumSearchLength)
+            return BadRequest(new { message = "El criterio de búsqueda es demasiado largo" });
+
+        return Ok(await _reportService.SearchAsync(criteria?.Trim() ?? string.Empty));
     }
-
-
-
 
     [HttpGet("rango-fechas")]
     public async Task<ActionResult<List<FichasTodosDto>>> GetByDateRange(
         [FromQuery] string? startDate,
         [FromQuery] string? endDate)
     {
-        try {
-
-            if (string.IsNullOrWhiteSpace(startDate))
-            {
-                return BadRequest(new { message = "El parámetro 'fechaInicio' es requerido. Use formato: yyyy-MM-dd (ejemplo: 2024-11-01)" });
-            }
-
-            if (string.IsNullOrWhiteSpace(endDate))
-            {
-                return BadRequest(new { message = "El parámetro 'fechaFin' es requerido. Use formato: yyyy-MM-dd (ejemplo: 2024-11-30)" });
-            }
-
-
-            if (!DateTime.TryParse(startDate, out DateTime parsedStartDate))
-            {
-                return BadRequest(new { message = $"Formato de fechaInicio inválido: '{startDate}'. Use formato: yyyy-MM-dd (ejemplo: 2024-11-01)" });
-            }
-
-            if (!DateTime.TryParse(endDate, out DateTime parsedEndDate))
-            {
-                return BadRequest(new { message = $"Formato de fechaFin inválido: '{endDate}'. Use formato: yyyy-MM-dd (ejemplo: 2024-11-30)" });
-            }
-
-            var reports = await _reportService.GetReportsByDateRangeAsync(parsedStartDate, parsedEndDate);
-
-            return Ok(reports);
-        }
-        catch (Exception ex)
+        if (!TryParseDate(startDate, out var parsedStartDate) ||
+            !TryParseDate(endDate, out var parsedEndDate))
         {
-            return BadRequest(new { message = "Error al obtener fichas por rango de fechas", error = ex.Message, stackTrace = ex.StackTrace });
+            return BadRequest(new
+            {
+                message = "Las fechas son obligatorias y deben usar el formato yyyy-MM-dd"
+            });
         }
+
+        if (parsedEndDate < parsedStartDate)
+            return BadRequest(new { message = "La fecha final no puede ser anterior a la inicial" });
+
+        if ((parsedEndDate - parsedStartDate).TotalDays > 366)
+            return BadRequest(new { message = "El rango consultado no puede exceder 366 días" });
+
+        return Ok(await _reportService.GetReportsByDateRangeAsync(
+            parsedStartDate,
+            parsedEndDate));
     }
-
-
-
 
     [HttpGet("dia-actual")]
-    public async Task<ActionResult<List<FichasTodosDto>>> GetForToday()
-    {
-        try
-        {
-            var reports = await _reportService.GetReportsForTodayAsync();
-            return Ok(reports);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener fichas del día", error = ex.Message });
-        }
-    }
-
-
-
+    public async Task<ActionResult<List<FichasTodosDto>>> GetForToday() =>
+        Ok(await _reportService.GetReportsForTodayAsync());
 
     [HttpGet("concluidas")]
-    public async Task<ActionResult<List<FichasTodosDto>>> GetCompleted()
-    {
-        try
-        {
-            var reports = await _reportService.GetCompletedReportsAsync();
-            return Ok(reports);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener fichas concluidas", error = ex.Message });
-        }
-    }
-
-
-
+    public async Task<ActionResult<List<FichasTodosDto>>> GetCompleted() =>
+        Ok(await _reportService.GetCompletedReportsAsync());
 
     [HttpGet("borradores")]
-    public async Task<ActionResult<List<FichasBorradorDto>>> GetDrafts()
-    {
-        try
-        {
-            var drafts = await _reportService.GetDraftsAsync();
-            return Ok(drafts);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener borradores", error = ex.Message });
-        }
-    }
-
-
-
+    public async Task<ActionResult<List<FichasBorradorDto>>> GetDrafts() =>
+        Ok(await _reportService.GetDraftsAsync());
 
     [HttpGet("borradores/buscar")]
-    public async Task<ActionResult<List<FichasBorradorDto>>> SearchDrafts([FromQuery] string criteria)
+    public async Task<ActionResult<List<FichasBorradorDto>>> SearchDrafts(
+        [FromQuery] string? criteria)
     {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(criteria))
-            {
-                var allDrafts = await _reportService.GetDraftsAsync();
-                return Ok(allDrafts);
-            }
+        if (criteria?.Length > MaximumSearchLength)
+            return BadRequest(new { message = "El criterio de búsqueda es demasiado largo" });
 
-            var drafts = await _reportService.SearchDraftsAsync(criteria);
-            return Ok(drafts);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al buscar borradores", error = ex.Message });
-        }
+        if (string.IsNullOrWhiteSpace(criteria))
+            return Ok(await _reportService.GetDraftsAsync());
+
+        return Ok(await _reportService.SearchDraftsAsync(criteria.Trim()));
     }
-
-
-
 
     [HttpGet("estadisticas")]
-    public async Task<ActionResult<FichasEstadisticasDto>> GetStatistics()
-    {
-        try
-        {
-            var statistics = await _reportService.GetStatisticsAsync();
-            return Ok(statistics);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = "Error de validación", error = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Error al obtener estadísticas", error = ex.Message, type = ex.GetType().Name });
-        }
-    }
+    public async Task<ActionResult<FichasEstadisticasDto>> GetStatistics() =>
+        Ok(await _reportService.GetStatisticsAsync());
+
+    private static bool TryParseDate(string? value, out DateTime result) =>
+        DateTime.TryParseExact(
+            value,
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out result);
 }

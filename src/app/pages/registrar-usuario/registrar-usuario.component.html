@@ -89,6 +89,7 @@
             name="contrasena"
             class="form-control"
             autocomplete="new-password"
+            maxlength="64"
             required
           />
           <button
@@ -110,43 +111,17 @@
                   : 'fi fi-rr-cross-small'
               "
             ></i>
-            Mínimo 8 caracteres
+            Mínimo 15 caracteres
           </small>
-          <small [class.valid]="passwordValidation.tieneMayuscula">
+          <small [class.valid]="passwordValidation.validMaximum">
             <i
               [class]="
-                passwordValidation.tieneMayuscula
+                passwordValidation.validMaximum
                   ? 'fi fi-rr-check'
                   : 'fi fi-rr-cross-small'
               "
             ></i>
-            Una mayúscula
-          </small>
-          <small [class.valid]="passwordValidation.tieneMinuscula">
-            <i
-              [class]="
-                passwordValidation.tieneMinuscula
-                  ? 'fi fi-rr-check'
-                  : 'fi fi-rr-cross-small'
-              "
-            ></i>
-            Una minúscula
-          </small>
-          <small [class.valid]="passwordValidation.hasNumber">
-            <i
-              [class]="
-                passwordValidation.hasNumber ? 'fi fi-rr-check' : 'fi fi-rr-cross-small'
-              "
-            ></i>
-            Un número
-          </small>
-          <small [class.valid]="passwordValidation.hasSpecialCharacter">
-            <i
-              [class]="
-                passwordValidation.hasSpecialCharacter ? 'fi fi-rr-check' : 'fi fi-rr-cross-small'
-              "
-            ></i>
-            Un carácter especial
+            Máximo 64 caracteres y 72 bytes
           </small>
         </div>
       </div>
@@ -161,6 +136,7 @@
             name="confirmarContrasena"
             class="form-control"
             autocomplete="new-password"
+            maxlength="64"
             required
           />
           <button

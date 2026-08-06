@@ -60,7 +60,7 @@ interface BorradorMedidasServidor {
   providedIn: 'root',
 })
 export class DespachoService {
-  private apiUrl = 'https://localhost:5001/api/despacho';
+  private readonly apiUrl = 'despacho';
   private measureDrafts = new Map<number, BorradorMedidasDespacho>();
   private readonly draftChangesSubject =
     new BehaviorSubject<CambioBorradorMedidas | null>(null);

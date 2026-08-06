@@ -1,11 +1,26 @@
+using System.ComponentModel.DataAnnotations;
+using Backend.Security;
+
 namespace IRS.API.DTOs;
 
 public class ValidarFichaDespachoDto
 {
+    [Range(1, int.MaxValue)]
     public int ReportId { get; set; }
+
+    [Required]
+    [MinLength(1)]
+    [MaxLength(50)]
     public List<int> SecurityMeasureIds { get; set; } = new List<int>();
+
+    [StringLength(4000)]
     public string Comment { get; set; } = string.Empty;
+
+    [Required]
+    [PngEvidence]
     public string? Evidence { get; set; }
+
+    [System.Text.Json.Serialization.JsonIgnore]
     public int? UserId { get; set; }
 }
 
@@ -42,7 +57,10 @@ public class FichaDronResponseDto
 
 public class GuardarBorradorMedidasDto
 {
+    [MaxLength(50)]
     public List<int> SecurityMeasureIds { get; set; } = new();
+
+    [StringLength(4000)]
     public string Comment { get; set; } = string.Empty;
 }
 

@@ -41,7 +41,7 @@ export interface FichasEstadisticas {
   providedIn: 'root',
 })
 export class EstadisticasService {
-  private apiUrl = 'https://localhost:5001/api/fichas/estadisticas';
+  private readonly apiUrl = 'fichas/estadisticas';
 
   constructor(private api: ApiService) {}
 

@@ -52,7 +52,7 @@ export interface AuditoriaFiltros {
   providedIn: 'root',
 })
 export class AuditoriaService {
-  private readonly apiUrl = 'https://localhost:5001/api/auditoria';
+  private readonly apiUrl = 'auditoria';
 
   constructor(private api: ApiService) {}
 

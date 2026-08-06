@@ -1,133 +1,97 @@
-using Backend.DTOs;
-using Backend.Services;
-using IRS.API.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Backend.DTOs;
+using Backend.Exceptions;
+using IRS.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Backend.Controllers
+namespace Backend.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize(Roles = "ADMIN")]
+public class UsuariosController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize(Roles = "ADMIN")]
-    public class UsuariosController : ControllerBase
+    private readonly IUsuariosService _usersService;
+    private readonly ISesionService _sessionService;
+
+    public UsuariosController(
+        IUsuariosService usersService,
+        ISesionService sessionService)
     {
-        private readonly IUsuariosService _usersService;
+        _usersService = usersService;
+        _sessionService = sessionService;
+    }
 
-        public UsuariosController(IUsuariosService usersService)
+    [HttpGet]
+    public async Task<ActionResult<List<UsuarioDTO>>> GetAllUsers() =>
+        Ok(await _usersService.GetAllUsersAsync());
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<UsuarioDTO>> GetUserById(int id)
+    {
+        var user = await _usersService.GetUserByIdAsync(id);
+        return user == null
+            ? NotFound(new { error = "Usuario no encontrado" })
+            : Ok(user);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<UsuarioDTO>> CreateUser([FromBody] CrearUsuarioDTO userDto)
+    {
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var creatorId))
+            return Unauthorized();
+
+        userDto.CreatorUserId = creatorId;
+        userDto.CreatorIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+        try
         {
-            _usersService = usersService;
+            var user = await _usersService.CreateUserAsync(userDto);
+            HttpContext.Items["AuditoriaEntidadId"] = user.UserId;
+            return CreatedAtAction(nameof(GetUserById), new { id = user.UserId }, user);
         }
-
-
-        [HttpGet]
-        public async Task<ActionResult<List<UsuarioDTO>>> GetAllUsers()
+        catch (ConflictException exception)
         {
-            try
-            {
-                var users = await _usersService.GetAllUsersAsync();
-                return Ok(users);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = "Error al obtener los usuarios", details = ex.Message });
-            }
+            return Conflict(new { error = exception.Message });
         }
+    }
 
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UsuarioDTO>> GetUserById(int id)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] ActualizarUsuarioDTO userDto)
+    {
+        try
         {
-            try
-            {
-                var user = await _usersService.GetUserByIdAsync(id);
+            var result = await _usersService.UpdateUserAsync(id, userDto);
+            if (!result) return NotFound(new { error = "Usuario no encontrado" });
 
-                if (user == null)
-                {
-                    return NotFound(new { error = $"Usuario con ID {id} no encontrado" });
-                }
-
-                return Ok(user);
-            }
-            catch (Exception ex)
+            if (userDto.Password != null || userDto.RoleId.HasValue || userDto.Status.HasValue)
             {
-                return StatusCode(500, new { error = "Error al obtener el usuario", details = ex.Message });
+                await _sessionService.RevokeOtherSessionsAsync(
+                    id,
+                    null,
+                    "Credenciales o permisos modificados por un administrador");
             }
+
+            return Ok(new { message = "Usuario actualizado correctamente" });
         }
-
-
-        [HttpPost]
-        public async Task<ActionResult<UsuarioDTO>> CreateUser([FromBody] CrearUsuarioDTO userDto)
+        catch (ConflictException exception)
         {
-            try
-            {
-                userDto.CreatorUserId = int.Parse(
-                    User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-                if (string.IsNullOrWhiteSpace(userDto.User))
-                {
-                    return BadRequest(new { error = "El campo 'usuario' es requerido" });
-                }
-
-                if (string.IsNullOrWhiteSpace(userDto.Password))
-                {
-                    return BadRequest(new { error = "El campo 'password' es requerido" });
-                }
-
-                var user = await _usersService.CreateUserAsync(userDto);
-                HttpContext.Items["AuditoriaEntidadId"] = user.UserId;
-                return CreatedAtAction(nameof(GetUserById), new { id = user.UserId }, user);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(new { error = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = "Error al crear el usuario", details = ex.Message });
-            }
+            return Conflict(new { error = exception.Message });
         }
+    }
 
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var result = await _usersService.DeleteUserAsync(id);
+        if (!result) return NotFound(new { error = "Usuario no encontrado" });
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] ActualizarUsuarioDTO userDto)
-        {
-            try
-            {
-                var result = await _usersService.UpdateUserAsync(id, userDto);
+        await _sessionService.RevokeOtherSessionsAsync(
+            id,
+            null,
+            "Usuario desactivado por un administrador");
 
-                if (!result)
-                {
-                    return NotFound(new { error = $"Usuario con ID {id} no encontrado" });
-                }
-
-                return Ok(new { message = "Usuario actualizado correctamente" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = "Error al actualizar el usuario", details = ex.Message });
-            }
-        }
-
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            try
-            {
-                var result = await _usersService.DeleteUserAsync(id);
-
-                if (!result)
-                {
-                    return NotFound(new { error = $"Usuario con ID {id} no encontrado" });
-                }
-
-                return Ok(new { message = "Usuario eliminado correctamente" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = "Error al eliminar el usuario", details = ex.Message });
-            }
-        }
+        return Ok(new { message = "Usuario eliminado correctamente" });
     }
 }

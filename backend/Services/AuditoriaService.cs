@@ -34,18 +34,18 @@ namespace Backend.Services
             var auditEvent = new AuditoriaEvento
             {
                 UserId = user?.UserId,
-                User = user?.Username ?? entry.FallbackUser ?? "ANONIMO",
-                FullName = string.IsNullOrWhiteSpace(fullName) ? null : fullName,
-                Role = user?.Role?.RoleName,
-                Action = entry.Action,
-                Module = entry.Module,
-                Description = entry.Description,
-                HttpMethod = entry.HttpMethod,
-                Path = entry.Path,
-                Entity = entry.Entity,
-                EntityId = entry.EntityId,
-                IpAddress = entry.IpAddress,
-                UserAgent = entry.UserAgent,
+                User = Sanitize(user?.Username ?? entry.FallbackUser, 100) ?? "ANONIMO",
+                FullName = Sanitize(fullName, 300),
+                Role = Sanitize(user?.Role?.RoleName, 100),
+                Action = Sanitize(entry.Action, 100) ?? "PETICION_API",
+                Module = Sanitize(entry.Module, 100) ?? "SISTEMA",
+                Description = Sanitize(entry.Description, 600) ?? "Evento de auditoría",
+                HttpMethod = Sanitize(entry.HttpMethod, 10),
+                Path = Sanitize(entry.Path, 500),
+                Entity = Sanitize(entry.Entity, 100),
+                EntityId = Sanitize(entry.EntityId, 100),
+                IpAddress = Sanitize(entry.IpAddress, 64),
+                UserAgent = Sanitize(entry.UserAgent, 500),
                 StatusCode = entry.StatusCode,
                 Successful = entry.Successful,
                 DateTime = DateTimeOffset.UtcNow,
@@ -64,13 +64,13 @@ namespace Backend.Services
 
             if (!string.IsNullOrWhiteSpace(filters.Search))
             {
-                var term = $"%{filters.Search.Trim()}%";
+                var term = $"%{EscapeLikePattern(filters.Search.Trim())}%";
                 query = query.Where(e =>
-                    EF.Functions.ILike(e.User, term) ||
-                    (e.FullName != null && EF.Functions.ILike(e.FullName, term)) ||
-                    EF.Functions.ILike(e.Description, term) ||
-                    EF.Functions.ILike(e.Action, term) ||
-                    EF.Functions.ILike(e.Module, term));
+                    EF.Functions.ILike(e.User, term, "\\") ||
+                    (e.FullName != null && EF.Functions.ILike(e.FullName, term, "\\")) ||
+                    EF.Functions.ILike(e.Description, term, "\\") ||
+                    EF.Functions.ILike(e.Action, term, "\\") ||
+                    EF.Functions.ILike(e.Module, term, "\\"));
             }
 
             if (filters.UserId.HasValue)
@@ -139,6 +139,26 @@ namespace Backend.Services
                 PageSize = pageSize,
                 TotalPages = total == 0 ? 0 : (int)Math.Ceiling(total / (double)pageSize)
             };
+        }
+
+        private static string EscapeLikePattern(string value) => value
+            .Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("%", "\\%", StringComparison.Ordinal)
+            .Replace("_", "\\_", StringComparison.Ordinal);
+
+        private static string? Sanitize(string? value, int maximumLength)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return null;
+
+            var sanitized = new string(value
+                .Where(character => !char.IsControl(character))
+                .ToArray())
+                .Trim();
+            if (sanitized.Length == 0) return null;
+
+            return sanitized.Length <= maximumLength
+                ? sanitized
+                : sanitized[..maximumLength];
         }
 
     }

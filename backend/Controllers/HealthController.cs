@@ -1,139 +1,92 @@
 using IRS.API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 
 namespace IRS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[AllowAnonymous]
+[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public class HealthController : ControllerBase
 {
     private readonly IRSDbContext _context;
+    private readonly ILogger<HealthController> _logger;
 
-    public HealthController(IRSDbContext context)
+    public HealthController(IRSDbContext context, ILogger<HealthController> logger)
     {
         _context = context;
+        _logger = logger;
     }
-
-
-
 
     [HttpGet]
-    public IActionResult Get()
+    [AllowAnonymous]
+    public IActionResult Get() => Ok(new
     {
-        return Ok(new
-        {
-            status = "API funcionando correctamente",
-            timestamp = DateTime.Now
-        });
-    }
-
-
-
+        status = "healthy",
+        timestamp = DateTimeOffset.UtcNow
+    });
 
     [HttpGet("database")]
-    public async Task<IActionResult> CheckDatabase()
+    [Authorize(Roles = "ADMIN")]
+    public async Task<IActionResult> CheckDatabase(CancellationToken cancellationToken)
     {
         try
         {
-
-            var connectionString = _context.Database.GetConnectionString();
-
-
-            var canConnect = await _context.Database.CanConnectAsync();
-
+            var canConnect = await _context.Database.CanConnectAsync(cancellationToken);
             if (!canConnect)
             {
-                return StatusCode(500, new
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, new
                 {
-                    status = "error",
-                    message = "No se pudo conectar a la base de datos PostgreSQL",
-                    connectionString = connectionString?.Replace("Password=Ee609625574", "Password=***"),
-                    timestamp = DateTime.Now
+                    status = "unhealthy",
+                    timestamp = DateTimeOffset.UtcNow
                 });
             }
 
-
-            int reportCount = 0;
-            string querySuccessful = "No";
-            try
-            {
-                reportCount = await _context.Reports.CountAsync();
-                querySuccessful = "Sí";
-            }
-            catch (Exception ex)
-            {
-                querySuccessful = $"Error: {ex.Message}";
-            }
-
-
-            var tableStatus = new
-            {
-                reports = reportCount,
-                querySuccessful = querySuccessful
-            };
-
             return Ok(new
             {
-                status = "success",
-                message = "Conexión exitosa a la base de datos",
-                database = connectionString?.Split(';').FirstOrDefault(x => x.Contains("Database"))?.Split('=').LastOrDefault(),
-                tables = tableStatus,
-                timestamp = DateTime.Now
+                status = "healthy",
+                timestamp = DateTimeOffset.UtcNow
             });
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return StatusCode(500, new
+            _logger.LogError(exception, "Falló la comprobación de salud de la base de datos");
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new
             {
-                status = "error",
-                message = "Error al conectar con la base de datos",
-                error = ex.Message,
-                innerError = ex.InnerException?.Message,
-                stackTrace = ex.StackTrace,
-                timestamp = DateTime.Now
+                status = "unhealthy",
+                timestamp = DateTimeOffset.UtcNow
             });
         }
     }
 
-
-
-
     [HttpGet("tables")]
-    public async Task<IActionResult> CheckTables()
+    [Authorize(Roles = "ADMIN")]
+    public async Task<IActionResult> CheckTables(CancellationToken cancellationToken)
     {
         try
         {
-            var tables = new List<object>();
-
-
-            try
-            {
-                var reportCount = await _context.Reports.CountAsync();
-                tables.Add(new { table = "ficha", records = reportCount, exists = true });
-            }
-            catch (Exception ex)
-            {
-                tables.Add(new { table = "ficha", records = 0, exists = false, error = ex.Message });
-            }
+            var reportCount = await _context.Reports
+                .AsNoTracking()
+                .CountAsync(cancellationToken);
 
             return Ok(new
             {
-                status = "success",
-                tables,
-                timestamp = DateTime.Now
+                status = "healthy",
+                tables = new[]
+                {
+                    new { table = "ficha", records = reportCount, exists = true }
+                },
+                timestamp = DateTimeOffset.UtcNow
             });
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return StatusCode(500, new
+            _logger.LogError(exception, "Falló la comprobación de tablas");
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new
             {
-                status = "error",
-                message = "Error al verificar tablas",
-                error = ex.Message,
-                timestamp = DateTime.Now
+                status = "unhealthy",
+                timestamp = DateTimeOffset.UtcNow
             });
         }
     }

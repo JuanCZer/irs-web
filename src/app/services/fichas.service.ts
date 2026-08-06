@@ -113,7 +113,7 @@ export interface FichaInformativaDTO {
   providedIn: 'root',
 })
 export class FichasService {
-  private apiUrl = 'https://localhost:5001/api/fichas';
+  private readonly apiUrl = 'fichas';
 
   constructor(private api: ApiService) {}
 

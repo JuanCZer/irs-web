@@ -40,8 +40,8 @@ namespace Backend.Services
                 StartDate = now,
                 ExpirationDate = expiration,
                 LastAccessDate = now,
-                IpAddress = ipAddress,
-                UserAgent = userAgent,
+                IpAddress = Sanitize(ipAddress, 64),
+                UserAgent = Sanitize(userAgent, 500),
                 Revoked = false
             });
 
@@ -53,6 +53,7 @@ namespace Backend.Services
                 new(ClaimTypes.Name, user.User),
                 new(ClaimTypes.Role, user.RoleName?.ToUpperInvariant() ?? "SIN_ROL"),
                 new(JwtRegisteredClaimNames.Jti, jti),
+                new(JwtRegisteredClaimNames.Iat, now.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
                 new("sid", sessionId.ToString())
             };
 
@@ -114,7 +115,7 @@ namespace Backend.Services
 
             session.Revoked = true;
             session.RevocationDate = DateTimeOffset.UtcNow;
-            session.RevocationReason = reason;
+            session.RevocationReason = Sanitize(reason, 250);
             await _context.SaveChangesAsync();
         }
 
@@ -137,10 +138,25 @@ namespace Backend.Services
             {
                 session.Revoked = true;
                 session.RevocationDate = now;
-                session.RevocationReason = reason;
+                session.RevocationReason = Sanitize(reason, 250);
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        private static string? Sanitize(string? value, int maximumLength)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return null;
+
+            var sanitized = new string(value
+                .Where(character => !char.IsControl(character))
+                .ToArray())
+                .Trim();
+            if (sanitized.Length == 0) return null;
+
+            return sanitized.Length <= maximumLength
+                ? sanitized
+                : sanitized[..maximumLength];
         }
     }
 }

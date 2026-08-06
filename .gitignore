@@ -42,3 +42,9 @@ testem.log
 Thumbs.db
 
 src/app/environment/environment.local.ts
+
+# Local secrets and environment overrides
+.env
+.env.*
+!.env.example
+backend/appsettings.*.local.json

@@ -28,7 +28,7 @@ describe('DronesService', () => {
             headers: { 'Content-Type': 'application/json' },
           }),
         ),
-    } as ApiService;
+    } as unknown as ApiService;
     const dispatchService = new DespachoService({} as ApiService);
     const service = new DronesService(api, dispatchService);
 
@@ -48,7 +48,7 @@ describe('DronesService', () => {
             headers: { 'Content-Type': 'application/json' },
           }),
         ),
-    } as ApiService;
+    } as unknown as ApiService;
     const dispatchService = new DespachoService({} as ApiService);
     dispatchService.saveMeasuresDraft(25, {
       measures: [7],
@@ -90,7 +90,7 @@ describe('DronesService', () => {
             },
           ),
         ),
-    } as ApiService;
+    } as unknown as ApiService;
     const dispatchService = new DespachoService({} as ApiService);
     dispatchService.saveMeasuresDraft(26, {
       measures: [1],

@@ -50,7 +50,7 @@ export interface CatMedidaSeguridad {
   providedIn: 'root',
 })
 export class CatalogosService {
-  private apiUrl = 'https://localhost:5001/api/catalogos';
+  private readonly apiUrl = 'catalogos';
 
   constructor(private api: ApiService) {}
 

@@ -2,6 +2,7 @@ using IRS.API.Data;
 using IRS.API.Interfaces;
 using IRS.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Backend.Exceptions;
 
 namespace IRS.API.Services;
 
@@ -17,14 +18,53 @@ public class DispatchService : IDespachoService
         _context = context;
     }
 
-    public async Task<DispatchReport> CreateDispatchReportAsync(DispatchReport dispatchReport)
+    public async Task<List<DispatchReport>> CreateDispatchReportsAsync(
+        int reportId,
+        IReadOnlyCollection<int> securityMeasureIds,
+        string comment,
+        string evidence,
+        int userId)
     {
-        dispatchReport.ValidationDate = DateTime.UtcNow;
+        var reportExists = await _context.Reports
+            .AsNoTracking()
+            .AnyAsync(report => report.Id == reportId && report.Active != 0);
+        if (!reportExists)
+            throw new RequestValidationException("La ficha indicada no existe o no está activa");
 
-        _context.DispatchReports.Add(dispatchReport);
+        var requestedIds = securityMeasureIds
+            .Where(measureId => measureId > 0)
+            .Distinct()
+            .ToArray();
+        var measures = await _context.SecurityMeasures
+            .Where(measure => requestedIds.Contains(measure.MeasureCategoryId))
+            .ToDictionaryAsync(measure => measure.MeasureCategoryId);
+        if (requestedIds.Length == 0 || measures.Count != requestedIds.Length)
+            throw new RequestValidationException("Una o más medidas de seguridad no son válidas");
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        var validationDate = DateTime.UtcNow;
+        var dispatchReports = requestedIds.Select(measureId => new DispatchReport
+        {
+            ReportId = reportId,
+            MeasureCategoryId = measureId,
+            Comment = comment,
+            Evidence = evidence,
+            UserId = userId,
+            ValidationDate = validationDate,
+            SecurityMeasure = measures[measureId]
+        }).ToList();
+
+        _context.DispatchReports.AddRange(dispatchReports);
+
+        var draft = await _context.DispatchMeasureDrafts
+            .FirstOrDefaultAsync(item => item.ReportId == reportId && item.UserId == userId);
+        if (draft != null)
+            _context.DispatchMeasureDrafts.Remove(draft);
+
         await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
-        return dispatchReport;
+        return dispatchReports;
     }
 
     public async Task<List<DispatchReport>> GetByReportIdAsync(int reportId)
@@ -36,15 +76,6 @@ public class DispatchService : IDespachoService
             .Where(fd => fd.ReportId == reportId)
             .OrderByDescending(fd => fd.ValidationDate)
             .ToListAsync();
-    }
-
-    public async Task<DispatchReport?> GetByIdAsync(int dispatchReportId)
-    {
-        return await _context.DispatchReports
-            .Include(fd => fd.InformationReport)
-            .Include(fd => fd.SecurityMeasure)
-            .Include(fd => fd.User)
-            .FirstOrDefaultAsync(fd => fd.DispatchReportId == dispatchReportId);
     }
 
     public async Task<List<DispatchReport>> GetDroneReportsAsync()
@@ -142,14 +173,4 @@ public class DispatchService : IDespachoService
         return draft;
     }
 
-    public async Task DeleteMeasureDraftAsync(int reportId, int userId)
-    {
-        var draft = await _context.DispatchMeasureDrafts
-            .FirstOrDefaultAsync(item =>
-                item.ReportId == reportId && item.UserId == userId);
-        if (draft == null) return;
-
-        _context.DispatchMeasureDrafts.Remove(draft);
-        await _context.SaveChangesAsync();
-    }
 }

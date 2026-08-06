@@ -63,6 +63,43 @@
         <form (ngSubmit)="changePassword()" class="password-form">
 
           <div class="form-group">
+            <label for="passwordActual">
+              <i class="fi fi-rr-lock"></i>
+              Contraseña actual
+            </label>
+            <div class="input-wrapper">
+              <input
+                [type]="showCurrentPassword ? 'text' : 'password'"
+                id="passwordActual"
+                class="form-control"
+                [(ngModel)]="passwordChange.currentPassword"
+                name="passwordActual"
+                autocomplete="current-password"
+                maxlength="128"
+                placeholder="Ingresa tu contraseña actual"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="togglePassword('actual')"
+                [attr.aria-label]="
+                  showCurrentPassword
+                    ? 'Ocultar contraseña actual'
+                    : 'Mostrar contraseña actual'
+                "
+                [attr.aria-pressed]="showCurrentPassword"
+              >
+                <i
+                  [class]="
+                    showCurrentPassword ? 'fi fi-rr-eye-crossed' : 'fi fi-rr-eye'
+                  "
+                ></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
             <label for="passwordNueva">
               <i class="fi fi-rr-key"></i>
               Nueva Contraseña
@@ -74,6 +111,8 @@
                 class="form-control"
                 [(ngModel)]="passwordChange.newPassword"
                 name="passwordNueva"
+                autocomplete="new-password"
+                maxlength="64"
                 placeholder="Ingresa tu nueva contraseña"
                 required
               />
@@ -111,47 +150,17 @@
                         : 'fi fi-rr-circle-xmark'
                     "
                   ></i>
-                  Mínimo 8 caracteres
+                  Mínimo 15 caracteres
                 </li>
-                <li [class.valid]="passwordValidation.tieneMayuscula">
+                <li [class.valid]="passwordValidation.validMaximum">
                   <i
                     [class]="
-                      passwordValidation.tieneMayuscula
+                      passwordValidation.validMaximum
                         ? 'fi fi-rr-check-circle'
                         : 'fi fi-rr-circle-xmark'
                     "
                   ></i>
-                  Al menos una mayúscula
-                </li>
-                <li [class.valid]="passwordValidation.tieneMinuscula">
-                  <i
-                    [class]="
-                      passwordValidation.tieneMinuscula
-                        ? 'fi fi-rr-check-circle'
-                        : 'fi fi-rr-circle-xmark'
-                    "
-                  ></i>
-                  Al menos una minúscula
-                </li>
-                <li [class.valid]="passwordValidation.hasNumber">
-                  <i
-                    [class]="
-                      passwordValidation.hasNumber
-                        ? 'fi fi-rr-check-circle'
-                        : 'fi fi-rr-circle-xmark'
-                    "
-                  ></i>
-                  Al menos un número
-                </li>
-                <li [class.valid]="passwordValidation.hasSpecialCharacter">
-                  <i
-                    [class]="
-                      passwordValidation.hasSpecialCharacter
-                        ? 'fi fi-rr-check-circle'
-                        : 'fi fi-rr-circle-xmark'
-                    "
-                  ></i>
-                  Al menos un carácter especial (!&#64;#$%^&amp;*)
+                  Máximo 64 caracteres y 72 bytes
                 </li>
               </ul>
             </div>
@@ -170,6 +179,8 @@
                 class="form-control"
                 [(ngModel)]="passwordChange.confirmPassword"
                 name="passwordConfirmar"
+                autocomplete="new-password"
+                maxlength="64"
                 placeholder="Confirma tu nueva contraseña"
                 required
               />

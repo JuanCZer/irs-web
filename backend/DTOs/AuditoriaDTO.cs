@@ -1,15 +1,26 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Backend.DTOs
 {
     public class AuditoriaConsultaDTO
     {
+        [StringLength(200)]
         public string? Search { get; set; }
         public int? UserId { get; set; }
+
+        [StringLength(100)]
         public string? Module { get; set; }
+
+        [StringLength(100)]
         public string? Action { get; set; }
         public bool? Successful { get; set; }
         public DateTimeOffset? StartDate { get; set; }
         public DateTimeOffset? EndDate { get; set; }
+
+        [Range(1, int.MaxValue)]
         public int Page { get; set; } = 1;
+
+        [Range(1, 100)]
         public int PageSize { get; set; } = 25;
     }
 
@@ -53,6 +64,8 @@ namespace Backend.DTOs
 
     public class RegistrarEventoAuditoriaDTO
     {
+        [Required]
+        [StringLength(500)]
         public string Path { get; set; } = string.Empty;
     }
 

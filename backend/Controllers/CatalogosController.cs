@@ -10,161 +10,44 @@ public class CatalogosController : ControllerBase
 {
     private readonly ICatalogosService _catalogService;
 
-    public CatalogosController(ICatalogosService catalogsService)
+    public CatalogosController(ICatalogosService catalogService)
     {
-        _catalogService = catalogsService;
+        _catalogService = catalogService;
     }
-
-
-
 
     [HttpGet("sectores")]
-    public async Task<ActionResult<List<SectorCategory>>> GetSectors()
-    {
-        try
-        {
-            var sectors = await _catalogService.GetSectorsAsync();
-            return Ok(sectors);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener sectores", error = ex.Message });
-        }
-    }
-
-
-
+    public async Task<ActionResult<List<SectorCategory>>> GetSectors() =>
+        Ok(await _catalogService.GetSectorsAsync());
 
     [HttpGet("subsectores")]
-    public async Task<ActionResult<List<CatSubsector>>> GetSubsectors()
-    {
-        try
-        {
-            var subsectors = await _catalogService.GetSubsectorsAsync();
-            return Ok(subsectors);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener subsectores", error = ex.Message });
-        }
-    }
+    public async Task<ActionResult<List<CatSubsector>>> GetSubsectors() =>
+        Ok(await _catalogService.GetSubsectorsAsync());
 
-
-
-
-    [HttpGet("subsectores/sector/{sectorId}")]
-    public async Task<ActionResult<List<CatSubsector>>> GetSubsectorsBySector(int sectorId)
-    {
-        try
-        {
-            var subsectors = await _catalogService.GetSubsectorsBySectorAsync(sectorId);
-            return Ok(subsectors);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener subsectores", error = ex.Message });
-        }
-    }
-
-
-
+    [HttpGet("subsectores/sector/{sectorId:int}")]
+    public async Task<ActionResult<List<CatSubsector>>> GetSubsectorsBySector(int sectorId) =>
+        Ok(await _catalogService.GetSubsectorsBySectorAsync(sectorId));
 
     [HttpGet("prioridades")]
-    public async Task<ActionResult<List<CatPrioridad>>> GetPriorities()
-    {
-        try
-        {
-            var priorities = await _catalogService.GetPrioritiesAsync();
-            return Ok(priorities);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener prioridades", error = ex.Message });
-        }
-    }
-
-
-
+    public async Task<ActionResult<List<CatPrioridad>>> GetPriorities() =>
+        Ok(await _catalogService.GetPrioritiesAsync());
 
     [HttpGet("condiciones")]
-    public async Task<ActionResult<List<CatCondicion>>> GetConditions()
-    {
-        try
-        {
-            var conditions = await _catalogService.GetConditionsAsync();
-            return Ok(conditions);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener condiciones", error = ex.Message });
-        }
-    }
-
-
-
+    public async Task<ActionResult<List<CatCondicion>>> GetConditions() =>
+        Ok(await _catalogService.GetConditionsAsync());
 
     [HttpGet("informaciones")]
-    public async Task<ActionResult<List<CatInformacion>>> GetInformationItems()
-    {
-        try
-        {
-            var informationItems = await _catalogService.GetInformationItemsAsync();
-            return Ok(informationItems);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener informaciones", error = ex.Message });
-        }
-    }
-
-
-
+    public async Task<ActionResult<List<CatInformacion>>> GetInformationItems() =>
+        Ok(await _catalogService.GetInformationItemsAsync());
 
     [HttpGet("municipios")]
-    public async Task<ActionResult<List<CatMunicipio>>> GetMunicipalities()
-    {
-        try
-        {
-            var municipalities = await _catalogService.GetMunicipalitiesAsync();
-            return Ok(municipalities);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener municipios", error = ex.Message });
-        }
-    }
-
-
-
+    public async Task<ActionResult<List<CatMunicipio>>> GetMunicipalities() =>
+        Ok(await _catalogService.GetMunicipalitiesAsync());
 
     [HttpGet("delegaciones")]
-    public async Task<ActionResult<List<CatDelegacion>>> GetDelegations()
-    {
-        try
-        {
-            var delegations = await _catalogService.GetDelegationsAsync();
-            return Ok(delegations);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener delegaciones", error = ex.Message });
-        }
-    }
-
-
-
+    public async Task<ActionResult<List<CatDelegacion>>> GetDelegations() =>
+        Ok(await _catalogService.GetDelegationsAsync());
 
     [HttpGet("medidas-seguridad")]
-    public async Task<ActionResult<List<CatMedidaSeguridad>>> GetSecurityMeasures()
-    {
-        try
-        {
-            var measures = await _catalogService.GetSecurityMeasuresAsync();
-            return Ok(measures);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = "Error al obtener medidas de seguridad", error = ex.Message });
-        }
-    }
+    public async Task<ActionResult<List<CatMedidaSeguridad>>> GetSecurityMeasures() =>
+        Ok(await _catalogService.GetSecurityMeasuresAsync());
 }

@@ -4,6 +4,7 @@ using IRS.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Backend.DTOs;
 using IRS.API.Interfaces;
+using Backend.Exceptions;
 
 namespace IRS.API.Services;
 
@@ -213,18 +214,14 @@ public class ReportService : IFichaService
         return await _context.Reports.FindAsync(id);
     }
 
-    public async Task<FichaInformativa> CreateAsync(FichaInformativa report, string user)
+    public async Task<FichaInformativa> CreateAsync(FichaInformativa report, string _)
     {
+        if (!report.UserId.HasValue || report.UserId.Value <= 0)
+            throw new InvalidOperationException("No fue posible identificar al usuario que crea la ficha");
 
-        int.TryParse(user, out var userId);
-        if (userId == 0) userId = 1;
-
-
-        if (report.UserId == null || report.UserId == 0)
-            report.UserId = userId;
-
-        if (report.CreationDate == null)
-            report.CreationDate = DateTime.UtcNow;
+        report.Id = 0;
+        report.CreationDate = DateTime.UtcNow;
+        report.ValidationDate = report.Active == 3 ? DateTime.UtcNow : null;
 
         _context.Reports.Add(report);
         await _context.SaveChangesAsync();
@@ -236,6 +233,9 @@ public class ReportService : IFichaService
     {
         var existingReport = await _context.Reports.FindAsync(id);
         if (existingReport == null) return null;
+
+        if (existingReport.Active != 2 || report.Active is not (2 or 3))
+            throw new ConflictException("La ficha ya no admite modificaciones");
 
 
         existingReport.CertificateNumber = report.CertificateNumber;
@@ -251,7 +251,6 @@ public class ReportService : IFichaService
         existingReport.EventEndTime = report.EventEndTime;
         existingReport.EventDate = report.EventDate;
         existingReport.AttendeeCount = report.AttendeeCount;
-        existingReport.CreationDate = report.CreationDate;
         existingReport.CreationTime = report.CreationTime;
         existingReport.Priority = report.Priority;
         existingReport.Condition = report.Condition;
@@ -260,17 +259,16 @@ public class ReportService : IFichaService
         existingReport.Facts = report.Facts;
         existingReport.Agreements = report.Agreements;
         existingReport.ReporterId = report.ReporterId;
-        existingReport.UserId = report.UserId;
         existingReport.AuthorizerId = report.AuthorizerId;
         existingReport.ReceptionDate = report.ReceptionDate;
         existingReport.ReceptionTime = report.ReceptionTime;
         existingReport.CurrentStatusId = report.CurrentStatusId;
         existingReport.CancellationReason = report.CancellationReason;
         existingReport.Active = report.Active;
-        existingReport.InternalReference = report.InternalReference;
         existingReport.Seen = report.Seen;
         existingReport.PreviousReportId = report.PreviousReportId;
-        existingReport.ValidationDate = report.ValidationDate;
+        if (report.Active == 3 && !existingReport.ValidationDate.HasValue)
+            existingReport.ValidationDate = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
         return existingReport;
@@ -279,9 +277,9 @@ public class ReportService : IFichaService
     public async Task<bool> DeleteAsync(int id)
     {
         var report = await _context.Reports.FindAsync(id);
-        if (report == null) return false;
+        if (report == null || report.Active != 2) return false;
 
-        _context.Reports.Remove(report);
+        report.Active = 0;
         await _context.SaveChangesAsync();
 
         return true;

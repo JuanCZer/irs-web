@@ -59,7 +59,7 @@ export interface DroneRecord {
 
 @Injectable({ providedIn: 'root' })
 export class DronesService {
-  private readonly apiUrl = 'https://localhost:5001/api/despacho/drones';
+  private readonly apiUrl = 'despacho/drones';
   syncWarning = '';
 
   constructor(

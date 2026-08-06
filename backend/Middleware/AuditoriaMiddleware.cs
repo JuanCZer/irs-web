@@ -2,23 +2,23 @@ using System.Diagnostics;
 using System.Security.Claims;
 using System.Text.Json;
 using Backend.DTOs;
-using IRS.API.Interfaces;
+using Backend.Services;
 
 namespace Backend.Middleware
 {
     public class AuditoriaMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IAuditQueue _auditQueue;
         private readonly ILogger<AuditoriaMiddleware> _logger;
 
         public AuditoriaMiddleware(
             RequestDelegate next,
-            IServiceScopeFactory scopeFactory,
+            IAuditQueue auditQueue,
             ILogger<AuditoriaMiddleware> logger)
         {
             _next = next;
-            _scopeFactory = scopeFactory;
+            _auditQueue = auditQueue;
             _logger = logger;
         }
 
@@ -52,7 +52,7 @@ namespace Backend.Middleware
                 stopwatch.Stop();
                 if (!skipAutomaticLogging)
                 {
-                    await LogRequestAsync(
+                    QueueRequest(
                         context,
                         path,
                         stopwatch.ElapsedMilliseconds,
@@ -61,7 +61,7 @@ namespace Backend.Middleware
             }
         }
 
-        private async Task LogRequestAsync(
+        private void QueueRequest(
             HttpContext context,
             string path,
             long durationMs,
@@ -86,29 +86,40 @@ namespace Backend.Middleware
                     ? classification.Description
                     : $"{classification.Description} (resultado no exitoso: HTTP {state})";
 
-                using var scope = _scopeFactory.CreateScope();
-                var service = scope.ServiceProvider.GetRequiredService<IAuditoriaService>();
-                await service.LogAsync(userId, new RegistroAuditoriaDTO
-                {
-                    Action = classification.Action,
-                    Module = classification.Module,
-                    Description = description,
-                    HttpMethod = context.Request.Method,
-                    Path = Limit(path, 500),
-                    Entity = classification.Entity,
-                    EntityId = entityId,
-                    IpAddress = Limit(context.Connection.RemoteIpAddress?.ToString(), 64),
-                    UserAgent = Limit(context.Request.Headers.UserAgent.ToString(), 500),
-                    StatusCode = state,
-                    Successful = successful,
-                    FallbackUser = context.Items["AuditoriaUsuarioNombre"]?.ToString(),
-                    Details = JsonSerializer.Serialize(new
+                var queued = _auditQueue.TryQueue(new AuditQueueItem(
+                    userId,
+                    new RegistroAuditoriaDTO
                     {
-                        query = context.Request.QueryString.Value,
-                        durationMs,
-                        error = unhandledError?.GetType().Name
-                    })
-                });
+                        Action = classification.Action,
+                        Module = classification.Module,
+                        Description = description,
+                        HttpMethod = context.Request.Method,
+                        Path = Limit(path, 500),
+                        Entity = classification.Entity,
+                        EntityId = entityId,
+                        IpAddress = Limit(context.Connection.RemoteIpAddress?.ToString(), 64),
+                        UserAgent = Limit(context.Request.Headers.UserAgent.ToString(), 500),
+                        StatusCode = state,
+                        Successful = successful,
+                        FallbackUser = Limit(context.Items["AuditoriaUsuarioNombre"]?.ToString(), 100),
+                        Details = JsonSerializer.Serialize(new
+                        {
+                            queryKeys = context.Request.Query.Keys
+                                .Take(25)
+                                .Select(key => Limit(key, 100))
+                                .ToArray(),
+                            durationMs,
+                            error = unhandledError?.GetType().Name
+                        })
+                    }));
+
+                if (!queued)
+                {
+                    _logger.LogWarning(
+                        "La cola de auditoría alcanzó su capacidad; se descartó el evento {Method} {Path}",
+                        context.Request.Method,
+                        path);
+                }
             }
             catch (Exception ex)
             {
@@ -192,8 +203,17 @@ namespace Backend.Middleware
 
         private static string? Limit(string? value, int longitude)
         {
-            if (string.IsNullOrEmpty(value)) return value;
-            return value.Length <= longitude ? value : value[..longitude];
+            if (string.IsNullOrWhiteSpace(value)) return null;
+
+            var sanitized = new string(value
+                .Where(character => !char.IsControl(character))
+                .ToArray())
+                .Trim();
+            if (sanitized.Length == 0) return null;
+
+            return sanitized.Length <= longitude
+                ? sanitized
+                : sanitized[..longitude];
         }
     }
 }

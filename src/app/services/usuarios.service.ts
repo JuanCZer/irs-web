@@ -46,6 +46,7 @@ export interface CatRol {
 }
 
 export interface CambiarContrasenaDTO {
+  currentPassword: string;
   newPassword: string;
   confirmPassword: string;
 }
@@ -60,8 +61,8 @@ export interface RespuestaCambioContrasenaDTO {
   providedIn: 'root',
 })
 export class UsuariosService {
-  private apiUrl = 'https://localhost:5001/api/usuarios';
-  private rolesApiUrl = 'https://localhost:5001/api/roles';
+  private readonly apiUrl = 'usuarios';
+  private readonly rolesApiUrl = 'roles';
 
   constructor(private api: ApiService) {}
 
@@ -88,10 +89,7 @@ export class UsuariosService {
 
 
       if (error instanceof TypeError) {
-        console.error(
-          '   Verifica que el backend esté corriendo en:',
-          this.rolesApiUrl,
-        );
+        console.error('No fue posible establecer comunicación con la API.');
       }
 
       throw error;
@@ -192,7 +190,7 @@ export class UsuariosService {
   ): Promise<RespuestaCambioContrasenaDTO> {
     try {
       const response = await this.api.fetch(
-        'https://localhost:5001/api/auth/cambiar-contrasena',
+        'auth/cambiar-contrasena',
         {
           method: 'POST',
           headers: {

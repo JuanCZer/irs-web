@@ -68,11 +68,9 @@ export class RegistrarUsuarioComponent implements OnInit {
   get passwordValidation() {
     const password = this.user.password;
     return {
-      minimumLength: password.length >= 8,
-      tieneMayuscula: /[A-Z]/.test(password),
-      tieneMinuscula: /[a-z]/.test(password),
-      hasNumber: /\d/.test(password),
-      hasSpecialCharacter: /[!@#$%^&*(),.?":{}|<>_-]/.test(password),
+      minimumLength: password.length >= 15,
+      validMaximum:
+        password.length <= 64 && new TextEncoder().encode(password).length <= 72,
     };
   }
 
@@ -91,10 +89,7 @@ export class RegistrarUsuarioComponent implements OnInit {
       this.user.user !== '' &&
       this.user.role !== '' &&
       val.minimumLength &&
-      val.tieneMayuscula &&
-      val.tieneMinuscula &&
-      val.hasNumber &&
-      val.hasSpecialCharacter &&
+      val.validMaximum &&
       this.passwordsMatch
     );
   }

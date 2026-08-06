@@ -4,11 +4,14 @@ using IRS.API.DTOs;
 using IRS.API.Interfaces;
 using System.Security.Claims;
 using System.Globalization;
+using Backend.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IRS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "DESPACHO")]
 public class DespachoController : ControllerBase
 {
     private readonly IDespachoService _dispatchService;
@@ -36,50 +39,46 @@ public class DespachoController : ControllerBase
                 return BadRequest(new { message = "Debe seleccionar al menos una medida de seguridad" });
             }
 
-            var createdDispatchReports = new List<FichaDespachoResponseDto>();
+            dto.SecurityMeasureIds = dto.SecurityMeasureIds
+                .Where(measureId => measureId > 0)
+                .Distinct()
+                .ToList();
+            if (dto.SecurityMeasureIds.Count == 0)
+                return BadRequest(new { message = "Las medidas de seguridad no son válidas" });
 
-
-            foreach (var measureId in dto.SecurityMeasureIds)
-            {
-                var dispatchReport = new DispatchReport
+            var dispatchReports = await _dispatchService.CreateDispatchReportsAsync(
+                dto.ReportId,
+                dto.SecurityMeasureIds,
+                dto.Comment,
+                dto.Evidence!,
+                userId);
+            var createdDispatchReports = dispatchReports.Select(fullReport =>
+                new FichaDespachoResponseDto
                 {
-                    ReportId = dto.ReportId,
-                    MeasureCategoryId = measureId,
-                    Comment = dto.Comment,
-                    Evidence = dto.Evidence,
-                    UserId = dto.UserId
-                };
+                    DispatchReportId = fullReport.DispatchReportId,
+                    ReportId = fullReport.ReportId,
+                    MeasureCategoryId = fullReport.MeasureCategoryId,
+                    SecurityMeasure = fullReport.SecurityMeasure?.Measure ?? "",
+                    Comment = fullReport.Comment,
+                    Evidence = fullReport.Evidence,
+                    ValidationDate = fullReport.ValidationDate,
+                    UserId = fullReport.UserId
+                }).ToList();
 
-                var createdReport = await _dispatchService.CreateDispatchReportAsync(dispatchReport);
-
-
-                var fullReport = await _dispatchService.GetByIdAsync(createdReport.DispatchReportId);
-
-                if (fullReport != null)
-                {
-                    createdDispatchReports.Add(new FichaDespachoResponseDto
-                    {
-                        DispatchReportId = fullReport.DispatchReportId,
-                        ReportId = fullReport.ReportId,
-                        MeasureCategoryId = fullReport.MeasureCategoryId,
-                        SecurityMeasure = fullReport.SecurityMeasure?.Measure ?? "",
-                        Comment = fullReport.Comment,
-                        Evidence = fullReport.Evidence,
-                        ValidationDate = fullReport.ValidationDate,
-                        UserId = fullReport.UserId,
-                    });
-                }
-            }
-
-            _logger.LogInformation($"Ficha {dto.ReportId} validada con {dto.SecurityMeasureIds.Count} medidas de seguridad");
-            await _dispatchService.DeleteMeasureDraftAsync(dto.ReportId, userId);
-
+            _logger.LogInformation(
+                "Ficha {ReportId} validada con {MeasureCount} medidas de seguridad",
+                dto.ReportId,
+                dto.SecurityMeasureIds.Count);
             return Ok(createdDispatchReports);
+        }
+        catch (RequestValidationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al validar ficha de despacho");
-            return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
+            return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
 
@@ -106,8 +105,8 @@ public class DespachoController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error al obtener fichas de despacho para ficha {reportId}");
-            return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
+            _logger.LogError(ex, "Error al obtener fichas de despacho para ficha {ReportId}", reportId);
+            return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
 
@@ -160,9 +159,6 @@ public class DespachoController : ControllerBase
     [HttpGet("drones/fichas")]
     public async Task<ActionResult<List<FichaDronResponseDto>>> GetDroneReports()
     {
-        var role = User.FindFirstValue(ClaimTypes.Role);
-        if (!string.Equals(role, "DESPACHO", StringComparison.OrdinalIgnoreCase))
-            return Forbid();
         if (!int.TryParse(
                 User.FindFirstValue(ClaimTypes.NameIdentifier),
                 out var userId))

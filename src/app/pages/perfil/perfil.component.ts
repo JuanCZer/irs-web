@@ -46,11 +46,12 @@ export class PerfilComponent implements OnInit {
 
 
   passwordChange = {
+    currentPassword: '',
     newPassword: '',
     confirmPassword: '',
   };
 
-
+  showCurrentPassword = false;
   showNewPassword = false;
   showPasswordConfirmation = false;
   errorMessage = '';
@@ -61,25 +62,15 @@ export class PerfilComponent implements OnInit {
   get passwordValidation() {
     const password = this.passwordChange.newPassword;
     return {
-      minimumLength: password.length >= 8,
-      tieneMayuscula: /[A-Z]/.test(password),
-      tieneMinuscula: /[a-z]/.test(password),
-      hasNumber: /[0-9]/.test(password),
-      hasSpecialCharacter: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
-        password,
-      ),
+      minimumLength: password.length >= 15,
+      validMaximum:
+        password.length <= 64 && new TextEncoder().encode(password).length <= 72,
     };
   }
 
   get passwordValid(): boolean {
     const val = this.passwordValidation;
-    return (
-      val.minimumLength &&
-      val.tieneMayuscula &&
-      val.tieneMinuscula &&
-      val.hasNumber &&
-      val.hasSpecialCharacter
-    );
+    return val.minimumLength && val.validMaximum;
   }
 
   get passwordsMatch(): boolean {
@@ -90,8 +81,11 @@ export class PerfilComponent implements OnInit {
     );
   }
 
-  togglePassword(field: 'nueva' | 'confirmar'): void {
+  togglePassword(field: 'actual' | 'nueva' | 'confirmar'): void {
     switch (field) {
+      case 'actual':
+        this.showCurrentPassword = !this.showCurrentPassword;
+        break;
       case 'nueva':
         this.showNewPassword = !this.showNewPassword;
         break;
@@ -102,9 +96,11 @@ export class PerfilComponent implements OnInit {
   }
 
   private validatePasswordChange(): string | null {
-    const newValue = (this.passwordChange.newPassword || '').trim();
-    const confirm = (this.passwordChange.confirmPassword || '').trim();
+    const current = this.passwordChange.currentPassword || '';
+    const newValue = this.passwordChange.newPassword || '';
+    const confirm = this.passwordChange.confirmPassword || '';
 
+    if (!current) return 'Debes ingresar tu contraseña actual';
     if (!newValue) return 'Debes ingresar una nueva contraseña';
     if (!this.passwordValid)
       return 'La nueva contraseña no cumple con todos los requisitos de seguridad';
@@ -126,8 +122,9 @@ export class PerfilComponent implements OnInit {
     this.loading = true;
 
     const changedData = {
-      newPassword: (this.passwordChange.newPassword || '').trim(),
-      confirmPassword: (this.passwordChange.confirmPassword || '').trim(),
+      currentPassword: this.passwordChange.currentPassword || '',
+      newPassword: this.passwordChange.newPassword || '',
+      confirmPassword: this.passwordChange.confirmPassword || '',
     };
 
     this.usersService
@@ -138,6 +135,7 @@ export class PerfilComponent implements OnInit {
           this.successMessage = '¡Contraseña cambiada exitosamente!';
 
           this.passwordChange = {
+            currentPassword: '',
             newPassword: '',
             confirmPassword: '',
           };
@@ -161,6 +159,7 @@ export class PerfilComponent implements OnInit {
 
   cancel(): void {
     this.passwordChange = {
+      currentPassword: '',
       newPassword: '',
       confirmPassword: '',
     };
