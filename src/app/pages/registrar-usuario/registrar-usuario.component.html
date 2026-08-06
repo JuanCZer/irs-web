@@ -1,6 +1,13 @@
-<div class="header-section">
-  <h1 class="page-title">Agregar nuevo usuario</h1>
-</div>
+<header class="irs-page-header" aria-labelledby="registrar-usuario-title">
+  <div class="irs-page-header__copy">
+    <p class="irs-page-header__eyebrow">Administración · usuarios</p>
+    <h1 id="registrar-usuario-title">
+      <i class="fi fi-rr-user-add" aria-hidden="true"></i>
+      Agregar nuevo usuario
+    </h1>
+    <p>Registra las credenciales, datos personales y permisos de un nuevo usuario.</p>
+  </div>
+</header>
 
 <div class="registrar-usuario-container">
   <form class="usuario-form" (ngSubmit)="registerUser()" autocomplete="off">

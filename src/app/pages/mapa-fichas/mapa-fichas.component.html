@@ -1,4 +1,23 @@
-<div class="mapa-fichas-container">
+<section class="mapa-page" aria-labelledby="mapa-page-title">
+  <header class="irs-page-header">
+    <div class="irs-page-header__copy">
+      <p class="irs-page-header__eyebrow">Operación · geolocalización</p>
+      <h1 id="mapa-page-title">
+        <i class="fi fi-rr-map-marker" aria-hidden="true"></i>
+        Mapa de fichas
+      </h1>
+      <p>Ubica y consulta geográficamente las fichas registradas en el periodo seleccionado.</p>
+    </div>
+    <div class="irs-page-header__context" aria-label="Resumen de fichas visibles">
+      <i class="fi fi-rr-marker" aria-hidden="true"></i>
+      <span>
+        <strong>{{ visibleReports.length }} fichas visibles</strong>
+        <small>{{ countReportsWithCoordinates() }} con ubicación válida</small>
+      </span>
+    </div>
+  </header>
+
+  <div class="mapa-fichas-container">
 
   <div class="mapa-section">
     <div id="map-container" class="map-container"></div>
@@ -168,3 +187,4 @@
     </div>
   </div>
 </div>
+</section>

@@ -1,15 +1,22 @@
 ﻿<div class="fichas-container">
-  <div class="header">
-    <h2>Registrar ficha informativa</h2>
-    <div class="header-actions">
-      <button type="button" class="btn-borrador" (click)="saveDraft()">
+  <header class="irs-page-header" aria-labelledby="registrar-ficha-title">
+    <div class="irs-page-header__copy">
+      <p class="irs-page-header__eyebrow">Operación · gestión de fichas</p>
+      <h1 id="registrar-ficha-title">
+        <i class="fi fi-rr-add-document" aria-hidden="true"></i>
+        Registrar ficha informativa
+      </h1>
+      <p>Captura la información del suceso y decide si deseas guardarla o validarla.</p>
+    </div>
+    <div class="irs-page-header__actions">
+      <button type="button" class="btn-borrador irs-header-action irs-header-action--secondary" (click)="saveDraft()">
         <i class="fi fi-rr-disk"></i> Guardar como borrador
       </button>
-      <button type="button" class="btn-validar" (click)="saveAndValidate()">
+      <button type="button" class="btn-validar irs-header-action irs-header-action--success" (click)="saveAndValidate()">
         <i class="fi fi-rr-check"></i> Guardar y validar ficha
       </button>
     </div>
-  </div>
+  </header>
 
   <div class="estado-badge">
     <h3>Estado del registro <span class="badge-nuevo">Nuevo</span></h3>

@@ -6,12 +6,12 @@
 @text-muted: #6c757d;
 @border-color: #e0e0e0;
 @teal-color: #3e6f69;
+@transparent: transparent;
 
 .consultar-fichas-container {
-  background: @white;
+  background: @transparent;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  padding: 30px;
   min-height: calc(100vh - 200px);
   .header-section {
     display: flex;
@@ -136,7 +136,7 @@
     }
   }
 
-@import "../../../styles/responsive.less";
+  @import "../../../styles/responsive.less";
   .fichas-table {
     width: 100%;
     border-collapse: collapse;
@@ -334,12 +334,7 @@
     }
   }
 
-
   @media (max-width: 768px) {
-    .consultar-fichas-container {
-      padding: 12px;
-    }
-
     .search-wrapper {
       flex-direction: column;
       gap: 8px;

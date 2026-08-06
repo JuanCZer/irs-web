@@ -1,8 +1,14 @@
 <div class="borradores-container">
-  <div class="header-section">
-    <h1 class="page-title">Borradores de fichas informativas</h1>
-    <p class="subtitle">Fichas guardadas como borrador</p>
-  </div>
+  <header class="irs-page-header" aria-labelledby="borradores-page-title">
+    <div class="irs-page-header__copy">
+      <p class="irs-page-header__eyebrow">Operación · gestión de fichas</p>
+      <h1 id="borradores-page-title">
+        <i class="fi fi-rr-document-circle-wrong" aria-hidden="true"></i>
+        Borradores de fichas informativas
+      </h1>
+      <p>Consulta y retoma las fichas que todavía no han sido validadas.</p>
+    </div>
+  </header>
 
 
   <div class="search-section" *ngIf="!loading && drafts.length > 0">

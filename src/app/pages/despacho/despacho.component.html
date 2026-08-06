@@ -1,13 +1,14 @@
 <div class="despacho-container">
-  <div class="page-header">
-    <h1>
-      <i class="fi fi-rr-briefcase"></i>
-      Despacho - Fichas Concluidas
-    </h1>
-    <p class="subtitle">
-      Gestión de medidas de seguridad para fichas en estado concluido
-    </p>
-  </div>
+  <header class="irs-page-header" aria-labelledby="despacho-page-title">
+    <div class="irs-page-header__copy">
+      <p class="irs-page-header__eyebrow">Despacho · operación</p>
+      <h1 id="despacho-page-title">
+        <i class="fi fi-rr-briefcase" aria-hidden="true"></i>
+        Despacho · fichas concluidas
+      </h1>
+      <p>Gestiona las medidas de seguridad de las fichas en estado concluido.</p>
+    </div>
+  </header>
 
 
   <div *ngIf="error" class="error-message" role="alert">

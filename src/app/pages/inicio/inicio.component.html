@@ -1,17 +1,23 @@
 <div class="home-page">
-  <header class="dashboard-header">
-    <div>
-      <p class="eyebrow">Centro de información</p>
-      <h1>Resumen operativo</h1>
-      <p class="welcome-copy">
+  <header class="irs-page-header" aria-labelledby="inicio-page-title">
+    <div class="irs-page-header__copy">
+      <p class="irs-page-header__eyebrow">Principal · centro de información</p>
+      <h1 id="inicio-page-title">
+        <i class="fi fi-rr-home" aria-hidden="true"></i>
+        Resumen operativo
+      </h1>
+      <p>
         {{ greeting }}, {{ userName }}. Selecciona un módulo para
         continuar.
       </p>
     </div>
 
-    <div class="date-context">
-      <span>Fecha operativa</span>
-      <strong>{{ currentDate }}</strong>
+    <div class="irs-page-header__context" aria-label="Fecha operativa">
+      <i class="fi fi-rr-calendar-day" aria-hidden="true"></i>
+      <span>
+        <strong>Fecha operativa</strong>
+        <small>{{ currentDate }}</small>
+      </span>
     </div>
   </header>
 

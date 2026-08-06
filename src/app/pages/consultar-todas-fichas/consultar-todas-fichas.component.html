@@ -1,18 +1,25 @@
 <div class="consultar-todas-fichas-container">
 
-  <div class="header-section">
-    <h1 class="page-title">Consulta histórica de fichas</h1>
-    <div class="header-actions">
-      <button class="btn-action btn-export" (click)="exportExcel()">
+  <header class="irs-page-header" aria-labelledby="consulta-historica-title">
+    <div class="irs-page-header__copy">
+      <p class="irs-page-header__eyebrow">Consulta · fichas informativas</p>
+      <h1 id="consulta-historica-title">
+        <i class="fi fi-rr-calendar-days" aria-hidden="true"></i>
+        Consulta histórica de fichas
+      </h1>
+      <p>Filtra, consulta y exporta el histórico completo de fichas informativas.</p>
+    </div>
+    <div class="irs-page-header__actions">
+      <button class="btn-action btn-export irs-header-action irs-header-action--secondary" (click)="exportExcel()">
         <i class="fi fi-rr-file-excel"></i>
         Exportar Excel
       </button>
-      <button class="btn-action btn-export" (click)="exportPdf()">
+      <button class="btn-action btn-export irs-header-action irs-header-action--secondary" (click)="exportPdf()">
         <i class="fi fi-rr-file-pdf"></i>
         Exportar PDF
       </button>
     </div>
-  </div>
+  </header>
 
 
   <div class="filters-section">

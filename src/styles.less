@@ -202,6 +202,159 @@ ul {
   min-height: 400px;
   padding: 24px;
 }
+
+// Cabecera institucional compartida entre las páginas del sistema.
+// Su composición replica el patrón visual introducido en Drones.
+.irs-page-header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 24px 26px;
+  color: var(--irs-text);
+  background: var(--irs-surface);
+  border: 1px solid var(--irs-border);
+  border-left: 3px solid var(--irs-brass-500);
+  border-radius: var(--irs-radius);
+  box-shadow: var(--irs-shadow);
+}
+
+.irs-page-header__copy {
+  min-width: 0;
+
+  h1,
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin: 3px 0 6px;
+    color: var(--irs-text);
+    font-size: clamp(1.35rem, 2vw, 1.65rem);
+    font-weight: 680;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+
+    i {
+      flex: 0 0 auto;
+      color: var(--irs-steel-700);
+      font-size: 1.45rem;
+    }
+  }
+
+  > p:not(.irs-page-header__eyebrow) {
+    max-width: 720px;
+    margin: 0;
+    color: var(--irs-text-muted);
+  }
+}
+
+.irs-page-header__eyebrow {
+  margin: 0;
+  color: var(--irs-steel-700);
+  font-size: 0.7rem;
+  font-weight: 720;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.irs-page-header__aside,
+.irs-page-header__actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.irs-page-header__context {
+  display: flex;
+  min-width: 250px;
+  max-width: 340px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  color: var(--irs-text);
+  background: var(--irs-surface-muted);
+  border: 1px solid var(--irs-border);
+  border-radius: 7px;
+
+  > i,
+  .irs-page-header__context-icon {
+    display: grid;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    color: var(--irs-steel-700);
+    background: var(--irs-accent-soft);
+    border-radius: 50%;
+  }
+
+  strong,
+  small {
+    display: block;
+  }
+
+  strong {
+    font-size: 0.82rem;
+  }
+
+  small {
+    margin-top: 2px;
+    color: var(--irs-text-muted);
+    font-size: 0.72rem;
+  }
+}
+
+.irs-header-action {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 15px;
+  color: #fff !important;
+  background: var(--irs-primary-action) !important;
+  border: 1px solid var(--irs-primary-action) !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1.2;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--irs-primary-action-hover) !important;
+    border-color: var(--irs-primary-action-hover) !important;
+  }
+
+  &:disabled {
+    color: var(--irs-text-subtle) !important;
+    background: var(--irs-field-disabled) !important;
+    border-color: var(--irs-border) !important;
+    cursor: not-allowed;
+  }
+
+  &.irs-header-action--secondary {
+    color: var(--irs-text) !important;
+    background: var(--irs-surface) !important;
+    border-color: var(--irs-border-strong) !important;
+
+    &:hover:not(:disabled) {
+      color: var(--irs-text) !important;
+      background: var(--irs-surface-hover) !important;
+      border-color: var(--irs-border-strong) !important;
+    }
+  }
+
+  &.irs-header-action--success {
+    background: var(--irs-success) !important;
+    border-color: var(--irs-success) !important;
+  }
+}
+
 .main-content {
   :where(
       app-inicio,
@@ -937,6 +1090,30 @@ input:-webkit-autofill:focus {
 }
 
 @media (max-width: 768px) {
+  .irs-page-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .irs-page-header__aside,
+  .irs-page-header__actions {
+    width: 100%;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .irs-page-header__context {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .irs-header-action {
+    flex: 1 1 150px;
+  }
+
   app-main-layout .content-wrapper :where(.modal-overlay) {
     padding: 16px !important;
   }

@@ -1,13 +1,20 @@
 <div class="auditoria-container">
-  <header class="header-section">
-    <h1 class="page-title">Bitácora de actividad</h1>
-    <div class="header-actions">
+  <header class="irs-page-header" aria-labelledby="auditoria-page-title">
+    <div class="irs-page-header__copy">
+      <p class="irs-page-header__eyebrow">Administración · auditoría</p>
+      <h1 id="auditoria-page-title">
+        <i class="fi fi-rr-time-past" aria-hidden="true"></i>
+        Bitácora de actividad
+      </h1>
+      <p>Supervisa los eventos, accesos y acciones realizadas dentro del sistema.</p>
+    </div>
+    <div class="irs-page-header__actions">
       <button
         type="button"
-        class="btn-action"
+        class="btn-action irs-header-action"
         (click)="loadEvents()"
       >
-        <i class="fi fi-rr-refresh"></i>
+        <i class="fi fi-rr-refresh" aria-hidden="true"></i>
         Actualizar
       </button>
     </div>
